@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 from app.domain.entities.user import User
 from app.domain.dtos.user import UserRegistrationDTO
 from app.infra.database.models import UserModel
-from app.infra.tasks.email_tasks import send_verification_email
+from app.infra.tasks.email_tasks import send_verification_email, send_notification_email
 from app.domain.security.auth_token import create_access_token
-
+from app.domain.security.get_hash import get_password_hash
 import bcrypt
 
 
@@ -28,7 +28,7 @@ class UserService:
         self.db.refresh(db_user)
 
         acc_token = create_access_token({"sub": db_user.email})
-        verification_link = f"http://127.0.0.1:8000/auth/verify-email?token={acc_token}"
+        verification_link = f"http://127.0.0.1:8000/api/auth/verify-email?token={acc_token}"
         send_verification_email.delay(db_user.email, verification_link)
 
         return User(
@@ -50,4 +50,22 @@ class UserService:
     def get_user_by_username(self, username: str) -> UserModel:
         """Retrieves a user by username."""
         return self.db.query(UserModel).filter(UserModel.username == username).first()
+    
+    def update_password(self, user: UserModel, new_password: str):
+        """Update user's password with hashing."""
+        user.hashed_password = get_password_hash(new_password)
+        self.db.commit()
+        self.db.refresh(user)
+        body = "Your Password is Changed!"
+        send_notification_email.delay(user.email, body)
+
+
+    def update_email(self, user: UserModel, new_email: str):
+        """Update user's email."""
+        oldemail = user.email
+        user.email = new_email
+        self.db.commit()
+        self.db.refresh(user)
+        body = "This EMAIL is changed for authentication to our Account!"
+        send_notification_email.delay(oldemail, body)
         

@@ -1,0 +1,35 @@
+<h2>Update Email</h2>
+<form id="updateEmailForm">
+    <input type="email" id="new_email" placeholder="New Email">
+    <input type="password" id="password" placeholder="Current Password">
+    <button type="submit">Update Email</button>
+</form>
+
+<script>
+    
+    async function updateEmail(event) {
+        event.preventDefault();
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            alert("You must be logged in.");
+            return;
+        }
+        token = token.split('=')[1].trim();
+    
+        let data = {
+            new_email: document.getElementById("new_email").value.trim(),
+            password: document.getElementById("password").value.trim()
+        };
+    
+        let response = await fetch("/api/auth/update-email", {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+    
+        let result = await response.json();
+        alert(result.message);
+    }
+
+    document.getElementById("updateEmailForm").addEventListener("submit", updateEmail);
+    </script>

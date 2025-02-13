@@ -1,0 +1,75 @@
+
+<h2>My Products</h2>
+<div id="productList"></div>
+
+
+<script>
+async function fetchMyProducts() {
+    let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+    if (!token) {
+        document.getElementById("productList").innerHTML = "<p>You are not logged in.</p>";
+        return;
+    }
+    token = token.split("=")[1]; // Extract token value
+
+    let response = await fetch("/api/products/mylist", {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+        document.getElementById("productList").innerHTML = "<p>Failed to load products.</p>";
+        return;
+    }
+
+    let products = await response.json();
+    displayProducts(products);
+}
+
+function displayProducts(products) {
+    let productListDiv = document.getElementById("productList");
+    productListDiv.innerHTML = ""; // Clear previous items
+
+    if (products.length === 0) {
+        productListDiv.innerHTML = "<p>No products found.</p>";
+        return;
+    }
+
+    products.forEach(product => {
+        let productDiv = document.createElement("div");
+        productDiv.classList.add("product-card");
+        productDiv.classList.add("card");
+        productDiv.classList.add("m-1");
+
+        productDiv.innerHTML = `
+            <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
+            <div class="card-body">
+            <h5 class="card-title">${product.name}</h3>
+            <p class="card-text">${product.description}</p>
+            <p class="">Price: $${product.price.toFixed(2)}</p>
+            <p>Category: ${product.category}</p>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">Delete</button>
+            </div>
+        `;
+        productListDiv.appendChild(productDiv);
+    });
+}
+
+async function deleteProduct(productId) {
+    let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+
+    let response = await fetch(`/api/products/delete/${productId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+        fetchMyProducts(); // Reload product list after deletion
+    } else {
+        alert("Failed to delete product.");
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", fetchMyProducts);
+</script>

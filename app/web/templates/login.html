@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1>Login</h1>
 <form id="loginForm">
     <label for="email">Email:</label>
@@ -10,6 +11,9 @@
     <input type="password" id="password" name="password" required>
     
     <button type="submit">Login</button>
+
+    <p>Not registered yet? <a href="{{ url_for('register_page') }}">Registration</a></p>
+
 </form>
 
 <p id="loginError" style="color: red; display: none;">Invalid credentials, try again.</p>

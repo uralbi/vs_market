@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey, \
+                        Text, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from passlib.context import CryptContext
@@ -19,6 +20,8 @@ class UserModel(Base):
     
     entity = relationship("EntityModel", back_populates="creator", uselist=False, cascade="all, delete-orphan")
     
+    products = relationship("ProductModel", back_populates="owner", cascade="all, delete-orphan")
+    
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.hashed_password)
 
@@ -31,7 +34,7 @@ class EntityModel(Base):
     __tablename__ = "entities"
     
     id = Column(Integer, primary_key=True, index=True)
-    creator_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    creator_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     entity_name = Column(String, unique=True, index=True, nullable=False)
     entity_phone = Column(String(20), unique=True, nullable=False)
     entity_address = Column(String, unique=False, nullable=True)
@@ -39,3 +42,30 @@ class EntityModel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     creator = relationship("UserModel", back_populates="entity")
+
+
+class ProductModel(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    price = Column(Float, nullable=False)
+    category = Column(String(100), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("UserModel", back_populates="products")
+
+    # One-to-Many Relationship with Images
+    images = relationship("ProductImageModel", back_populates="product", cascade="all, delete")
+
+
+class ProductImageModel(Base):
+    __tablename__ = "product_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    image_url = Column(String(500), nullable=False)
+
+    product = relationship("ProductModel", back_populates="images")

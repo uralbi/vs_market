@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Create New Product</h2>
+
+<form id="productForm" enctype="multipart/form-data">
+    <label class='form-label' for="name">Product Name:</label>
+    <input class="form-control form-controm-sm" type="text" id="name" name="name" required>
+
+    <label class='form-label' for="description">Description:</label>
+    <textarea class="form-control form-controm-sm" id="description" name="description" required></textarea>
+
+    <label class='form-label' for="price">Price:</label>
+    <input class="form-control form-controm-sm" type="number" id="price" name="price" step="0.01" required>
+
+    <label class='form-label' for="category">Category:</label>
+    <input class="form-control form-controm-sm" type="text" id="category" name="category" required>
+
+    <label class='form-label' for="images">Upload Images (Max: 10)</label>
+    <input class="form-control form-controm-sm" type="file" id="images" name="images" multiple accept="image/*">
+
+    <button class="btn btn-sm btn-outline-primary" type="submit">Create Product</button>
+</form>
+
+<p id="statusMessage"></p>
+
+<script>
+    document.getElementById("productForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+    
+        let formData = new FormData();
+        formData.append("name", document.getElementById("name").value);
+        formData.append("description", document.getElementById("description").value);
+        formData.append("price", document.getElementById("price").value);
+        formData.append("category", document.getElementById("category").value);
+    
+        let images = document.getElementById("images").files;
+
+        if (images.length > 10) {
+            alert("You can only upload up to 10 images.");
+            return;
+        }
+
+        for (let i = 0; i < images.length; i++) {
+            formData.append("images", images[i]);
+        }
+    
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            alert("You need to be logged in to create a product.");
+            return;
+        }
+        token = token.split('=')[1];
+    
+        let response = await fetch("/api/products/create", {
+            method: "POST",
+            body: formData,  // Sending form data, not JSON
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+    
+        let result = await response.json();
+        if (response.ok) {
+            document.getElementById("statusMessage").innerText = "Product Created Successfully!";
+            document.getElementById("productForm").reset();
+        } else {
+            document.getElementById("statusMessage").innerText = `Error: ${result.detail}`;
+        }
+    });
+    </script>
+    
+
+{% endblock %}

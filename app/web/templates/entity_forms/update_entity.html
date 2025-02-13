@@ -1,0 +1,67 @@
+<h2>Update Entity</h2>
+<form id="updateEntityForm">
+    <label class='form-label' for="entity_name">Entity Name:</label> 
+    <input class="form-control form-control-sm" type="text" id="entity_name" name="entity_name"> <br>
+
+    <label class='form-label' for="entity_phone">Phone:</label>
+    <input class="form-control form-control-sm" type="text" id="entity_phone" name="entity_phone"> <br>
+
+    <label class="form-label" for="entity_whatsapp">WhatsApp Number:</label>
+    <input class="form-control form-control-sm" type="text" id="entity_whatsapp" name="entity_whatsapp"><br>
+
+    <label class='form-label' for="entity_address">Address:</label>
+    <input class="form-control form-control-sm" type="text" id="entity_address" name="entity_address"><br>
+
+    <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+</form>
+
+<script>
+    document.getElementById("updateEntityForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+    
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            alert("You must be logged in to update entity details.");
+            return;
+        }
+    
+        token = token.split('=')[1].trim();
+    
+        let formData = {
+            entity_name: document.getElementById("entity_name").value.trim(),
+            entity_phone: document.getElementById("entity_phone").value.trim(),
+            entity_whatsapp: document.getElementById("entity_whatsapp").value.trim(),
+            entity_address: document.getElementById("entity_address").value.trim(),
+        };
+        
+        let filteredData = {};
+        for (let key in formData) {
+            if (formData[key]) { // Only include non-empty values
+                filteredData[key] = formData[key];
+            }
+        }
+
+        if (Object.keys(filteredData).length === 0) {   return; }
+
+        let response = await fetch("/api/ent/update", {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(filteredData)
+        });
+    
+        
+        let result = await response.json();
+
+        console.log('result:', response.ok)
+
+        if (result.ok) {
+            document.getElementById("updateEntityForm").reset();
+            }
+
+        alert(result.message)
+        await loadUserInfo();
+    });
+    </script>

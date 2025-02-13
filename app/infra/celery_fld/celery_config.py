@@ -7,6 +7,11 @@ celery_app = Celery(
     include=["app.infra.tasks.email_tasks"]
 )
 
+# celery_app.conf.task_routes = {
+#     "send_verification_email": {"queue": "email_queue"},
+#     "send_notification_email": {"queue": "email_queue"}
+# }
+
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],

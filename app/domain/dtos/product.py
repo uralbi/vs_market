@@ -1,0 +1,28 @@
+from pydantic import BaseModel, Field, HttpUrl
+from typing import List
+from datetime import datetime
+
+
+class ProductCreateDTO(BaseModel):
+    name: str = Field(..., min_length=3, max_length=255)
+    description: str = Field(None, max_length=500)
+    price: float = Field(..., gt=0)
+    category: str = Field(..., min_length=3, max_length=100)
+    image_urls: List[str] = Field(default=None, max_items=10)  # Max 10 images
+
+class ProductDTO(ProductCreateDTO):
+    id: int
+    created_at: datetime
+    owner_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class ProductImageDTO(BaseModel):
+    id: int
+    product_id: int
+    image_url: HttpUrl
+
+    class Config:
+        from_attributes = True

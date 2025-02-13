@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response
 from app.services.user_service import UserService
 from app.infra.database.db import get_db
-from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO
+from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO
 from sqlalchemy.orm import Session
 from app.domain.security.auth_token import decode_access_token, create_access_token
 from fastapi.security import OAuth2PasswordBearer
@@ -15,6 +15,62 @@ router = APIRouter(
 )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+
+@router.put("/change-password")
+def change_password(
+    password_data: ChangePasswordDTO,
+    token: str = Depends(token_scheme),
+    db: Session = Depends(get_db)
+):
+    """
+    API Endpoint: Allows authenticated users to change their password.
+    """
+    payload = decode_access_token(token)
+    email = payload.get("sub")
+
+    user_service = UserService(db)
+    user = user_service.get_user_by_email(email)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.verify_password(password_data.old_password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+
+    if user.verify_password(password_data.new_password):
+        raise HTTPException(status_code=400, detail="New password cannot be the same as the old password")
+
+    user_service.update_password(user, password_data.new_password)
+    return {"message": "Password changed successfully"}
+
+
+@router.put("/update-email")
+def update_email(
+    email_data: UpdateEmailDTO,
+    token: str = Depends(token_scheme),
+    db: Session = Depends(get_db)
+):
+    """
+    API Endpoint: Allows authenticated users to update their email.
+    """
+    payload = decode_access_token(token)
+    email = payload.get("sub")
+
+    user_service = UserService(db)
+    user = user_service.get_user_by_email(email)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.verify_password(email_data.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    if user_service.get_user_by_email(email_data.new_email):
+        raise HTTPException(status_code=400, detail="Email already in use")
+
+    user_service.update_email(user, email_data.new_email)
+    return {"message": "Email updated successfully"}
 
 
 @router.post("/logout")

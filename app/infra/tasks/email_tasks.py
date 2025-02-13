@@ -52,5 +52,47 @@ def send_verification_email(self, to_email: str, verification_link: str):
         except Exception as e:
             raise self.retry(exc=e)  # ✅ Retries on failure
     asyncio.run(send_email())
+
+
+
+@celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 5, "countdown": 60})
+def send_notification_email(self, to_email: str, body: str):
+    """Send an HTML email with a Message Body asynchronously."""
     
-    print('Verification email sent to:', to_email)
+    message = EmailMessage()
+    message["From"] = SMTP_USERNAME
+    message["To"] = to_email
+    message["Subject"] = "Account Notification"
+
+    # Plain text fallback
+    message.set_content(f"{body}")
+
+    # HTML version of the email
+    html_content = f"""
+    <html>
+        <body>
+            <h2>You got Nofification from Our Platform!</h2>
+            <p>{body}</p>
+        </body>
+    </html>
+    """
+    message.add_alternative(html_content, subtype="html")
+
+    async def send_email():
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        try:
+            await aiosmtplib.send(
+                message,
+                hostname=SMTP_SERVER,
+                port=SMTP_PORT,
+                username=SMTP_USERNAME,
+                password=SMTP_PASSWORD,
+                use_tls=True,
+                tls_context=context,
+            )
+        except Exception as e:
+            raise self.retry(exc=e)  # Retries on failure
+    asyncio.run(send_email())
+    

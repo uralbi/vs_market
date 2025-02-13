@@ -1,0 +1,34 @@
+<h2>Change Password</h2>
+<form id="changePasswordForm">
+    <input class = "" type="password" id="old_password" placeholder="Current Password">
+    <input class = "" type="password" id="new_password" placeholder="New Password">
+    <button type="submit">Change Password</button>
+</form>
+
+<script>
+    async function updatePassword(event) {
+        event.preventDefault();
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            alert("You must be logged in.");
+            return;
+        }
+        token = token.split('=')[1].trim();
+    
+        let data = {
+            old_password: document.getElementById("old_password").value.trim(),
+            new_password: document.getElementById("new_password").value.trim()
+        };
+    
+        let response = await fetch("/api/auth/change-password", {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+    
+        let result = await response.json();
+        alert(result.message);
+    }
+    
+    document.getElementById("changePasswordForm").addEventListener("submit", updatePassword);
+    </script>
