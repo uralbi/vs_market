@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<p id="authStatus">Checking authentication...</p>
+
+<h1> About Page </h1>
+
+<h2>Entity Details</h2>
+<p><strong>Entity Name:</strong> <span id="entityName">Loading...</span></p>
+<p><strong>Phone:</strong> <span id="entityPhone">Loading...</span></p>
+<p><strong>Address:</strong> <span id="entityAddress">Loading...</span></p>
+<p><strong>WhatsApp:</strong> <span id="entityWhatsApp">Loading...</span></p>
+
+<h2>Update Entity</h2>
+<form id="updateEntityForm">
+    <label for="entity_name">Entity Name:</label>
+    <input type="text" id="entity_name" name="entity_name"><br>
+
+    <label for="entity_phone">Phone:</label>
+    <input type="text" id="entity_phone" name="entity_phone"><br>
+
+    <label for="entity_whatsapp">WhatsApp Number:</label>
+    <input type="text" id="entity_whatsapp" name="entity_whatsapp"><br>
+
+    <label for="entity_address">Address:</label>
+    <input type="text" id="entity_address" name="entity_address"><br>
+
+    <button type="submit">Update</button>
+</form>
+
+<script>
+    document.getElementById("updateEntityForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+    
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            alert("You must be logged in to update entity details.");
+            return;
+        }
+    
+        token = token.split('=')[1].trim();
+    
+        let formData = {
+            entity_name: document.getElementById("entity_name").value.trim(),
+            entity_phone: document.getElementById("entity_phone").value.trim(),
+            entity_whatsapp: document.getElementById("entity_whatsapp").value.trim(),
+            entity_address: document.getElementById("entity_address").value.trim(),
+        };
+        
+        let filteredData = {};
+        for (let key in formData) {
+            if (formData[key]) { // Only include non-empty values
+                filteredData[key] = formData[key];
+            }
+        }
+
+        if (Object.keys(filteredData).length === 0) {   return; }
+
+        let response = await fetch("/api/ent/update", {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(filteredData)
+        });
+    
+        let result = await response.json();
+        await loadUserInfo();
+    });
+    </script>
+
+<script>
+    async function checkAuthStatus() {
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            document.getElementById("authStatus").innerText = "You are not logged in.";
+            return;
+        }
+        token = token.split('=')[1];
+        let response = await fetch("/api/auth/me", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            let user = await response.json();
+            document.getElementById("authStatus").innerText = `You are logged in as ${user.email}`;
+        } else {
+            document.getElementById("authStatus").innerText = "You are not logged in.";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", checkAuthStatus);
+</script>
+
+<script>
+    async function loadUserInfo() {
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+    
+        if (!token) {
+            document.getElementById("userInfo").innerText = "You are not logged in.";
+            return;
+        }
+    
+        token = token.split('=')[1].trim(); 
+    
+        let response = await fetch("/api/ent/me", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+    
+        if (response.ok) {
+            let entity = await response.json();
+
+            document.getElementById("entityName").innerText = entity.entity_name;
+            document.getElementById("entityPhone").innerText = entity.entity_phone;
+            document.getElementById("entityAddress").innerText = entity.entity_address;
+            document.getElementById("entityWhatsApp").innerText = entity.entity_whatsapp;
+        } else {
+            let errorData = await response.json();
+            console.log("Error Response:", errorData);
+            document.getElementById("userInfo").innerText = "Error loading user data.";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadUserInfo);
+
+</script>
+
+{% endblock %}

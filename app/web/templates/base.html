@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a> | 
+        <a href="/about">About</a> | 
+        <a href="/contact">Contact</a> | 
+        <a href="/login">Login</a> | 
+        <a role=button id="logoutBtn">Logout</a>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        document.getElementById("logoutBtn").addEventListener("click", async function() {
+            let response = await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include"  // ✅ Ensures cookies are sent
+            });
+        
+            let result = await response.json();
+            console.log(result.message);
+        
+            if (response.ok) {
+                document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/login";  // Redirect to login page after logout
+            }
+        });
+        </script>
+
+</body>
+</html>

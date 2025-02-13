@@ -1,0 +1,15 @@
+venv
+.DS_Store
+.env
+.vscode
+logs
+__pycache__/
+*.py[cod]
+info.txt
+check.py
+celerybeat-schedule
+celerybeat-schedule.db
+cookies.txt
+reqs.txt
+reqs2.txt
+tests/
