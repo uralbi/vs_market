@@ -29,3 +29,44 @@
 .card-img-top {
     max-height: 120px;
 }
+
+#favorite-products {
+    height: 120px;
+    overflow-y: scroll;
+}
+
+.fav_card {
+    width: 230px;
+    height: 100px;
+    overflow: hidden;
+    float: left;
+    border: solid 1px rgb(182, 182, 182);
+    border-radius: 6px;
+    padding: 4px;
+    margin: 2px;
+}
+
+.fav_card p {
+    margin: 0;
+    font-size: 12px;
+}
+.fav_card img {
+    width: 100px;
+    float: right;
+    border-radius: 4px;
+}
+
+.fav_card .btn-sm {
+    padding: 0 12px;
+    font-size: 10px;
+}
+
+.card-body .pin_btn {
+    position: absolute;
+    border: solid 1px rgb(193, 193, 193);
+    border-bottom-right-radius: 6px;
+    bottom: -1px;
+    right: -1px;
+    padding: 2px 6px;
+    font-size: 1.2em;    
+}

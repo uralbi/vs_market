@@ -1,0 +1,64 @@
+<h2>My Favorite Products</h2>
+<ul id="favorite-products"></ul>
+
+<script>
+    async function fetchFavoriteProducts() {
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            document.getElementById("favorite-products").innerHTML = "<li>You are not logged in.</li>";
+            return;
+        }
+
+        token = token.split("=")[1];
+
+        let response = await fetch("/favs", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            let products = await response.json();
+            let productList = document.getElementById("favorite-products");
+            productList.innerHTML = ""; // Clear previous list
+
+            console.log("products:", products)
+            if (products.length === 0) {
+                productList.innerHTML = "<li>No favorite products yet.</li>";
+                return;
+            }
+
+            products.forEach(product => {
+                let productItem = document.createElement("div");
+                productItem.classList.add("fav_card");
+                productItem.innerHTML = `
+
+                    <p> <strong>${product.name}</strong> - ${product.price} USD <\p>
+                    <img class="m-1" src="${product.image_urls[0] || 'static/default.jpg'}"><br>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeFromFavorites(${product.id})">Unpin</button>
+                `;
+                productList.appendChild(productItem);
+            });
+        } else {
+            document.getElementById("favorite-products").innerHTML = "<li>Failed to load favorites.</li>";
+        }
+    }
+
+    async function removeFromFavorites(productId) {
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+
+        let response = await fetch(`/favs/${productId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            fetchFavoriteProducts(); // Refresh the list
+        } else {
+            let error = await response.json();
+            alert(error.detail);
+        }
+    }
+
+    // Fetch favorites when the page loads
+    fetchFavoriteProducts();
+</script>

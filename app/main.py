@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 
 
 from app.core.config import settings
-from app.api.routes import users, entiities, products
+from app.api.routes import users, entiities, products, favorites
 from app.web.routes import web_routes, web_product_routes
 import logging
 import logging.config
@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 
+app.include_router(favorites.router)
 app.include_router(web_product_routes.router)
 app.include_router(web_routes.router)
 app.include_router(products.router)

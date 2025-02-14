@@ -39,11 +39,11 @@ class ProductService:
         
         self.db.commit()
         
-    def get_all_products(self, limit: int = 10, offset: int = 0) -> List[ProductModel]:
+    def get_all_products(self, limit: int = 100, offset: int = 0) -> List[ProductModel]:
         """
         Fetch all products from the database, ordered by latest first.
         """
-        return self.product_repo.get_all_products(100, 0)
+        return self.product_repo.get_all_products(limit, offset)
 
     def get_user_products(self, owner_id, limit: int = 10, offset: int = 0) -> List[ProductModel]:
         """

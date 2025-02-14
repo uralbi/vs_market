@@ -35,14 +35,18 @@ async function fetchProducts() {
             }
             
             productCard.innerHTML = `
-            <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
-            <div class="card-body">
-            <h5 class="card-title">${product.name}</h3>
-            <p class="card-text">${product.description}</p>
-            <p class="">Price: $${product.price.toFixed(2)}</p>
-            <p>Category: ${product.category}</p>
-            </div>
-            `;
+                <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">${product.name}</h5>
+                    <p class="card-text">${product.description}</p>
+                    <p class="">Price: $${product.price.toFixed(2)}</p>
+                    <p>Category: ${product.category}</p>
+                    <button class="btn btn-sm btn-outline-success pin_btn" id="pin_${product.id}" 
+                        onclick="addToFavorites(${product.id})">
+                        &#128206;
+                    </button>
+                </div>
+                `;
 
             productContainer.appendChild(productCard);
         });
@@ -55,6 +59,42 @@ async function fetchProducts() {
 
 // Load products when the page loads
 fetchProducts();
+
+async function addToFavorites(productId) {
+    let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+
+    let response = await fetch(`/favs/${productId}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+
+        let button = document.getElementById(`pin_${productId}`)
+        button.classList.remove("btn-outline-success");
+        button.classList.add("btn-primary");
+    } else {
+        let error = await response.json();
+        alert(error.detail);
+    }
+}
+
+async function removeFromFavorites(productId) {
+    let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+
+    let response = await fetch(`/favs/${productId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+        console.log('Unpinned')
+    } else {
+        let error = await response.json();
+        alert(error.detail);
+    }
+}
+
 </script>
 
 <script>
@@ -64,7 +104,6 @@ const eventSource = new EventSource("/api/products/sse_products");
 
 eventSource.onmessage = function(event) {
     let product = JSON.parse(event.data);
-    console.log("New Product:", product);
 
     // ✅ Add new product to the list dynamically
     let productList = document.getElementById("productContainer");

@@ -5,12 +5,16 @@ from app.infra.database.models import UserModel
 from app.infra.tasks.email_tasks import send_verification_email, send_notification_email
 from app.domain.security.auth_token import create_access_token
 from app.domain.security.get_hash import get_password_hash
+from app.infra.repositories.user_repository import UserRepository
+from app.domain.dtos.product import ProductDTO
 from fastapi import HTTPException
+from typing import List
 
 
 class UserService:
     def __init__(self, db: Session):
         self.db = db
+        self.repo = UserRepository(db)
 
     def register_user(self, user_data: UserRegistrationDTO) -> User:
         """Registers a new user."""
@@ -84,3 +88,8 @@ class UserService:
         
         message_body = f"Your account ({email}) deactivate, and will be deleted in 30 days."
         send_notification_email.delay(email, message_body)
+    
+    def get_favorites(self, user_id: int) -> List[ProductDTO]:
+        """Get a user's favorite products with images."""
+        return self.repo.get_favorite_products(user_id)
+    

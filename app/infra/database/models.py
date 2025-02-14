@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey, \
-                        Text, Float
+                        Text, Float, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from passlib.context import CryptContext
@@ -7,6 +7,13 @@ from passlib.context import CryptContext
 Base = declarative_base()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Association Table: Many-to-Many between Users & Products
+favorites_table = Table(
+    "favorites",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column("product_id", Integer, ForeignKey("products.id", ondelete="CASCADE"), primary_key=True),
+)
 
 class UserModel(Base):
     __tablename__ = "users"
@@ -21,6 +28,8 @@ class UserModel(Base):
     entity = relationship("EntityModel", back_populates="creator", uselist=False, cascade="all, delete-orphan")
     
     products = relationship("ProductModel", back_populates="owner", cascade="all, delete-orphan")
+    
+    favorite_products = relationship("ProductModel", secondary=favorites_table, back_populates="favorited_by")
     
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.hashed_password)
@@ -59,6 +68,8 @@ class ProductModel(Base):
 
     # One-to-Many Relationship with Images
     images = relationship("ProductImageModel", back_populates="product", cascade="all, delete")
+
+    favorited_by = relationship("UserModel", secondary=favorites_table, back_populates="favorite_products")
 
 
 class ProductImageModel(Base):
