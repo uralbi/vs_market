@@ -5,7 +5,7 @@ from app.infra.database.models import UserModel
 from app.infra.tasks.email_tasks import send_verification_email, send_notification_email
 from app.domain.security.auth_token import create_access_token
 from app.domain.security.get_hash import get_password_hash
-import bcrypt
+from fastapi import HTTPException
 
 
 class UserService:
@@ -14,7 +14,12 @@ class UserService:
 
     def register_user(self, user_data: UserRegistrationDTO) -> User:
         """Registers a new user."""
-        hashed_password = bcrypt.hashpw(user_data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        
+        existing_user = self.db.query(UserModel).filter(UserModel.email == user_data.email).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        hashed_password = get_password_hash(user_data.password)
 
         db_user = UserModel(
             username=user_data.username,
@@ -27,9 +32,7 @@ class UserService:
         self.db.commit()
         self.db.refresh(db_user)
 
-        acc_token = create_access_token({"sub": db_user.email})
-        verification_link = f"http://127.0.0.1:8000/api/auth/verify-email?token={acc_token}"
-        send_verification_email.delay(db_user.email, verification_link)
+        self.send_activation_email(db_user.email)
 
         return User(
             id=db_user.id,
@@ -59,13 +62,25 @@ class UserService:
         body = "Your Password is Changed!"
         send_notification_email.delay(user.email, body)
 
-
     def update_email(self, user: UserModel, new_email: str):
         """Update user's email."""
         oldemail = user.email
         user.email = new_email
         self.db.commit()
         self.db.refresh(user)
-        body = "This EMAIL is changed for authentication to our Account!"
-        send_notification_email.delay(oldemail, body)
+        message_body = "This EMAIL is changed for authentication to our Account!"
+        send_notification_email.delay(oldemail, message_body)
+
+    def send_activation_email(self, email: str):
+        acc_token = create_access_token({"sub": email})
+        verification_link = f"http://127.0.0.1:8000/api/auth/verify-email?token={acc_token}"
+        send_verification_email.delay(email, verification_link)
+    
+    def deactivate_user(self, email:str):
+        user = self.get_user_by_email(email)
+        user.is_active = False
+        self.db.commit()
+        self.db.refresh(user)
         
+        message_body = f"Your account ({email}) deactivate, and will be deleted in 30 days."
+        send_notification_email.delay(email, message_body)

@@ -16,7 +16,7 @@
 
 </form>
 
-<p id="loginError" style="color: red; display: none;">Invalid credentials, try again.</p>
+<p id="loginError"></p>
 
 <script>
     document.getElementById("loginForm").addEventListener("submit", async function(event) {
@@ -35,13 +35,13 @@
                 "password": password
             })
         });
-    
+        
+        let data = await response.json();
         if (response.ok) {
-            let data = await response.json();
             document.cookie = `access_token=${data.access_token}; path=/`; // Store token
             window.location.href = "/about"; // Redirect on success
         } else {
-            document.getElementById("loginError").style.display = "block";
+            document.getElementById("loginError").innerText = data.detail;
         }
     });
     </script>

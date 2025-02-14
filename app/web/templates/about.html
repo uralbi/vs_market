@@ -8,6 +8,39 @@
 <p id="authStatus">Checking authentication...</p>
 
 <h1> About Page </h1>
+
+<button class="btn btn-sm btn-outline-danger" id="deactivateButton">Deactivate Account</button>
+
+<script>
+    document.getElementById("deactivateButton").addEventListener("click", async function() {
+        if (!confirm("Are you sure you want to deactivate your account? This action is irreversible.")) {
+            return;
+        }
+
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+        if (!token) {
+            alert("You are not logged in!");
+            return;
+        }
+        token = token.split("=")[1];
+
+        let response = await fetch("/api/auth/deactivate", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            alert("Your account has been deactivated and will be deleted in 30 days.");
+            document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "/login"; // Redirect to login or homepage
+        } else {
+            let error = await response.json();
+            alert("Error: " + error.detail);
+        }
+    });
+</script>
+
+
 <hr>
 <h2>Entity Details</h2>
 <p><strong>Entity Name:</strong> <span id="entityName">Loading...</span></p>

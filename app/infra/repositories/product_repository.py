@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.infra.database.models import ProductModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
 from typing import List
@@ -24,56 +24,64 @@ class ProductRepository:
         
         return new_product
 
-    
     def get_all_products(self, limit: int, offset: int) -> List[ProductDTO]:
         """Retrieve all products with associated images."""
-        products = self.db.query(ProductModel).order_by(ProductModel.created_at.desc()).offset(offset).limit(limit).all()
+        products = (
+                self.db.query(ProductModel)
+                .options(joinedload(ProductModel.images))  # Load images in a single query
+                .order_by(ProductModel.created_at.desc())
+                .offset(offset)
+                .limit(limit)
+                .all()
+            )
             
-        result = []
-        for product in products:
-            # ✅ Fetch images for each product
-            image_urls = [img.image_url for img in product.images]
-            
-            result.append(ProductDTO(
-                id=product.id,
-                name=product.name,
-                description=product.description,
-                price=product.price,
-                category=product.category,
-                created_at=str(product.created_at),
-                owner_id=product.owner_id,
-                image_urls=image_urls  # Include image URLs in response
-            ))
-        return result
+        return [
+                    ProductDTO(
+                        id=product.id,
+                        name=product.name,
+                        description=product.description,
+                        price=product.price,
+                        category=product.category,
+                        created_at=str(product.created_at),
+                        owner_id=product.owner_id,
+                        image_urls=[img.image_url for img in product.images]  # ✅ Images loaded in one query
+                    )
+                    for product in products
+                ]
     
     def get_user_products(self, owner_id:int, limit: int, offset: int) -> List[ProductDTO]:
         """Retrieve all products with associated images."""
-        products = self.db.query(ProductModel).filter(ProductModel.owner_id == owner_id).order_by(ProductModel.created_at.desc()).offset(offset).limit(limit).all()
-            
-        result = []
-        for product in products:
-            # ✅ Fetch images for each product
-            image_urls = [img.image_url for img in product.images]
-            
-            result.append(ProductDTO(
-                id=product.id,
-                name=product.name,
-                description=product.description,
-                price=product.price,
-                category=product.category,
-                created_at=str(product.created_at),
-                owner_id=product.owner_id,
-                image_urls=image_urls
-            ))
-        return result
     
+        products = (
+                self.db.query(ProductModel)
+                .filter(ProductModel.owner_id == owner_id)
+                .options(joinedload(ProductModel.images))  # Load images in a single query
+                .order_by(ProductModel.created_at.desc())
+                .offset(offset)
+                .limit(limit)
+                .all()
+            )
+        
+        return [
+                    ProductDTO(
+                        id=product.id,
+                        name=product.name,
+                        description=product.description,
+                        price=product.price,
+                        category=product.category,
+                        created_at=str(product.created_at),
+                        owner_id=product.owner_id,
+                        image_urls=[img.image_url for img in product.images]  # ✅ Images loaded in one query
+                    )
+                    for product in products
+                ]
     
     def get_product_by_id(self, product_id: int) -> ProductModel:
         """Fetch a product by id."""
         
         return (
                 self.db.query(ProductModel)
-                .options(joinedload(ProductModel.images))  # ✅ Eagerly loads related images
+                .options(joinedload(ProductModel.images))  #  Eagerly loads related images
                 .filter(ProductModel.id == product_id)
                 .first()
             )
@@ -97,3 +105,7 @@ class ProductRepository:
                 os.remove(full_path)  # Delete file from disk
                 
         return True
+
+    def get_latest_product(self):
+        return self.db.query(ProductModel).options(joinedload(ProductModel.images)) \
+                .order_by(ProductModel.created_at.desc()).first()

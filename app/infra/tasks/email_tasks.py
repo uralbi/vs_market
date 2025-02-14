@@ -33,6 +33,7 @@ def send_verification_email(self, to_email: str, verification_link: str):
         </body>
     </html>
     """
+    
     message.add_alternative(html_content, subtype="html")
 
     async def send_email():

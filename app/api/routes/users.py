@@ -16,6 +16,16 @@ router = APIRouter(
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
+@router.post("/deactivate")
+def deactivate(token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Logs out the user by clearing the authentication token from cookies.
+    """
+    payload = decode_access_token(token)
+    email = payload.get("sub")
+    user_service = UserService(db)
+    user_service.deactivate_user(email)
+    return {"message": "Your account is deactivated, and will be deleted in 30 days!."}
 
 @router.put("/change-password")
 def change_password(
@@ -97,9 +107,11 @@ async def read_current_user(token: str = Security(token_scheme), db: Session = D
 async def login(user: UserLoginDTO, db: Session = Depends(get_db)):
     user_service = UserService(db)
     stored_user = user_service.get_user_by_email(user.email) # returns User / User.verify_password()
+    print('stored user', stored_user.email, stored_user.is_active)
     if not stored_user or not stored_user.verify_password(user.password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     if not stored_user.is_active:
+        user_service.send_activation_email(stored_user.email)
         raise HTTPException(status_code=400, detail="Account not activated. Please verify your email.")
     
     access_token = create_access_token({"sub": stored_user.email})

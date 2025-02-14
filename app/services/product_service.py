@@ -62,3 +62,6 @@ class ProductService:
 
         # Delete product and related images from DB
         self.product_repo.delete_product(product.id)
+        
+    def get_latest_product(self):
+        return self.product_repo.get_latest_product()

@@ -1,13 +1,16 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form
+from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Generator
 from app.infra.database.db import get_db
 from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
 from app.services.image_service import ImageService
 from app.services.user_service import UserService
 from app.domain.security.auth_token import decode_access_token
+import asyncio, json, time
+
 
 router = APIRouter(
     prefix='/api/products',
@@ -15,6 +18,27 @@ router = APIRouter(
 )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+@router.get("/sse_products")
+def product_stream(db: Session = Depends(get_db)):
+    """SSE endpoint to send new product updates in real-time"""
+
+    async def event_generator():
+        last_product_id = None
+        product_service = ProductService(db)
+
+        while True:
+            latest_product = product_service.get_latest_product()
+            if latest_product and latest_product.id != last_product_id:
+                last_product_id = latest_product.id
+                product_data = ProductDTO.model_validate(latest_product).model_dump()
+                product_data["created_at"] = product_data["created_at"].isoformat()
+                product_data["image_urls"] = [img.image_url for img in latest_product.images]
+                yield f"data: {json.dumps(product_data)}\n\n"
+
+            await asyncio.sleep(5)  # ✅ Synchronous sleep (fixes coroutine error)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @router.delete("/delete/{product_id}")
 async def delete_product(
@@ -86,7 +110,7 @@ async def create_product(
     img_service = ImageService()
     image_urls = [await img_service.process_and_store_image(image) for image in images] # Process and store images
     product_service.add_images_to_product(new_product.id, image_urls) # Associate images with product
-
+        
     return new_product
 
 
