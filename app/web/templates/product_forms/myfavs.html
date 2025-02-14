@@ -21,7 +21,6 @@
             let productList = document.getElementById("favorite-products");
             productList.innerHTML = ""; // Clear previous list
 
-            console.log("products:", products)
             if (products.length === 0) {
                 productList.innerHTML = "<li>No favorite products yet.</li>";
                 return;

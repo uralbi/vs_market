@@ -137,3 +137,75 @@ def get_products_list(db: Session = Depends(get_db), limit: int = 100, offset: i
     """
     product_service = ProductService(db)
     return product_service.get_all_products(limit, offset)
+
+
+@router.put("/update/{product_id}", response_model=ProductDTO)
+async def update_product(
+        product_id: int,
+        name: str = Form(None),
+        description: str = Form(None),
+        price: float = Form(None),
+        category: str = Form(None),
+        images: List[UploadFile] = File(None),  # Optional images
+        token: str = Depends(token_scheme),
+        db: Session = Depends(get_db)
+    ):
+    """
+    Update an existing product. Only the product owner can update it.
+    """
+    try:
+        payload = decode_access_token(token)
+        email = payload.get("sub")
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    product_service = ProductService(db)
+    user_service = UserService(db)
+    
+    # Verify user exists
+    user = user_service.get_user_by_email(email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Fetch existing product
+    product = product_service.get_product_by_id(product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Ensure the user owns the product
+    if product.owner_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this product")
+
+    # Update only provided fields
+    updated_data = {
+        "name": name or product.name,
+        "description": description or product.description,
+        "price": price if price is not None else product.price,
+        "category": category or product.category,
+    }
+
+    # Update images (if new ones are uploaded)
+    if images:
+        image_service = ImageService()
+        image_urls = [await image_service.process_and_store_image(image) for image in images]
+        product_service.update_product_images(product_id, image_urls)
+
+    # Update product in DB
+    updated_product = product_service.update_product(product_id, updated_data)
+
+    return updated_product
+
+
+@router.get("/{product_id}", response_model=ProductDTO)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    """Fetch product details by ID."""
+    product_service = ProductService(db)
+    product = product_service.get_product_by_id(product_id)
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    product_dto = ProductDTO.model_validate(product)
+    product_dto.image_urls = [img.image_url for img in product.images]
+    
+    return product_dto

@@ -1,0 +1,104 @@
+<form id="updateProductForm">
+    <input type="hidden" id="product_id" value="">
+
+    <label class="form-label">Name:</label>
+    <input class="form-control" type="text" id="update_name" placeholder="Product Name">
+
+    <label class="form-label">Description:</label>
+    <textarea class="form-control" id="update_description" placeholder="Description"></textarea>
+
+    <label class="form-label">Price:</label>
+    <input class="form-control" type="number" id="update_price" step="0.01">
+
+    <label class="form-label">Category:</label>
+    <input class="form-control" type="text" id="update_category">
+
+    <label class="form-label">Current Images:</label>
+    <div class="form-control" id="curr_images">
+    </div>
+
+    <label class="form-label">Upload Images (Optional):</label>
+    <input class="form-control" type="file" id="update_images" multiple>
+
+    <button class="mt-2 btn btn-sm btn-outline-success" type="submit">Update Product</button>
+
+</form>
+
+<script>    
+
+    async function loadProduct(productId) {
+        let response = await fetch(`/api/products/${productId}`);
+        if (!response.ok) {
+            alert("Failed to load product");
+            return;
+        }
+    
+        let product = await response.json();
+    
+        // ✅ Populate form fields
+        document.getElementById("product_id").value = productId;
+        document.getElementById("update_name").value = product.name;
+        document.getElementById("update_description").value = product.description;
+        document.getElementById("update_price").value = product.price;
+        document.getElementById("update_category").value = product.category;
+    
+        // ✅ Populate existing images
+        let imageContainer = document.getElementById("curr_images");
+        imageContainer.innerHTML = "";
+        product.image_urls.forEach((imageUrl) => {
+            let img = document.createElement("img");
+            img.src = `/${imageUrl}`;
+            img.width = 100;
+            imageContainer.appendChild(img);
+        });
+    }
+
+    loadProduct({{product_id}})
+
+
+    document.getElementById("updateProductForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+    
+        let productId = document.getElementById("product_id").value;
+        let formData = new FormData();
+    
+        let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+        
+        if (!token) {
+                alert('Not Authorized')
+                return
+            }
+
+        // Append only fields that have values
+        let name = document.getElementById("update_name").value.trim();
+        let description = document.getElementById("update_description").value.trim();
+        let price = document.getElementById("update_price").value.trim();
+        let category = document.getElementById("update_category").value.trim();
+        let images = document.getElementById("update_images").files;
+    
+        if (name) formData.append("name", name);
+        if (description) formData.append("description", description);
+        if (price) formData.append("price", price);
+        if (category) formData.append("category", category);
+    
+        // Add selected images
+        for (let img of images) {
+            formData.append("images", img);
+        }
+        console.log('thrpoduct id is:', productId)
+
+        let response = await fetch(`/api/products/update/${productId}`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
+        });
+    
+        if (response.ok) {
+            window.location.href = "/about";
+        } else {
+            let error = await response.json();
+            alert(error.detail);
+        }
+    });
+    
+</script>

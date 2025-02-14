@@ -49,6 +49,7 @@ function displayProducts(products) {
             <p class="">Price: $${product.price.toFixed(2)}</p>
             <p>Category: ${product.category}</p>
             <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">Delete</button>
+            <a class="btn btn-sm btn-outline-success" href="/update-product/${product.id}" >update</a>
             </div>
         `;
         productListDiv.appendChild(productDiv);

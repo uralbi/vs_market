@@ -26,6 +26,12 @@
     width: 200px;
 }
 
+.product-card .card-title {
+    height: 40px;
+    overflow: hidden;
+    font-size: 0.9em;
+    margin: 0;
+}
 .card-img-top {
     max-height: 120px;
 }

@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session, joinedload
 from app.infra.database.models import ProductModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import joinedload
 import os
+from app.utils.img_delete import delete_images_from_disk
 
 class ProductRepository:
     def __init__(self, db: Session):
@@ -81,7 +82,7 @@ class ProductRepository:
         
         return (
                 self.db.query(ProductModel)
-                .options(joinedload(ProductModel.images))  #  Eagerly loads related images
+                .options(joinedload(ProductModel.images))
                 .filter(ProductModel.id == product_id)
                 .first()
             )
@@ -98,14 +99,36 @@ class ProductRepository:
             
         # Delete images from disk before deleting from DB
         image_paths = [image.image_url for image in product.images]  # Get all image file paths
-
-        for image_path in image_paths:
-            full_path = os.path.join("app/web", image_path)  # Convert DB path to real path
-            if os.path.exists(full_path):
-                os.remove(full_path)  # Delete file from disk
-                
+        delete_images_from_disk(image_paths)                
         return True
 
     def get_latest_product(self):
         return self.db.query(ProductModel).options(joinedload(ProductModel.images)) \
                 .order_by(ProductModel.created_at.desc()).first()
+    
+    def update_product(self, product_id: int, updated_data: dict) -> Optional[ProductModel]:
+        """Update product details."""
+        product = self.get_product_by_id(product_id)
+        if not product:
+            return None
+
+        for key, value in updated_data.items():
+            setattr(product, key, value)  # Dynamically update fields
+
+        self.db.commit()
+        self.db.refresh(product)
+        return product
+
+    def update_product_images(self, product_id: int, image_urls: List[str]):
+        """Replace images for a product."""
+        
+        old_images = self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).all()
+        delete_images_from_disk(old_images)
+        
+        self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).delete()
+
+        for image_url in image_urls:
+            image = ProductImageModel(product_id=product_id, image_url=image_url)
+            self.db.add(image)
+
+        self.db.commit()

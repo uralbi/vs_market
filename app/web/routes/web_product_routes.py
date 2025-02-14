@@ -16,7 +16,12 @@ def product_list_page(request: Request, context: dict = Depends(global_context))
     """ Serve the product listing page """
     return templates.TemplateResponse("index.html", {**context, "title": "iMarket"})
 
+@router.get("/update-product/{product_id}")
+def update_product_page(request: Request, product_id: int):
+    """ Update product page """
+    return templates.TemplateResponse("update_product.html", {"request": request, "product_id": product_id})
+
 @router.get("/create-product")
 def create_product_page(request: Request):
-    """ Serve the product creation page """
+    """ Create product page """
     return templates.TemplateResponse("create_product.html", {"request": request, "title": "Create Product"})

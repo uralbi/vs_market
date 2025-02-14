@@ -62,7 +62,7 @@ class ProductModel(Base):
     price = Column(Float, nullable=False)
     category = Column(String(100), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
+    
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("UserModel", back_populates="products")
 

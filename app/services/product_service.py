@@ -65,3 +65,9 @@ class ProductService:
         
     def get_latest_product(self):
         return self.product_repo.get_latest_product()
+
+    def update_product(self, product_id: int, updated_data: dict) -> ProductModel:
+        return self.product_repo.update_product(product_id, updated_data)
+
+    def update_product_images(self, product_id: int, image_urls: List[str]):
+        return self.product_repo.update_product_images(product_id, image_urls)
