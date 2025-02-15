@@ -1,0 +1,66 @@
+<div class="container mt-3">
+    <div class="input-group mb-3">
+        <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." aria-label="Search products">
+        <button class="btn btn-primary" type="button" onclick="searchProducts()">Search</button>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Add keypress event listener to the search input field
+        document.getElementById("searchQuery").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                searchProducts();
+            }
+        });
+    });
+
+    async function searchProducts() {
+        let query = document.getElementById("searchQuery").value.trim();
+        if (!query) {
+            return;  // Prevent empty search
+        }
+    
+        let response = await fetch(`/api/products/search?query=${encodeURIComponent(query)}`);
+        
+        if (!response.ok) {
+            console.error("Search failed");
+            return;
+        }
+    
+        let products = await response.json();
+        updateProductList(products);
+    }
+    
+    function updateProductList(products) {
+        let productContainer = document.getElementById("productContainer");
+        productContainer.innerHTML = "";  // Clear previous results
+    
+        if (products.length === 0) {
+            productContainer.innerHTML = `<p class="text-muted">No products found.</p>`;
+            return;
+        }
+    
+        products.forEach(product => {
+            let productCard = document.createElement("div");
+            productCard.classList.add("product-card");
+            productCard.classList.add("card");   
+            productCard.innerHTML = `
+                <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">${product.name}</h5>
+                    <p class="card-text">${product.description}</p>
+                    <p class="">Price: $${product.price.toFixed(2)}</p>
+                    <p>Category: ${product.category}</p>
+                    <button class="btn btn-sm btn-outline-success pin_btn" id="pin_${product.id}" 
+                        onclick="addToFavorites(${product.id})">
+                        &#128206;
+                    </button>
+                </div>
+            `;
+            productContainer.appendChild(productCard);
+        });
+    }
+
+</script>
