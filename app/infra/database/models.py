@@ -1,8 +1,10 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey, \
-                        Text, Float, Table
+                        Text, Float, Table, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from passlib.context import CryptContext
+from sqlalchemy.dialects.postgresql import TSVECTOR
+
 
 Base = declarative_base()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -71,7 +73,13 @@ class ProductModel(Base):
 
     favorited_by = relationship("UserModel", secondary=favorites_table, back_populates="favorite_products")
 
+    search_vector = Column(TSVECTOR)
 
+    __table_args__ = (
+        Index("idx_products_search", search_vector, postgresql_using="gin"),
+        UniqueConstraint('name', 'owner_id', name='uix_owner_product_name'),
+    )
+    
 class ProductImageModel(Base):
     __tablename__ = "product_images"
 
