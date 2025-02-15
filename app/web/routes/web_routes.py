@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
-from fastapi.security import OAuth2PasswordBearer
+from app.utils.context import global_context
 import os
 
 router = APIRouter(    
@@ -13,16 +13,16 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "../templates"))
 
 
 @router.get("/login", name="login_page")
-def about_page(request: Request):
+def about_page(request: Request, context: dict = Depends(global_context)):
     """Serve the Login page"""
-    return templates.TemplateResponse("login.html", {"request": request, "title": "Login"})
+    return templates.TemplateResponse("login.html", {**context, "title": "iMarket"})
 
 @router.get("/about")
-def contact_page(request: Request):
+def contact_page(request: Request, context: dict = Depends(global_context)):
     """Serve the About page"""
-    return templates.TemplateResponse("about.html", {"request": request, "title": "About"})
+    return templates.TemplateResponse("about.html", {**context, "title": "iMarket"})
 
 @router.get("/register", name="register_page")
-def register_page(request: Request):
+def register_page(request: Request, context: dict = Depends(global_context)):
     """Serves the registration page."""
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse("register.html", {**context, "title": "iMarket"})

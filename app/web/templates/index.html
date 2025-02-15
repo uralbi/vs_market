@@ -5,7 +5,6 @@
 {% include "product_forms/search_form.html" %}
 
 
-
 <div id="SearchContainer" class="clearfix"></div>
 
 <h4> Новые объявления </h4>
@@ -66,7 +65,15 @@ async function fetchProducts() {
 fetchProducts();
 
 async function addToFavorites(productId) {
-    let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+    
+    let tokenRow = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+
+    if (!tokenRow) {
+        console.warn("User is not authenticated.");
+        return;  // Stop execution if no token is found
+    }
+
+    let token = tokenRow.split("=")[1]
 
     let response = await fetch(`/favs/${productId}`, {
         method: "POST",
@@ -85,7 +92,16 @@ async function addToFavorites(productId) {
 }
 
 async function removeFromFavorites(productId) {
-    let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
+
+
+    let tokenRow = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+
+    if (!tokenRow) {
+        console.warn("User is not authenticated.");
+        return;  // Stop execution if no token is found
+    }
+
+    let token = tokenRow.split("=")[1];  // Extract token value
 
     let response = await fetch(`/favs/${productId}`, {
         method: "DELETE",
@@ -104,34 +120,33 @@ async function removeFromFavorites(productId) {
 
 <script>
 
-    // ✅ Connect to the SSE endpoint
-const eventSource = new EventSource("/api/products/sse_products");
+        // ✅ Connect to the SSE endpoint
+    const eventSource = new EventSource("/api/products/sse_products");
 
-eventSource.onmessage = function(event) {
-    let product = JSON.parse(event.data);
+    eventSource.onmessage = function(event) {
+        let product = JSON.parse(event.data);
 
-    // ✅ Add new product to the list dynamically
-    let productList = document.getElementById("productContainer");
-    let productCard = document.createElement("div");
-    productCard.classList.add("product-card");
-    productCard.classList.add("card");
-    productCard.innerHTML = `
-        <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
-        <div class="card-body">
-            <h5 class="card-title">${product.name}</h3>
-            <p class="card-text">${product.description}</p>
-            <p class="">Price: $${product.price.toFixed(2)}</p>
-            <p>Category: ${product.category}</p>
-        </div>
-    `;
-    
-    productList.prepend(productCard);  // Insert new product at the top
-};
+        // ✅ Add new product to the list dynamically
+        let productList = document.getElementById("productContainer");
+        let productCard = document.createElement("div");
+        productCard.classList.add("product-card");
+        productCard.classList.add("card");
+        productCard.innerHTML = `
+            <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">${product.name}</h3>
+                <p class="card-text">${product.description}</p>
+                <p class="">Price: $${product.price.toFixed(2)}</p>
+                <p>Category: ${product.category}</p>
+            </div>
+        `;
+        
+        productList.prepend(productCard);  // Insert new product at the top
+    };
 
-eventSource.onerror = function(error) {
-    console.error("SSE Error:", error);
-};
-
+    eventSource.onerror = function(error) {
+        console.error("SSE Error:", error);
+    };
 
 </script>
 

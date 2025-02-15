@@ -8,13 +8,12 @@
         Actions
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li> <a class="dropdown-item" href="/create-product">Create Product</a>  </li>
-
-        {% if not current_user %}
+        {% if not current_user or current_user == 'none'%}
         <li> <a class="dropdown-item" href="/login">Login</a> </li>
         <li> <a class="dropdown-item" href="/register">Register</a> </li>
         {% else %}
         <div class="dropdown-divider"></div>
+        <li> <a class="dropdown-item" href="/create-product">Create Product</a>  </li>
         <li> <a class="dropdown-item" role=button id="logoutBtn">Logout</a> </li>
         {% endif %}
     </ul>

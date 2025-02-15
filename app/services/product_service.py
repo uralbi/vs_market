@@ -101,7 +101,7 @@ class ProductService:
         """ Helper function to map products with their images """
         result = []
         for product in products:
-            image_urls = [img.image_url for img in product.images]  # ✅ Fetch images
+            image_urls = [img.image_url for img in product.images]
             
             result.append(ProductDTO(
                 id=product.id,
@@ -111,6 +111,6 @@ class ProductService:
                 category=product.category,
                 created_at=str(product.created_at),
                 owner_id=product.owner_id,
-                image_urls=image_urls  # ✅ Include image URLs
+                image_urls=image_urls
             ))
         return result

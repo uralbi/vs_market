@@ -16,7 +16,7 @@ def global_context(request: Request, db: Session = Depends(get_db)):
         try:
             user = get_current_user(token, user_service)
         except Exception as e:
-            user = 'none'
+            user = None
         finally:
             return {"request": request, "current_user": user}
     else:
