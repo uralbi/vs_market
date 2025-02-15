@@ -157,7 +157,6 @@ class ProductRepository:
         """ Exact Match Search for product name, description, and category """
         
         words = query.split()
-        print('search word is:', words)
         return (
             self.db.query(ProductModel)
             .filter(

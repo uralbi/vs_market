@@ -1,8 +1,9 @@
 <div class="container mt-3">
-    <div class="input-group mb-3">
+    <div class="input-group search_form">
         <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." aria-label="Search products">
         <button class="btn btn-primary" type="button" onclick="searchProducts()">Search</button>
     </div>
+    <p id='searchError' class="small text-danger"></p>
 </div>
 
 <script>
@@ -18,14 +19,16 @@
 
     async function searchProducts() {
         let query = document.getElementById("searchQuery").value.trim();
-        if (!query) {
-            return;  // Prevent empty search
+        if (!query || query.length<3 ) {
+            document.getElementById("searchError").innerText = "Введите более 2 символов!";
+            return; 
         }
     
         let response = await fetch(`/api/products/search?query=${encodeURIComponent(query)}`);
         
         if (!response.ok) {
-            console.error("Search failed");
+            let errorData = await response.json();
+            document.getElementById("searchError").innerText = errorData.detail;
             return;
         }
     
@@ -34,7 +37,7 @@
     }
     
     function updateProductList(products) {
-        let productContainer = document.getElementById("productContainer");
+        let productContainer = document.getElementById("SearchContainer");
         productContainer.innerHTML = "";  // Clear previous results
     
         if (products.length === 0) {
@@ -44,6 +47,7 @@
     
         products.forEach(product => {
             let productCard = document.createElement("div");
+            productCard.classList.add("query-card");
             productCard.classList.add("product-card");
             productCard.classList.add("card");   
             productCard.innerHTML = `

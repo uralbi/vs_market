@@ -76,3 +76,22 @@
     padding: 2px 6px;
     font-size: 1.2em;    
 }
+
+#SearchContainer {
+    margin: 20px 0;
+}
+.search_form input {
+    padding: 0 0 0 6px;
+}
+.search_form button {
+    padding: 0px 12px;
+    font-size: 12px;
+}
+
+.search_form {
+    margin: 0px;
+}
+
+#SearchContainer .query-card {
+    box-shadow: 1px 1px 6px rgb(210, 195, 182);
+}

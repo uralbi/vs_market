@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from app.infra.database.models import ProductModel, UserModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
@@ -76,9 +76,16 @@ class ProductService:
     def search(self, query: str, limit: int, offset: int) -> List[ProductDTO]:
         """ Exact Search first if not then make full-text search """
         results = self.product_repo.full_text_search(query, limit, offset)
-        if len(results) < 1:
-            results = self.product_repo.exact_search(query, limit, offset)
-        return self._map_products_with_images(results)
+        results2 = self.product_repo.exact_search(query, limit, offset)
+        seen = set()
+        final_results = []
+
+        for product in results + results2:
+            if product.id not in seen:
+                seen.add(product.id)
+                final_results.append(product)
+        
+        return self._map_products_with_images(final_results)
     
     def full_text_search(self, query: str, limit: int, offset: int) -> List[ProductDTO]:
         """ Full-Text Search using PostgreSQL tsquery """

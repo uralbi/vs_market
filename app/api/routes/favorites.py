@@ -33,7 +33,12 @@ def get_favorite_products(token: str = Depends(token_scheme), db: Session = Depe
 @router.post("/{product_id}")
 def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """Allow a user to add a product to their favorites"""
-    payload = decode_access_token(token)
+    
+    try:
+        payload = decode_access_token(token)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"{e}") # handle at the front also
+    
     email = payload.get("sub")
 
     user_service = UserService(db)
@@ -51,7 +56,6 @@ def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Se
 
     if product in user.favorite_products:
         raise HTTPException(status_code=400, detail="Product already in favorites")
-
     user.favorite_products.append(product)
     db.commit()
 

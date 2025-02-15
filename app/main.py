@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-
 from app.core.config import settings
 from app.api.routes import users, entiities, products, favorites
 from app.web.routes import web_routes, web_product_routes

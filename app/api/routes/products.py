@@ -10,7 +10,8 @@ from app.services.product_service import ProductService
 from app.services.image_service import ImageService
 from app.services.user_service import UserService
 from app.domain.security.auth_token import decode_access_token
-import asyncio, json, time
+import asyncio, json
+import redis.asyncio as redis
 
 
 router = APIRouter(
@@ -18,22 +19,41 @@ router = APIRouter(
     tags=['Products']
 )
 
+REDIS_URL = "redis://localhost:6379"
+redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
-
 @router.get("/search", response_model=List[ProductDTO])
-def search_products(
+async def search_products(
     db: Session = Depends(get_db),
-    query: str = Query(..., min_length=1, description="Search query"),
+    query: str = Query(..., min_length=2, description="Search query"),
     limit: int = 100,
     offset: int = 0,
 ):
     """
     Search products by name, description, and category using Full-Text Search.
     """
-    product_service = ProductService(db)
+
+    if len(query) < 2:
+        raise HTTPException(status_code=400, detail="Search term must be more then 2 characters")
     
-    return product_service.search(query, limit, offset)
+    # Generate cache key
+    cache_key = f"search:{query}:{limit}:{offset}"
+
+    # Check if result exists in cache
+    cached_results = await redis_client.get(cache_key)
+    if cached_results:
+        return json.loads(cached_results)
+    
+    product_service = ProductService(db)
+    results = product_service.search(query, limit, offset)
+    
+    # Store result in Redis (expires in 1 hour 3600 secs)
+    serialized_results = [r.model_dump(mode="json") for r in results]
+    await redis_client.setex(cache_key, 60, json.dumps(serialized_results))
+    
+    return results
 
 @router.get("/sse_products")
 def product_stream(db: Session = Depends(get_db)):
