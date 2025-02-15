@@ -31,7 +31,9 @@
                 productItem.classList.add("fav_card");
                 productItem.innerHTML = `
 
-                    <p> <strong>${product.name}</strong> - ${product.price} USD <\p>
+                    <p> <strong>${product.name}</strong>
+                    ${product.is_dollar ? `Цена: $${product.price.toFixed(2)}` : `Цена: ${product.price.toFixed(0)} сом`}
+                     <\p>
                     <img class="m-1" src="${product.image_urls[0] || 'static/default.jpg'}"><br>
                     <button class="btn btn-sm btn-outline-danger" onclick="removeFromFavorites(${product.id})">Unpin</button>
                 `;

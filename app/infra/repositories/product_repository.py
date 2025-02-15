@@ -15,10 +15,7 @@ class ProductRepository:
         """Create a new product with images."""
         new_product = ProductModel(
             owner_id=user_id,
-            name=product_data.name,
-            description=product_data.description,
-            price=product_data.price,
-            category=product_data.category,
+            **product_data.model_dump(exclude_unset=True)
         )
         self.db.add(new_product)
         self.db.commit()
@@ -39,13 +36,7 @@ class ProductRepository:
             
         return [
                     ProductDTO(
-                        id=product.id,
-                        name=product.name,
-                        description=product.description,
-                        price=product.price,
-                        category=product.category,
-                        created_at=str(product.created_at),
-                        owner_id=product.owner_id,
+                        **vars(product),
                         image_urls=[img.image_url for img in product.images]  # ✅ Images loaded in one query
                     )
                     for product in products
@@ -66,14 +57,8 @@ class ProductRepository:
         
         return [
                     ProductDTO(
-                        id=product.id,
-                        name=product.name,
-                        description=product.description,
-                        price=product.price,
-                        category=product.category,
-                        created_at=str(product.created_at),
-                        owner_id=product.owner_id,
-                        image_urls=[img.image_url for img in product.images]  # ✅ Images loaded in one query
+                        **vars(product),
+                        image_urls=[img.image_url for img in product.images]  # Images loaded in one query
                     )
                     for product in products
                 ]

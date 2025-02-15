@@ -9,6 +9,7 @@ class Product(BaseModel):
     name: str
     description: str
     price: float
+    is_dollar: bool
     category: str
     created_at: datetime
     owner_id: int

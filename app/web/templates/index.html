@@ -41,9 +41,11 @@ async function fetchProducts() {
             productCard.innerHTML = `
                 <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
                 <div class="card-body">
-                    <h5 class="card-title">${product.name}</h5>
+                    <h5 class="card-title">${product.name} ${product.is_dollar} </h5>
                     <p class="card-text">${product.description}</p>
-                    <p class="">Price: $${product.price.toFixed(2)}</p>
+                    <p class="">
+                        ${displayPrice(product.price, product.is_dollar)}
+                    </p>
                     <p>Category: ${product.category}</p>
                     <button class="btn btn-sm btn-outline-success pin_btn" id="pin_${product.id}" 
                         onclick="addToFavorites(${product.id})">
@@ -58,6 +60,18 @@ async function fetchProducts() {
     } catch (error) {
         console.error("Error fetching products:", error);
         document.getElementById("productContainer").innerHTML = "<p>Error loading products.</p>";
+    }
+}
+
+function displayPrice(price, isDollar) {
+    const exchangeRate = 87.8;
+    
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `Цена: $${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `Цена: ${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
     }
 }
 

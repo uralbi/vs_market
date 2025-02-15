@@ -10,6 +10,13 @@
     <label class="form-label">Price:</label>
     <input class="form-control" type="number" id="update_price" step="0.01">
 
+    <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="update_is_dollar" name="is_dollar">
+        <label class="form-check-label" for="is_dollar">
+            В Долларах?
+        </label>
+    </div>
+
     <label class="form-label">Category:</label>
     <input class="form-control" type="text" id="update_category">
 
@@ -34,14 +41,15 @@
         }
     
         let product = await response.json();
-    
+
         // ✅ Populate form fields
         document.getElementById("product_id").value = productId;
         document.getElementById("update_name").value = product.name;
         document.getElementById("update_description").value = product.description;
         document.getElementById("update_price").value = product.price;
         document.getElementById("update_category").value = product.category;
-    
+        document.getElementById("update_is_dollar").checked = product.is_dollar;
+        
         // ✅ Populate existing images
         let imageContainer = document.getElementById("curr_images");
         imageContainer.innerHTML = "";
@@ -75,7 +83,9 @@
         let price = document.getElementById("update_price").value.trim();
         let category = document.getElementById("update_category").value.trim();
         let images = document.getElementById("update_images").files;
-    
+        let is_dollar = document.getElementById("update_is_dollar").checked
+
+        if (is_dollar) formData.append("is_dollar", "true");
         if (name) formData.append("name", name);
         if (description) formData.append("description", description);
         if (price) formData.append("price", price);

@@ -7,9 +7,11 @@ class ProductCreateDTO(BaseModel):
     name: str = Field(..., min_length=3, max_length=255)
     description: str = Field(None, max_length=500)
     price: float = Field(..., gt=0)
-    category: str = Field(..., min_length=3, max_length=100)
-    image_urls: List[str] = Field(default=None, max_items=10)  # Max 10 images
-
+    category: str = Field(..., min_length=2, max_length=100)
+    image_urls: List[str] = Field(default=[], max_items=10)  # Max 10 images
+    is_dollar: bool = Field(default=False)
+    
+    
 class ProductDTO(ProductCreateDTO):
     id: int
     created_at: datetime

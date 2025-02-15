@@ -13,6 +13,13 @@
     <label class='form-label' for="price">Price:</label>
     <input class="form-control form-controm-sm" type="number" id="price" name="price" step="0.01" required>
 
+    <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="is_dollar" name="is_dollar">
+        <label class="form-check-label" for="is_dollar">
+            В Долларах?
+        </label>
+    </div>
+
     <label class='form-label' for="category">Category:</label>
     <input class="form-control form-controm-sm" type="text" id="category" name="category" required>
 
@@ -33,7 +40,8 @@
         formData.append("description", document.getElementById("description").value);
         formData.append("price", document.getElementById("price").value);
         formData.append("category", document.getElementById("category").value);
-    
+        formData.append("is_dollar", document.getElementById("is_dollar").checked ? "true" : "false");
+
         let images = document.getElementById("images").files;
 
         if (images.length > 10) {

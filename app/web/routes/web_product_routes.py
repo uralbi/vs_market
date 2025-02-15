@@ -11,6 +11,11 @@ router = APIRouter(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "../templates"))
 
+def filter_price(price, is_dollar):
+    return 99
+
+templates.env.filters["filter_price"] = filter_price
+
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):
     """ Serve the product listing page """

@@ -117,6 +117,7 @@ async def create_product(
     name: str = Form(...),
     description: str = Form(...),
     price: float = Form(...),
+    is_dollar: bool = Form(False),
     category: str = Form(...),
     images: List[UploadFile] = File(None),  # ✅ Accept multiple images
     token: str = Depends(token_scheme),
@@ -138,6 +139,7 @@ async def create_product(
         description=description, 
         price=price, 
         category=category,
+        is_dollar=is_dollar
     )
  
     # Create product
@@ -182,6 +184,7 @@ async def update_product(
         name: str = Form(None),
         description: str = Form(None),
         price: float = Form(None),
+        is_dollar: bool = Form(False),
         category: str = Form(None),
         images: List[UploadFile] = File(None),  # Optional images
         token: str = Depends(token_scheme),
@@ -219,6 +222,7 @@ async def update_product(
         "description": description or product.description,
         "price": price if price is not None else product.price,
         "category": category or product.category,
+        "is_dollar": is_dollar or product.is_dollar
     }
 
     # Update images (if new ones are uploaded)

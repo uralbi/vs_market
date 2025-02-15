@@ -62,6 +62,7 @@ class ProductModel(Base):
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=True)
     price = Column(Float, nullable=False)
+    is_dollar = Column(Boolean, default=False, nullable=False)
     category = Column(String(100), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     

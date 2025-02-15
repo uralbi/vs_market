@@ -1,7 +1,7 @@
 <div class="container mt-3">
     <div class="input-group search_form">
-        <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." aria-label="Search products">
-        <button class="btn btn-primary" type="button" onclick="searchProducts()">Search</button>
+        <input type="text" id="searchQuery" class="form-control" placeholder="Поиск ..." aria-label="Search products">
+        <button class="btn btn-primary" type="button" onclick="searchProducts()">Поиск</button>
     </div>
     <p id='searchError' class="small text-danger"></p>
 </div>
@@ -19,9 +19,12 @@
 
     async function searchProducts() {
         let query = document.getElementById("searchQuery").value.trim();
-        if (!query || query.length<3 ) {
+        
+        if (!query || query.length<2 ) {
             document.getElementById("searchError").innerText = "Введите более 2 символов!";
             return; 
+        } else {
+            document.getElementById("searchError").innerText = ""
         }
     
         let response = await fetch(`/api/products/search?query=${encodeURIComponent(query)}`);
@@ -55,7 +58,9 @@
                 <div class="card-body">
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text">${product.description}</p>
-                    <p class="">Price: $${product.price.toFixed(2)}</p>
+                    <p class="">
+                      ${displayPrice(product.price, product.is_dollar)}
+                    </p>
                     <p>Category: ${product.category}</p>
                     <button class="btn btn-sm btn-outline-success pin_btn" id="pin_${product.id}" 
                         onclick="addToFavorites(${product.id})">
@@ -65,6 +70,18 @@
             `;
             productContainer.appendChild(productCard);
         });
+    }
+
+    function displayPrice(price, isDollar) {
+        const exchangeRate = 87.8;
+        
+        if (isDollar) {
+            let som = price * exchangeRate;
+            return `Цена: $${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
+        } else {
+            let usd = price / exchangeRate;
+            return `Цена: ${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
+        }
     }
 
 </script>

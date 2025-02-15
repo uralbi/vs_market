@@ -46,7 +46,7 @@ function displayProducts(products) {
             <div class="card-body">
             <h5 class="card-title">${product.name}</h3>
             <p class="card-text">${product.description}</p>
-            <p class="">Price: $${product.price.toFixed(2)}</p>
+            <p class="">${displayPrice(product.price, product.is_dollar)}</p>
             <p>Category: ${product.category}</p>
             <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">Delete</button>
             <a class="btn btn-sm btn-outline-success" href="/update-product/${product.id}" >update</a>
@@ -54,6 +54,18 @@ function displayProducts(products) {
         `;
         productListDiv.appendChild(productDiv);
     });
+}
+
+function displayPrice(price, isDollar) {
+    const exchangeRate = 87.8;
+    
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `Цена: $${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `Цена: ${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
+    }
 }
 
 async function deleteProduct(productId) {
