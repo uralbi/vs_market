@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey, \
-                        Text, Float, Table, Index, UniqueConstraint
+                        Text, Float, Table, Index, UniqueConstraint, Computed
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from passlib.context import CryptContext
@@ -73,10 +73,23 @@ class ProductModel(Base):
 
     favorited_by = relationship("UserModel", secondary=favorites_table, back_populates="favorite_products")
 
-    search_vector = Column(TSVECTOR)
+    search_vector = Column(
+        TSVECTOR,
+        Computed(
+            "setweight(to_tsvector('russian', coalesce(name, '') || ' ' || coalesce(description, '') || ' ' || coalesce(category, '')), 'A') || "
+            "setweight(to_tsvector('english', coalesce(name, '') || ' ' || coalesce(description, '') || ' ' || coalesce(category, '')), 'B')",
+            persisted=True
+        )
+    )
 
     __table_args__ = (
-        Index("idx_products_search", search_vector, postgresql_using="gin"),
+        Index("idx_products_search", search_vector, postgresql_using="gin"), # Vector match search
+        Index("idx_products_exact_match", "name", "description", "category", 
+              func.lower("name"),
+              func.lower("description"),
+              func.lower("category"),
+              postgresql_using="btree"),  # Exact match index
+        Index("idx_products_trgm", "name", "description", "category", postgresql_using="gin"),  # Trigram search
         UniqueConstraint('name', 'owner_id', name='uix_owner_product_name'),
     )
     

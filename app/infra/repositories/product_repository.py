@@ -3,7 +3,8 @@ from app.infra.database.models import ProductModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
 from typing import List, Optional
 from sqlalchemy.orm import joinedload
-import os
+from sqlalchemy.sql import text
+from sqlalchemy import and_, or_
 from app.utils.img_delete import delete_images_from_disk
 
 class ProductRepository:
@@ -132,3 +133,43 @@ class ProductRepository:
             self.db.add(image)
 
         self.db.commit()
+        
+    def full_text_search(self, query: str, limit: int, offset: int) -> List[ProductModel]:
+        """ Full-Text Search using PostgreSQL tsquery """
+        
+        query = " & ".join(query.split())
+        
+        return (
+            self.db.query(ProductModel)
+            .filter(
+                ProductModel.search_vector.op("@@")(
+                    text(f"(to_tsquery('russian', '{query}') || to_tsquery('english', '{query}'))::tsquery")
+                    )
+                )
+            .options(joinedload(ProductModel.images))  # Load images
+            .order_by(ProductModel.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+    def exact_search(self, query: str, limit: int, offset: int) -> List[ProductModel]:
+        """ Exact Match Search for product name, description, and category """
+        
+        words = query.split()
+        print('search word is:', words)
+        return (
+            self.db.query(ProductModel)
+            .filter(
+                or_(
+                and_(*(ProductModel.name.ilike(f"%{word}%") for word in words)),  # Match exact words in name
+                and_(*(ProductModel.description.ilike(f"%{word}%") for word in words)),  # Match exact words in description
+                and_(*(ProductModel.category.ilike(f"%{word}%") for word in words) ) # Match exact words in category
+                )
+            )
+            .options(joinedload(ProductModel.images))  # Load images
+            .order_by(ProductModel.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )

@@ -1,11 +1,12 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.sql import text
 from app.infra.database.models import ProductModel, UserModel, ProductImageModel
-from app.domain.dtos.product import ProductCreateDTO
+from app.domain.dtos.product import ProductCreateDTO, ProductDTO
 from app.services.user_service import UserService
 from typing import List
 from app.infra.repositories.product_repository import ProductRepository
-import os
+
 
 class ProductService:
     def __init__(self, db: Session):
@@ -71,3 +72,38 @@ class ProductService:
 
     def update_product_images(self, product_id: int, image_urls: List[str]):
         return self.product_repo.update_product_images(product_id, image_urls)
+
+    def search(self, query: str, limit: int, offset: int) -> List[ProductDTO]:
+        """ Exact Search first if not then make full-text search """
+        results = self.product_repo.full_text_search(query, limit, offset)
+        if len(results) < 1:
+            results = self.product_repo.exact_search(query, limit, offset)
+        return self._map_products_with_images(results)
+    
+    def full_text_search(self, query: str, limit: int, offset: int) -> List[ProductDTO]:
+        """ Full-Text Search using PostgreSQL tsquery """
+        products = self.product_repo.full_text_search(query, limit, offset)
+        return self._map_products_with_images(products)
+
+    def exact_search(self, query: str, limit: int, offset: int) -> List[ProductDTO]:
+        """ Exact Match Search for product name, description, and category """
+        products = self.product_repo.exact_search(query, limit, offset)
+        return self._map_products_with_images(products)
+    
+    def _map_products_with_images(self, products: List[ProductModel]) -> List[ProductDTO]:
+        """ Helper function to map products with their images """
+        result = []
+        for product in products:
+            image_urls = [img.image_url for img in product.images]  # ✅ Fetch images
+            
+            result.append(ProductDTO(
+                id=product.id,
+                name=product.name,
+                description=product.description,
+                price=product.price,
+                category=product.category,
+                created_at=str(product.created_at),
+                owner_id=product.owner_id,
+                image_urls=image_urls  # ✅ Include image URLs
+            ))
+        return result

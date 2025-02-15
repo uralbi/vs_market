@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form, Query
 from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from typing import List, Generator
+from sqlalchemy.sql import text
+from typing import List
 from app.infra.database.db import get_db
 from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
@@ -18,6 +19,21 @@ router = APIRouter(
 )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+
+@router.get("/search", response_model=List[ProductDTO])
+def search_products(
+    db: Session = Depends(get_db),
+    query: str = Query(..., min_length=1, description="Search query"),
+    limit: int = 100,
+    offset: int = 0,
+):
+    """
+    Search products by name, description, and category using Full-Text Search.
+    """
+    product_service = ProductService(db)
+    
+    return product_service.search(query, limit, offset)
 
 @router.get("/sse_products")
 def product_stream(db: Session = Depends(get_db)):
@@ -82,7 +98,7 @@ async def create_product(
     description: str = Form(...),
     price: float = Form(...),
     category: str = Form(...),
-    images: List[UploadFile] = File(...),  # ✅ Accept multiple images
+    images: List[UploadFile] = File(None),  # ✅ Accept multiple images
     token: str = Depends(token_scheme),
     db: Session = Depends(get_db)
 ):
@@ -107,9 +123,10 @@ async def create_product(
     # Create product
     new_product = product_service.create_product(email, product_data)
     
-    img_service = ImageService()
-    image_urls = [await img_service.process_and_store_image(image) for image in images] # Process and store images
-    product_service.add_images_to_product(new_product.id, image_urls) # Associate images with product
+    if images or len(images) > 0:
+        img_service = ImageService()
+        image_urls = [await img_service.process_and_store_image(image) for image in images] # Process and store images
+        product_service.add_images_to_product(new_product.id, image_urls) # Associate images with product
         
     return new_product
 
