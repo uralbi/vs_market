@@ -79,9 +79,9 @@ class ProductRepository:
 
         return product
 
-    def delete_product(self, product_id: int):
+    def delete_product(self, product_id: int, user):
         """Delete a product and its images."""
-        product = self.get_product_by_id(product_id)
+        product = self.get_product_by_id(product_id, user)
         
         if not product:
             return False

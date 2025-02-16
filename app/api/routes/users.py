@@ -7,7 +7,7 @@ from app.domain.security.auth_token import decode_access_token, create_access_to
     create_refresh_token, verify_refresh_token
 from fastapi.security import OAuth2PasswordBearer
 from app.services.product_service import ProductService
-
+from app.domain.security.auth_user import user_authorization
 from typing import Optional
 
 router = APIRouter(
@@ -22,14 +22,10 @@ def deactivate(token: str = Depends(token_scheme), db: Session = Depends(get_db)
     """
     Logs out the user by clearing the authentication token from cookies.
     """
-    payload = decode_access_token(token)
-    email = payload.get("sub")
-    user_service = UserService(db)
+
+    user = user_authorization(token, db)
     
-    user_service.deactivate_user(email)
     product_service = ProductService(db)
-    
-    user = user_service.get_user_by_email(email)
     product_service.deactivate_user_products(user.id)
     return {"message": "Your account is deactivated, and will be deleted in 30 days!."}
 
@@ -42,11 +38,8 @@ def change_password(
     """
     API Endpoint: Allows authenticated users to change their password.
     """
-    payload = decode_access_token(token)
-    email = payload.get("sub")
 
-    user_service = UserService(db)
-    user = user_service.get_user_by_email(email)
+    user = user_authorization(token, db)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -70,11 +63,7 @@ def update_email(
     """
     API Endpoint: Allows authenticated users to update their email.
     """
-    payload = decode_access_token(token)
-    email = payload.get("sub")
-
-    user_service = UserService(db)
-    user = user_service.get_user_by_email(email)
+    user = user_authorization(token, db)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -82,9 +71,10 @@ def update_email(
     if not user.verify_password(email_data.password):
         raise HTTPException(status_code=400, detail="Incorrect password")
 
-    if user_service.get_user_by_email(email_data.new_email):
+    if email_data.new_email == user.email:
         raise HTTPException(status_code=400, detail="Email already in use")
 
+    user_service = UserService(db)
     user_service.update_email(user, email_data.new_email)
     return {"message": "Email updated successfully"}
 
@@ -101,10 +91,7 @@ def logout(response: Response, db: Session = Depends(get_db)):
 
 @router.get("/me")
 async def read_current_user(token: str = Security(token_scheme), db: Session = Depends(get_db)):
-    payload = decode_access_token(token)
-    email = payload.get("sub")
-    user_service = UserService(db)
-    user = user_service.get_user_by_email(email)
+    user = user_authorization(token, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"username": user.username, "email": user.email, "is_active": user.is_active}

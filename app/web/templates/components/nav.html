@@ -1,7 +1,10 @@
 
 <nav class="nav justify-content-end">
     <a class = "nav-link" href="/">Home</a>
+
+    {% if current_user %}
     <a class = "nav-link" href="/about"> &#x1F464; {{current_user.username|title}} </a> 
+    {% endif %}
 
     <button class="btn btn-sm btn-outline-primary dropdown-toggle py-0 px-4" type="button" 
         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
@@ -19,4 +22,3 @@
         {% endif %}
     </ul>
 </nav>
-

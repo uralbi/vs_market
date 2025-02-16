@@ -53,14 +53,14 @@ class ProductService:
     def get_product_by_id(self, id: int, user):
         return self.product_repo.get_product_by_id(id, user)
     
-    def delete_product(self, product_id: int):
+    def delete_product(self, product_id: int, user):
         """ Delete a product and its associated images """
-        product = self.product_repo.get_product_by_id(product_id)
+        product = self.product_repo.get_product_by_id(product_id, user)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
         # Delete product and related images from DB
-        self.product_repo.delete_product(product.id)
+        self.product_repo.delete_product(product.id, user)
         
     def get_latest_product(self):
         return self.product_repo.get_latest_product()
@@ -112,3 +112,7 @@ class ProductService:
                 image_urls=image_urls
             ))
         return result
+
+    def deactivate_user_products(self, user_id):
+        # todo remove from favorites.
+        return self.product_repo.deactivate_user_products(user_id)

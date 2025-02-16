@@ -5,6 +5,7 @@ from app.infra.database.models import UserModel, ProductModel
 from app.services.user_service import UserService
 from app.services.product_service import ProductService
 from app.domain.security.auth_token import decode_access_token
+from app.domain.security.auth_user import user_authorization
 from fastapi.security import OAuth2PasswordBearer
 
 
@@ -18,11 +19,9 @@ token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 @router.get("/")
 def get_favorite_products(token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """Get the list of favorite products for the authenticated user"""
-    payload = decode_access_token(token)
-    email = payload.get("sub")
 
+    user = user_authorization(token, db)
     user_service = UserService(db)
-    user = user_service.get_user_by_email(email)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -34,18 +33,10 @@ def get_favorite_products(token: str = Depends(token_scheme), db: Session = Depe
 def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """Allow a user to add a product to their favorites"""
     
-    try:
-        payload = decode_access_token(token)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=f"{e}") # handle at the front also
+    user = user_authorization(token, db)
     
-    email = payload.get("sub")
-
-    user_service = UserService(db)
     product_service = ProductService(db)
-
-    user = user_service.get_user_by_email(email)
-    product = product_service.get_product_by_id(product_id)
+    product = product_service.get_product_by_id(product_id, user)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -65,14 +56,10 @@ def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Se
 @router.delete("/{product_id}")
 def remove_from_favorites(product_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """Allow a user to remove a product from their favorites"""
-    payload = decode_access_token(token)
-    email = payload.get("sub")
-
-    user_service = UserService(db)
+    user = user_authorization(token, db)
+    
     product_service = ProductService(db)
-
-    user = user_service.get_user_by_email(email)
-    product = product_service.get_product_by_id(product_id)
+    product = product_service.get_product_by_id(product_id, user)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

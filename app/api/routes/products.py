@@ -96,7 +96,7 @@ async def delete_product(
     
     # ✅ Validate product ownership
     product_service = ProductService(db)
-    product = product_service.get_product_by_id(product_id)
+    product = product_service.get_product_by_id(product_id, user)
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -106,7 +106,7 @@ async def delete_product(
 
     # Delete product images in product service
     # Delete product from database
-    product_service.delete_product(product_id)
+    product_service.delete_product(product_id, user)
 
     return {"message": "Product deleted successfully"}
 
@@ -117,6 +117,7 @@ async def create_product(
     description: str = Form(...),
     price: float = Form(...),
     is_dollar: bool = Form(False),
+    activated: bool = Form(True),
     category: str = Form(...),
     images: List[UploadFile] = File(None),  # ✅ Accept multiple images
     token: str = Depends(token_scheme),
@@ -134,7 +135,8 @@ async def create_product(
         description=description, 
         price=price, 
         category=category,
-        is_dollar=is_dollar
+        is_dollar=is_dollar,
+        activated=activated,
     )
  
     # Create product

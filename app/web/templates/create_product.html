@@ -4,6 +4,14 @@
 <h2>Create New Product</h2>
 
 <form id="productForm" enctype="multipart/form-data">
+
+    <div class="form-check mt-2">
+        <label class="form-label" for="activated">
+            Активировать?
+        </label>
+        <input class="form-input" type="checkbox" id="activated" name="update_activated">
+    </div>
+
     <label class='form-label' for="name">Product Name:</label>
     <input class="form-control form-controm-sm" type="text" id="name" name="name" required>
 
@@ -41,6 +49,7 @@
         formData.append("price", document.getElementById("price").value);
         formData.append("category", document.getElementById("category").value);
         formData.append("is_dollar", document.getElementById("is_dollar").checked ? "true" : "false");
+        formData.append("activated", document.getElementById("is_dollar").checked ? "true" : "false");
 
         let images = document.getElementById("images").files;
 
@@ -72,6 +81,7 @@
         if (response.ok) {
             document.getElementById("statusMessage").innerText = "Product Created Successfully!";
             document.getElementById("productForm").reset();
+            window.location.href = "/about";
         } else {
             document.getElementById("statusMessage").innerText = `Error: ${result.detail}`;
         }
