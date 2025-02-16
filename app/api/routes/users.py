@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.domain.security.auth_token import decode_access_token, create_access_token, \
     create_refresh_token, verify_refresh_token
 from fastapi.security import OAuth2PasswordBearer
-from fastapi.openapi.models import APIKey
+from app.services.product_service import ProductService
 
 from typing import Optional
 
@@ -25,7 +25,12 @@ def deactivate(token: str = Depends(token_scheme), db: Session = Depends(get_db)
     payload = decode_access_token(token)
     email = payload.get("sub")
     user_service = UserService(db)
+    
     user_service.deactivate_user(email)
+    product_service = ProductService(db)
+    
+    user = user_service.get_user_by_email(email)
+    product_service.deactivate_user_products(user.id)
     return {"message": "Your account is deactivated, and will be deleted in 30 days!."}
 
 @router.put("/change-password")

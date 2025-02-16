@@ -10,6 +10,7 @@ class ProductCreateDTO(BaseModel):
     category: str = Field(..., min_length=2, max_length=100)
     image_urls: List[str] = Field(default=[], max_items=10)  # Max 10 images
     is_dollar: bool = Field(default=False)
+    activated: bool = Field(default=True)
     
     
 class ProductDTO(ProductCreateDTO):

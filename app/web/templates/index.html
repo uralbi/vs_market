@@ -41,7 +41,7 @@ async function fetchProducts() {
             productCard.innerHTML = `
                 <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
                 <div class="card-body">
-                    <h5 class="card-title">${product.name} ${product.is_dollar} </h5>
+                    <h5 class="card-title">${product.name} </h5>
                     <p class="card-text">${product.description}</p>
                     <p class="">
                         ${displayPrice(product.price, product.is_dollar)}
@@ -68,10 +68,10 @@ function displayPrice(price, isDollar) {
     
     if (isDollar) {
         let som = price * exchangeRate;
-        return `Цена: $${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
+        return `$${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
     } else {
         let usd = price / exchangeRate;
-        return `Цена: ${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
+        return `${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
     }
 }
 

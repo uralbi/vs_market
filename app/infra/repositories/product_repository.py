@@ -27,6 +27,7 @@ class ProductRepository:
         """Retrieve all products with associated images."""
         products = (
                 self.db.query(ProductModel)
+                .filter(ProductModel.activated == True) 
                 .options(joinedload(ProductModel.images))  # Load images in a single query
                 .order_by(ProductModel.created_at.desc())
                 .offset(offset)
@@ -63,15 +64,20 @@ class ProductRepository:
                     for product in products
                 ]
     
-    def get_product_by_id(self, product_id: int) -> ProductModel:
+    def get_product_by_id(self, product_id: int, user) -> ProductModel:
         """Fetch a product by id."""
         
-        return (
-                self.db.query(ProductModel)
-                .options(joinedload(ProductModel.images))
-                .filter(ProductModel.id == product_id)
-                .first()
-            )
+        query = self.db.query(ProductModel).filter(ProductModel.id == product_id).options(joinedload(ProductModel.images))
+
+        if not user:
+            query = query.filter(ProductModel.activated == True)  # Only return activated products if no user
+
+        product = query.first()
+
+        if product and user and product.owner_id != user.id and not product.activated:
+            return None  # Prevent unauthorized users from accessing deactivated products
+
+        return product
 
     def delete_product(self, product_id: int):
         """Delete a product and its images."""
@@ -89,12 +95,15 @@ class ProductRepository:
         return True
 
     def get_latest_product(self):
-        return self.db.query(ProductModel).options(joinedload(ProductModel.images)) \
+        return ( self.db.query(ProductModel)
+                .filter(ProductModel.activated == True)
+                .options(joinedload(ProductModel.images))
                 .order_by(ProductModel.created_at.desc()).first()
+                )
     
-    def update_product(self, product_id: int, updated_data: dict) -> Optional[ProductModel]:
+    def update_product(self, product_id: int, user, updated_data: dict) -> Optional[ProductModel]:
         """Update product details."""
-        product = self.get_product_by_id(product_id)
+        product = self.get_product_by_id(product_id, user)
         if not product:
             return None
 
@@ -126,6 +135,7 @@ class ProductRepository:
         
         return (
             self.db.query(ProductModel)
+            .filter(ProductModel.activated == True)
             .filter(
                 ProductModel.search_vector.op("@@")(
                     text(f"(to_tsquery('russian', '{query}') || to_tsquery('english', '{query}'))::tsquery")
@@ -144,6 +154,7 @@ class ProductRepository:
         words = query.split()
         return (
             self.db.query(ProductModel)
+            .filter(ProductModel.activated == True)
             .filter(
                 or_(
                 and_(*(ProductModel.name.ilike(f"%{word}%") for word in words)),  # Match exact words in name
@@ -158,3 +169,6 @@ class ProductRepository:
             .all()
         )
     
+    def deactivate_user_products(self, user_id: int):
+        self.db.query(ProductModel).filter(ProductModel.owner_id == user_id).update({"activated": False})
+        self.db.commit()

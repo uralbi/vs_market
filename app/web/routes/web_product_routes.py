@@ -22,11 +22,11 @@ def product_list_page(request: Request, context: dict = Depends(global_context))
     return templates.TemplateResponse("index.html", {**context, "title": "iMarket"})
 
 @router.get("/update-product/{product_id}")
-def update_product_page(request: Request, product_id: int):
+def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Update product page """
-    return templates.TemplateResponse("update_product.html", {"request": request, "product_id": product_id})
+    return templates.TemplateResponse("update_product.html", {**context, "product_id": product_id})
 
 @router.get("/create-product")
-def create_product_page(request: Request):
+def create_product_page(request: Request, context: dict = Depends(global_context)):
     """ Create product page """
-    return templates.TemplateResponse("create_product.html", {"request": request, "title": "Create Product"})
+    return templates.TemplateResponse("create_product.html", {**context, "title": "Create Product"})

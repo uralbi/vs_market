@@ -12,6 +12,14 @@ from app.services.user_service import UserService
 from app.domain.security.auth_token import decode_access_token
 import asyncio, json
 import redis.asyncio as redis
+from app.domain.security.auth_user import user_authorization
+
+
+import logging
+import logging.config
+from app.core.config import settings
+logging.config.dictConfig(settings.LOGGING)
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -84,17 +92,8 @@ async def delete_product(
     """
     Delete a product. Only the owner of the product can delete it.
     """
-    try:
-        payload = decode_access_token(token)
-        email = payload.get("sub")
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    user_service = UserService(db)
-    user = user_service.get_user_by_email(email)
-    if not user or not user.is_active:
-        raise HTTPException(status_code=404, detail="User not found")
-
+    user = user_authorization(token, db)
+    
     # ✅ Validate product ownership
     product_service = ProductService(db)
     product = product_service.get_product_by_id(product_id)
@@ -126,11 +125,7 @@ async def create_product(
     """
     Create a new product. Only authenticated users can add a product.
     """
-    try:
-        payload = decode_access_token(token)
-        email = payload.get("sub")
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    user = user_authorization(token, db)
 
     product_service = ProductService(db)
 
@@ -143,7 +138,7 @@ async def create_product(
     )
  
     # Create product
-    new_product = product_service.create_product(email, product_data)
+    new_product = product_service.create_product(user.email, product_data)
     
     if images or len(images) > 0:
         img_service = ImageService()
@@ -158,14 +153,7 @@ def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depen
     """
     Get a list of products, sorted by latest first.
     """
-    try:
-        payload = decode_access_token(token)
-        email = payload.get("sub")
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    user_service = UserService(db)
-    user = user_service.get_user_by_email(email)    
+    user = user_authorization(token, db) 
     product_service = ProductService(db)
     return product_service.get_user_products(user.id, limit, offset)
 
@@ -185,6 +173,7 @@ async def update_product(
         description: str = Form(None),
         price: float = Form(None),
         is_dollar: bool = Form(False),
+        activated: bool = Form(True),
         category: str = Form(None),
         images: List[UploadFile] = File(None),  # Optional images
         token: str = Depends(token_scheme),
@@ -193,46 +182,33 @@ async def update_product(
     """
     Update an existing product. Only the product owner can update it.
     """
-    try:
-        payload = decode_access_token(token)
-        email = payload.get("sub")
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user = user_authorization(token, db)
 
     product_service = ProductService(db)
-    user_service = UserService(db)
     
-    # Verify user exists
-    user = user_service.get_user_by_email(email)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Fetch existing product
-    product = product_service.get_product_by_id(product_id)
+    product = product_service.get_product_by_id(product_id, user)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    # Ensure the user owns the product
     if product.owner_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this product")
 
-    # Update only provided fields
     updated_data = {
         "name": name or product.name,
         "description": description or product.description,
         "price": price if price is not None else product.price,
         "category": category or product.category,
-        "is_dollar": is_dollar or product.is_dollar
+        "is_dollar": is_dollar,
+        "activated": activated,
     }
 
-    # Update images (if new ones are uploaded)
     if images:
         image_service = ImageService()
         image_urls = [await image_service.process_and_store_image(image) for image in images]
         product_service.update_product_images(product_id, image_urls)
 
-    # Update product in DB
-    updated_product = product_service.update_product(product_id, updated_data)
+    updated_product = product_service.update_product(product_id, user, updated_data)
 
     return updated_product
 
@@ -240,8 +216,27 @@ async def update_product(
 @router.get("/{product_id}", response_model=ProductDTO)
 def get_product(product_id: int, db: Session = Depends(get_db)):
     """Fetch product details by ID."""
+    
     product_service = ProductService(db)
-    product = product_service.get_product_by_id(product_id)
+    user = None
+    product = product_service.get_product_by_id(product_id, user)
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    product_dto = ProductDTO.model_validate(product)
+    product_dto.image_urls = [img.image_url for img in product.images]
+    
+    return product_dto
+
+@router.post("/my/{product_id}", response_model=ProductDTO)
+def get_product(product_id: int, db: Session = Depends(get_db), token: str = Depends(token_scheme),):
+    """Fetch product details by ID."""
+    
+    user = user_authorization(token, db)
+    
+    product_service = ProductService(db)
+    product = product_service.get_product_by_id(product_id, user)
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")

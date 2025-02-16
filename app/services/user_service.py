@@ -93,3 +93,5 @@ class UserService:
         """Get a user's favorite products with images."""
         return self.repo.get_favorite_products(user_id)
     
+    def deactivate_user_products(self, user_id: int):
+        return self.repo.deactivate_user_products(user_id)
