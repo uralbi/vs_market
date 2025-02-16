@@ -19,23 +19,10 @@
     </main>
 
     <script>
-        document.getElementById("logoutBtn").addEventListener("click", async function() {
-            let response = await fetch("/api/auth/logout", {
-                method: "POST",
-                credentials: "include"  // ✅ Ensures cookies are sent
-            });
-        
-            let result = await response.json();
-            console.log(result.message);
-        
-            if (response.ok) {
-                document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                window.location.href = "/login";  // Redirect to login page after logout
-            }
-        });
+
         </script>
 
-
+        <script src="{{ url_for('static', path='/auth.js') }}"></script>
 
 
 </body>

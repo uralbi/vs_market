@@ -37,6 +37,7 @@
 }
 
 #favorite-products {
+    padding: 5px 0;
     height: 120px;
     overflow-y: scroll;
 }
@@ -57,7 +58,8 @@
     font-size: 12px;
 }
 .fav_card img {
-    width: 100px;
+    max-width: 100px;
+    height: 65px;
     float: right;
     border-radius: 4px;
 }

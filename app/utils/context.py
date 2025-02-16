@@ -2,22 +2,39 @@ from fastapi import Request, Depends
 from app.services.user_service import UserService
 from sqlalchemy.orm import Session
 from app.infra.database.db import get_db
-from app.utils.auth import get_current_user # Function to get logged-in user from token
-
+from app.utils.auth import get_current_user
+from app.domain.security.auth_token import create_access_token, verify_refresh_token
 
 def global_context(request: Request, db: Session = Depends(get_db)):
     """
     Provides global context to all Jinja2 templates.
     """
     user = None
-    if "access_token" in request.cookies:
-        token = request.cookies.get("access_token")
-        user_service = UserService(db)
+    access_token = request.cookies.get("access_token")
+    refresh_token = request.cookies.get("refresh_token")
+    user_service = UserService(db)
+
+    if access_token:
         try:
-            user = get_current_user(token, user_service)
-        except Exception as e:
+            user = get_current_user(access_token, user_service)
+        except Exception:
             user = None
-        finally:
-            return {"request": request, "current_user": user}
-    else:
-        return {"request": request, "current_user": 'none'}
+
+    # If access token is missing/invalid, try refreshing
+    if not user and refresh_token:
+        try:
+            refresh_payload = verify_refresh_token(refresh_token)
+            new_access_token = create_access_token({"sub": refresh_payload["sub"]})
+            response = request.state.response  # Get FastAPI response object
+            response.set_cookie(
+                key="access_token",
+                value=new_access_token,
+                httponly=True,
+                secure=True,
+                samesite="Strict"
+            )
+            user = get_current_user(new_access_token, user_service)
+        except Exception:
+            user = None
+
+    return {"request": request, "current_user": user}

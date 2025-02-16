@@ -3,7 +3,8 @@ from app.services.user_service import UserService
 from app.infra.database.db import get_db
 from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO
 from sqlalchemy.orm import Session
-from app.domain.security.auth_token import decode_access_token, create_access_token
+from app.domain.security.auth_token import decode_access_token, create_access_token, \
+    create_refresh_token, verify_refresh_token
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.openapi.models import APIKey
 
@@ -89,7 +90,8 @@ def logout(response: Response, db: Session = Depends(get_db)):
     Logs out the user by clearing the authentication token from cookies.
     """
     response.delete_cookie("access_token")  # Remove token from cookies
-    return {"message": "Successfully logged out"}
+    response.delete_cookie("refresh_token", httponly=True, secure=True, samesite="Strict")
+    return {"message": "Logged out"}
 
 
 @router.get("/me")
@@ -103,19 +105,42 @@ async def read_current_user(token: str = Security(token_scheme), db: Session = D
     return {"username": user.username, "email": user.email, "is_active": user.is_active}
 
 
+@router.post("/refresh")
+async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+    payload = verify_refresh_token(refresh_token)  # Validate refresh token
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    user_email = payload["sub"]
+    user_service = UserService(db)
+    stored_user = user_service.get_user_by_email(user_email)
+    
+    if not stored_user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    new_access_token = create_access_token({"sub": stored_user.email})
+    return {"access_token": new_access_token, "token_type": "bearer"}
+
+
 @router.post("/token")
 async def login(user: UserLoginDTO, db: Session = Depends(get_db)):
     user_service = UserService(db)
-    stored_user = user_service.get_user_by_email(user.email) # returns User / User.verify_password()
-    print('stored user', stored_user.email, stored_user.is_active)
+    stored_user = user_service.get_user_by_email(user.email) 
+
     if not stored_user or not stored_user.verify_password(user.password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     if not stored_user.is_active:
         user_service.send_activation_email(stored_user.email)
         raise HTTPException(status_code=400, detail="Account not activated. Please verify your email.")
-    
+
     access_token = create_access_token({"sub": stored_user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = create_refresh_token({"sub": stored_user.email})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
 
 
 @router.post("/register")

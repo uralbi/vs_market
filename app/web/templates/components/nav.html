@@ -1,14 +1,15 @@
 
 <nav class="nav justify-content-end">
     <a class = "nav-link" href="/">Home</a>
-    <a class = "nav-link" href="/about">About</a> 
+    <a class = "nav-link" href="/about"> &#x1F464; {{current_user.username|title}} </a> 
 
     <button class="btn btn-sm btn-outline-primary dropdown-toggle py-0 px-4" type="button" 
         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
         Actions
     </button>
+    
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        {% if not current_user or current_user == 'none'%}
+        {% if not current_user or current_user == 'None'%}
         <li> <a class="dropdown-item" href="/login">Login</a> </li>
         <li> <a class="dropdown-item" href="/register">Register</a> </li>
         {% else %}

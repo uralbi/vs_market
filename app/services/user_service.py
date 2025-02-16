@@ -48,7 +48,7 @@ class UserService:
 
     def get_user_by_email(self, email: str) -> UserModel:
         """Retrieves a user by email."""
-        return self.db.query(UserModel).filter(UserModel.email == email).first()
+        return self.repo.get_user_by_email(email)
 
     def get_user_by_id(self, user_id: int) -> UserModel:
         """Retrieves a user by ID."""
