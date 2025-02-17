@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from app.infra.database.models import ChatRoom, Message
+from app.infra.database.models import ChatRoom, Message, UserModel
 from datetime import datetime
 from typing import List
 
@@ -40,8 +40,14 @@ class ChatRepository:
     def get_chat_history(self, chat_room_id: int) -> List[Message]:
         """Retrieve all messages from a chat room."""
         return (
-            self.db.query(Message)
+            self.db.query(
+                Message.sender_id,
+                UserModel.username,
+                Message.content,
+                Message.timestamp
+            )
             .filter(Message.chat_room_id == chat_room_id)
+            .join(UserModel, Message.sender_id == UserModel.id)  # Join messages with users
             .order_by(Message.timestamp.asc())
             .all()
         )
@@ -50,6 +56,10 @@ class ChatRepository:
         """Fetch all chat rooms where the user is a participant."""
         return (
             self.db.query(ChatRoom)
+            .filter(UserModel.id != user_id)
             .filter((ChatRoom.user1_id == user_id) | (ChatRoom.user2_id == user_id))
+            .join(UserModel, 
+                  (ChatRoom.user1_id == UserModel.id) | (ChatRoom.user2_id == UserModel.id)
+                  )
             .all()
         )

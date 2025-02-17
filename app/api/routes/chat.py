@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.infra.database.db import get_db
 from app.services.chat_service import ChatService
+from app.services.user_service import UserService
 from app.domain.security.auth_user import user_authorization
 from fastapi.security import OAuth2PasswordBearer
 
 router = APIRouter(
-    prefix='/chat',
-    tags=['Chat']
-)
+        prefix='/chat',
+        tags=['Chat']
+    )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
@@ -23,8 +24,13 @@ def get_chat_history(user2_id: int, token: str = Depends(token_scheme), db: Sess
 
     return {
         "messages": [
-            {"sender_id": msg.sender_id, "content": msg.content, "timestamp": msg.timestamp}
-            for msg in messages
+            {
+                "sender_id": sender_id,
+                "sender_username": sender_username,  # Add sender's username
+                "content": content,
+                "timestamp": timestamp
+            }
+            for sender_id, sender_username, content, timestamp in messages  # Unpack query results
         ]
     }
 
@@ -37,6 +43,9 @@ def get_user_chat_rooms(token: str = Depends(token_scheme), db: Session = Depend
     chat_service = ChatService(db)
     chat_rooms = chat_service.get_user_chat_rooms(user.id)
 
+    for room in chat_rooms:
+        room
+        
     return [
         {
             "chat_room_id": room.id,

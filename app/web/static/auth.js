@@ -66,7 +66,7 @@ async function authenticatedRequest(endpoint, options = {}) {
         "Authorization": `Bearer ${accessToken}`
     };
 
-    let response = await fetch(`${API_URL}${endpoint}`, options);
+    let response = await fetch(`${API_URL}/${endpoint}`, options);
 
     if (response.status === 401) {
         // Try refreshing the token if access is denied

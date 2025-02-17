@@ -48,7 +48,7 @@ async function loadChatHistory(userId, user2Id) {
         chatBox.innerHTML = "";  // Clear previous messages
 
         data.messages.forEach(msg => {
-            displayMessage(msg.sender_id, msg.content, msg.sender_id === userId ? "msg_sent" : "msg_received");
+            displayMessage(msg.sender_username, msg.content, msg.sender_id === userId ? "msg_sent" : "msg_received", msg.timestamp);
         });
     } catch (error) {
         console.error("Error loading chat history:", error);
@@ -69,9 +69,10 @@ getUserId().then(user => {
         return
     };
     userId = user.user_id;
+    recieverId = user2Id;
     userName = user.user_name;
 
-    socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}`);
+    socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}`);
 
     socket.onopen = () => {
         console.log("Connected to WebSocket");
@@ -119,15 +120,43 @@ function sendMessage() {
     }
 }
 
-// ✅ Ensure `sendMessage()` is properly attached to button
+// Ensure `sendMessage()` is properly attached to button
 document.getElementById("sendMessageBtn").addEventListener("click", sendMessage);
 
-// ✅ Keep displayMessage function globally accessible
-function displayMessage(sender, message, type) {
+// Keep displayMessage function globally accessible
+function displayMessage(sender, message, type, timestamp = new Date().toISOString()) {
     const chatBox = document.getElementById("chatBox");
+
+    // Convert timestamp to 'Month-Day, HH:MM' format
+    const dateObj = new Date(timestamp);
+    const options = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
+    const formattedTime = dateObj.toLocaleString("en-US", options).replace(",", "");
+
+    // Create the message container div
     const msgElement = document.createElement("div");
     msgElement.classList.add("chat-message", type);
-    msgElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+
+    // Create a paragraph element to hold the sender and message
+    const msgText = document.createElement("p");
+    msgText.textContent = type === "msg_sent" ? "" : `${sender}`;
+
+    // Create a span for the message content
+    const msgSpan = document.createElement("span");
+    msgSpan.textContent = `${message}`;
+
+    // Create a small element for the timestamp
+    const timeElement = document.createElement("small");
+    timeElement.textContent = formattedTime;
+    timeElement.classList.add("timestamp");
+
+    // Append message and timestamp
+    msgText.appendChild(msgSpan);
+    msgElement.appendChild(msgText);
+    msgElement.appendChild(timeElement); // Add timestamp below message
     chatBox.appendChild(msgElement);
-    chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to latest message
+
+    // Auto-scroll to latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+

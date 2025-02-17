@@ -98,10 +98,52 @@
     box-shadow: 1px 1px 6px rgb(210, 195, 182);
 }
 
-#chatBox .chat-message .msg_sent {
-    color: blue;
+#chatBox {
+    background-color: rgb(242, 244, 239);
+    border-radius: 10px;
+}
+#chatBox div{
+    margin: 4px 0;
 }
 
-#chatBox .chat-message .msg_received {
-    color: red;
+#chatBox div p {
+    margin: 0;
+}
+
+
+#chatBox .msg_sent .timestamp{ 
+    margin: 0 6px 0 0;
+    }
+#chatBox .msg_received .timestamp{ 
+        margin: 0 0 0 36px;
+        }
+
+#chatBox .msg_received span {
+    margin: 0 6px;
+    padding: 4px 16px;
+    border-radius: 6px;
+    border: solid 1px rgb(125, 177, 237);
+    color: rgb(54, 139, 236);
+}
+#chatBox .msg_sent span {
+    margin: 0 6px;
+    padding: 4px 16px;
+    border-radius: 6px;
+    border: solid 1px rgb(93, 166, 93);
+    color: rgb(26, 108, 59);
+ }
+
+#chatBox .msg_sent {
+    position: relative;
+    align-items: right;
+    text-align: end;
+    color: rgb(21, 21, 212);
+}
+
+
+.timestamp {
+    font-size: 10px;
+    font-style: italic;
+    color: rgb(177, 177, 177);
+    text-align: right;
 }

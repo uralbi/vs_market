@@ -13,10 +13,10 @@ router = APIRouter(
 active_connections: Dict[int, WebSocket] = {}  # Stores user connections
 
 
-@router.websocket("/{user_id}")
-async def websocket_chat(websocket: WebSocket, user_id: int, db: Session = Depends(get_db)):
+@router.websocket("/{user_id}/{receiverid}")
+async def websocket_chat(websocket: WebSocket, user_id: int, receiverid: int, db: Session = Depends(get_db)):
     await websocket.accept()
-    active_connections[user_id] = websocket
+    active_connections[f"{user_id}-{receiverid}"] = websocket
     chat_service = ChatService(db)
 
     try:
@@ -36,4 +36,4 @@ async def websocket_chat(websocket: WebSocket, user_id: int, db: Session = Depen
                 })
 
     except WebSocketDisconnect:
-        del active_connections[user_id]
+        del active_connections[f"{user_id}-{receiverid}"]

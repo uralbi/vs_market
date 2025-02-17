@@ -50,17 +50,8 @@
 <script>
 
     async function loadUserInfo() {
-
-        authenticatedRequest('me');
         
-        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-    
-        if (!token) {
-            document.getElementById("userInfo").innerText = "You are not logged in.";
-            return;
-        }
-    
-        token = token.split('=')[1].trim(); 
+        let token = getAccessTokenFromCookie()
     
         let response = await fetch("/api/ent/me", {
             method: "GET",
@@ -84,13 +75,7 @@
     document.addEventListener("DOMContentLoaded", loadUserInfo);
 
     document.addEventListener("DOMContentLoaded", async function() {
-        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-        if (token) {
-            token = token.split('=')[1]; // Extract the token value
-        } else {
-            document.getElementById("deleteMessage").innerText = "You must be logged in.";
-            return;
-        }
+        let token = getAccessTokenFromCookie()
 
         let response = await fetch("/api/auth/me", {
             method: "GET",
@@ -170,11 +155,11 @@
     
                 listItem.innerHTML = `
                     <a href="/messages?chat_room_id=${room.chat_room_id}&receiver_id=${room.other_user_id}" 
-                       class="text-decoration-none">
+                    class="text-decoration-none">
                         Chat with User ${room.other_user_id}
                     </a>
                 `;
-    
+
                 chatRoomsList.appendChild(listItem);
             });
         } catch (error) {
@@ -183,7 +168,6 @@
         }
     }
     
-
 </script>
 
 <br>
