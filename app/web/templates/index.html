@@ -47,6 +47,9 @@ async function fetchProducts() {
                         ${displayPrice(product.price, product.is_dollar)}
                     </p>
                     <p>Category: ${product.category}</p>
+
+                    <a href="/messages?receiver_id=${product.owner_id}" class="btn btn-primary btn-sm">Message</a>
+
                     <button class="btn btn-sm btn-outline-success pin_btn" id="pin_${product.id}" 
                         onclick="addToFavorites(${product.id})">
                         &#128206;

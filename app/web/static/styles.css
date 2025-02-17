@@ -97,3 +97,11 @@
 #SearchContainer .query-card {
     box-shadow: 1px 1px 6px rgb(210, 195, 182);
 }
+
+#chatBox .chat-message .msg_sent {
+    color: blue;
+}
+
+#chatBox .chat-message .msg_received {
+    color: red;
+}

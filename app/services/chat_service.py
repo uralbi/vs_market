@@ -18,3 +18,6 @@ class ChatService:
         if not chat_room:
             return []
         return self.repo.get_chat_history(chat_room.id)
+    
+    def get_user_chat_rooms(self, user_id: int):
+        return self.repo.get_user_chat_rooms(user_id)

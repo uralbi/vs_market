@@ -16,6 +16,11 @@ def filter_price(price, is_dollar):
 
 templates.env.filters["filter_price"] = filter_price
 
+@router.get("/messages")
+def message_page(request: Request, context: dict = Depends(global_context)):
+    """ Serve the product listing page """
+    return templates.TemplateResponse("chat.html", {**context, "title": "Messages"})
+
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):
     """ Serve the product listing page """

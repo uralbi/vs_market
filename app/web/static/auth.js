@@ -56,7 +56,7 @@ async function refreshAccessToken() {
 async function authenticatedRequest(endpoint, options = {}) {
     let accessToken = getAccessTokenFromCookie();
 
-    if (!accessToken) {
+    if (!accessToken || isTokenExpired(accessToken)) {
         accessToken = await refreshAccessToken();
         if (!accessToken) throw new Error("Authentication required");
     }
@@ -66,17 +66,32 @@ async function authenticatedRequest(endpoint, options = {}) {
         "Authorization": `Bearer ${accessToken}`
     };
 
-    const response = await fetch(`${API_URL}${endpoint}`, options);
+    let response = await fetch(`${API_URL}${endpoint}`, options);
 
     if (response.status === 401) {
+        // Try refreshing the token if access is denied
         accessToken = await refreshAccessToken();
         if (!accessToken) throw new Error("Authentication required");
 
         options.headers["Authorization"] = `Bearer ${accessToken}`;
-        return fetch(`${API_URL}${endpoint}`, options);
+        response = await fetch(`${API_URL}${endpoint}`, options);
     }
 
+    if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+    }
     return response.json();
+}
+
+function isTokenExpired(token) {
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const expirationTime = payload.exp * 1000;  // Convert to milliseconds
+        return Date.now() >= expirationTime;
+    } catch (error) {
+        console.error("Invalid token:", error);
+        return true;  // Assume expired if there's an error
+    }
 }
 
 const logoutBtn = document.getElementById("logoutBtn");

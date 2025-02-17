@@ -45,3 +45,11 @@ class ChatRepository:
             .order_by(Message.timestamp.asc())
             .all()
         )
+
+    def get_user_chat_rooms(self, user_id: int):
+        """Fetch all chat rooms where the user is a participant."""
+        return (
+            self.db.query(ChatRoom)
+            .filter((ChatRoom.user1_id == user_id) | (ChatRoom.user2_id == user_id))
+            .all()
+        )

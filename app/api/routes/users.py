@@ -49,7 +49,7 @@ def change_password(
 
     if user.verify_password(password_data.new_password):
         raise HTTPException(status_code=400, detail="New password cannot be the same as the old password")
-
+    user_service = UserService(db)
     user_service.update_password(user, password_data.new_password)
     return {"message": "Password changed successfully"}
 
@@ -94,7 +94,7 @@ async def read_current_user(token: str = Security(token_scheme), db: Session = D
     user = user_authorization(token, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"username": user.username, "email": user.email, "is_active": user.is_active}
+    return {"username": user.username, "email": user.email, "is_active": user.is_active, "user_id": user.id}
 
 
 @router.post("/refresh")
