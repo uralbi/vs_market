@@ -27,15 +27,27 @@
             }
 
             products.forEach(product => {
+
                 let productItem = document.createElement("div");
                 productItem.classList.add("fav_card");
-                productItem.innerHTML = `
 
-                    <p> <strong>${product.name}</strong>
-                    ${product.is_dollar ? `Цена: $${product.price.toFixed(2)}` : `Цена: ${product.price.toFixed(0)} сом`}
-                     <\p>
-                    <img class="m-1" src="${product.image_urls[0] || 'static/default.jpg'}"><br>
-                    <button class="btn btn-sm btn-outline-danger" onclick="removeFromFavorites(${product.id})">Unpin</button>
+                let productName = product.name;
+                let productDescription = product.description;
+                productName += `<span class="card-text"> - ${productDescription} </span>`;
+
+                productItem.innerHTML = `
+                <div class="card-body">
+                    <h5 class="card-title">${productName} </h5>
+                    <p class="card-price">
+                        ${displayPrice(product.price, product.is_dollar)}
+                    </p>
+                    <img class="m-1" src="${product.image_urls[0] || 'static/default.jpg'}">
+                    
+
+                </div>
+                
+                <button class="btn btn-sm btn-outline-danger" onclick="removeFromFavorites(${product.id})">Unpin</button>
+                    
                 `;
                 productList.appendChild(productItem);
             });

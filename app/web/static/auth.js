@@ -106,3 +106,4 @@ async function logout() {
     await fetch(`${API_URL}/logout`, { method: "POST", credentials: "include" }); // Logout API to clear refresh token
     window.location.href = "/";
 }
+

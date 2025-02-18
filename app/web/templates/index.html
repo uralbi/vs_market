@@ -28,6 +28,7 @@ async function fetchProducts() {
         }
 
         products.forEach(product => {
+
             let productCard = document.createElement("div");
             productCard.classList.add("product-card");
             productCard.classList.add("card");            
@@ -38,22 +39,23 @@ async function fetchProducts() {
                 imageUrl = "static/no-image.png";
             }
             
+            let productName = product.name;
+            let productDescription = product.description;
+            productName += `<span class="card-text"> - ${productDescription} </span>`;
             productCard.innerHTML = `
-                <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
+                <div class="card-img-top">
+                    <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-inside">
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">${product.name} </h5>
-                    <p class="card-text">${product.description}</p>
-                    <p class="">
-                        ${displayPrice(product.price, product.is_dollar)}
-                    </p>
-                    <p>Category: ${product.category}</p>
-
-                    <a href="/messages?receiver_id=${product.owner_id}" class="btn btn-primary btn-sm">Message</a>
-
-                    <button class="btn btn-sm btn-outline-success pin_btn" id="pin_${product.id}" 
+                    <h5 class="card-title">${productName} </h5>
+                    <a href="/messages?receiver_id=${product.owner_id}" class="chat_btn btn btn-outline-primary btn-sm">&#128172;</a>
+                    <button class="btn btn-sm btn-outline-primary pin_btn" id="pin_${product.id}" 
                         onclick="addToFavorites(${product.id})">
                         &#128206;
                     </button>
+                    <p class="card-price">
+                        ${displayPrice(product.price, product.is_dollar)}
+                    </p>
                 </div>
                 `;
 
@@ -66,19 +68,7 @@ async function fetchProducts() {
     }
 }
 
-function displayPrice(price, isDollar) {
-    const exchangeRate = 87.8;
-    
-    if (isDollar) {
-        let som = price * exchangeRate;
-        return `$${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
-    } else {
-        let usd = price / exchangeRate;
-        return `${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
-    }
-}
 
-// Load products when the page loads
 fetchProducts();
 
 async function addToFavorites(productId) {
@@ -133,6 +123,25 @@ async function removeFromFavorites(productId) {
     }
 }
 
+function displayPrice(price, isDollar) {
+    const exchangeRate = 87.8;
+    
+    function formatLargeNumbers(value, isUSD = false) {
+        if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
+        if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + (isUSD ? " млн" : " млн");
+        if (value >= 100_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        if (value >= 10_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        return value.toFixed(1);
+    }
+
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `${formatLargeNumbers(price, false)} c.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
+    }
+}
 </script>
 
 

@@ -4,18 +4,16 @@
     overflow-y: scroll;
 }
 
-.product-card div {
-    padding: 6px; 
-}
-
 .product-card p {
     margin: 0px;
     padding: 0px;
     font-size: 12px;
-    max-height: 18px;
     overflow: hidden;
  }
-
+ .product-card .card-body  {
+    padding: 6px 4px;
+    min-height: 80px;
+ }
  .product-card .btn-sm {
     padding: 0px 12px;
  }
@@ -24,18 +22,47 @@
     margin: 4px;
     float: left;
     width: 200px;
+    height: 204px !important;
 }
 
 .product-card .card-title {
-    height: 18px;
+    display: inline-block;
+    max-height: 36px;
+    width: 100%;
     overflow: hidden;
     font-size: 0.9em;
     margin: 0;
 }
-.card-img-top {
-    max-height: 120px;
-}
 
+.product-card .card-price {
+    position: absolute;
+    bottom: 8px;
+    right: 30px;
+    max-height: 36px;
+    font-weight: bold;
+    color: rgb(188, 53, 11);
+    line-height: 1;
+    
+}
+.product-card .card-price small {
+    color: rgb(35, 132, 38);
+    font-style: italic;
+    font-weight: normal;
+}
+.product-card .card-text {
+    font-size: 0.9em;
+    font-weight: 400;
+}
+.product-card .card-img-top {
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+.product-card .card-img-top img{
+    margin: 0px;
+    width: 100%;
+    height: auto;
+}
 #favorite-products {
     padding: 5px 0;
     height: 120px;
@@ -53,30 +80,87 @@
     margin: 2px;
 }
 
-.fav_card p {
-    margin: 0;
+.fav_card .card-title {
     font-size: 12px;
+    max-height: 28px;
+    overflow: hidden;
+    font-weight: bold;
+}
+.fav_card .card-title span{
+    font-size: 11px;
+    font-weight: normal;
+}
+.fav_card .card-price {
+    margin-top: 6px;
+    display: inline-block;
+    font-size: 12px;
+    color: rgb(155, 17, 17);
+    line-height: 1;
+    font-weight: bold;
+}
+.fav_card .card-price small{
+    color: green;
 }
 .fav_card img {
     max-width: 100px;
-    height: 65px;
-    float: right;
+    max-height: 58px;
     border-radius: 4px;
+    float: right;
 }
 
 .fav_card .btn-sm {
+    margin-top: -10px;
     padding: 0 12px;
     font-size: 10px;
 }
 
+.card-body .pin_btn, .card-body .chat_btn {
+    /* background-color: rgba(83, 81, 81, 0.3); */
+    border: solid 0.5px gray;
+}
+
 .card-body .pin_btn {
     position: absolute;
-    border: solid 1px rgb(193, 193, 193);
-    border-bottom-right-radius: 6px;
-    bottom: -1px;
-    right: -1px;
-    padding: 2px 6px;
-    font-size: 1.2em;    
+    font-size: 1.1em;    
+    bottom: 4px;
+    left: 4px;
+    padding: 1px 6px;
+    font-size: 1.2em;
+}
+.card-body .chat_btn{
+    padding: 2px 7px;
+    font-size: 1.1em;    
+    position: absolute;
+    left: 38px;
+    bottom: 4px;
+}
+
+.card-body .my_item_update_btn, .card-body .my_item_del_btn {
+    padding: 0 4px;
+}
+
+.card-body .my_item_update_btn {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    width: 40px
+}
+
+.card-body .my_item_del_btn {
+    position: absolute;
+    left: 47px;
+    bottom: 4px;
+}
+
+.product-card .is_active{
+    position: absolute;
+    top: 107px;
+    right: 0px;
+    padding: 0px 6px;
+    border-top-left-radius: 6px;
+    font-size: 10px;
+    background: rgba(111, 83, 83, 0.5);
+    background-color: white;
 }
 
 #SearchContainer {
@@ -139,7 +223,6 @@
     text-align: end;
     color: rgb(21, 21, 212);
 }
-
 
 .timestamp {
     font-size: 10px;

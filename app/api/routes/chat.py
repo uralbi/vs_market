@@ -44,12 +44,13 @@ def get_user_chat_rooms(token: str = Depends(token_scheme), db: Session = Depend
     chat_rooms = chat_service.get_user_chat_rooms(user.id)
 
     for room in chat_rooms:
-        room
+        print(room.user1.username)
         
     return [
         {
             "chat_room_id": room.id,
             "other_user_id": room.user2_id if room.user1_id == user.id else room.user1_id,
+            "other_username": room.user2.username if room.user1_id == user.id else room.user1.username,
         }
         for room in chat_rooms
     ]

@@ -100,20 +100,37 @@
                 document.getElementById("entityWhatsApp").innerText = entity.entity_whatsapp;
 
                 // Delete button functionality
-                document.getElementById("deleteEntityBtn").addEventListener("click", async function() {
-                    if (!confirm("Are you sure you want to delete your entity?")) return;
-
-                    let deleteResponse = await fetch(`/api/ent/${entity.id}`, {
-                        method: "DELETE",
-                        headers: { "Authorization": `Bearer ${token}` }
-                    });
-
-                    if (deleteResponse.ok) {
-                        document.getElementById("deleteMessage").innerText = "Entity deleted successfully!";
-                    } else {
-                        let error = await deleteResponse.json();
-                        document.getElementById("deleteMessage").innerText = error.detail || "Failed to delete entity.";
+                document.addEventListener("DOMContentLoaded", function() {
+                    const deleteBtn = document.getElementById("deleteEntityBtn");
+                
+                    if (!deleteBtn) {
+                        console.error("Delete button not found.");
+                        return;
                     }
+                
+                    deleteBtn.addEventListener("click", async function(event) {
+                        event.preventDefault();
+                        const confirmed = confirm("Are you sure you want to delete your entity?");
+                        if (!confirmed) return;
+                
+                        try {
+                            const response = await fetch("/delete-endpoint", {
+                                method: "DELETE",
+                                headers: {
+                                    "Authorization": `Bearer ${getAccessToken()}`,
+                                    "Content-Type": "application/json"
+                                }
+                            });
+                
+                            if (!response.ok) throw new Error("Failed to delete");
+                
+                            alert("Entity deleted successfully!");
+                            location.reload();  // Refresh page or redirect after deletion
+                        } catch (error) {
+                            console.error("Delete error:", error);
+                            alert("Error deleting entity. Please try again.");
+                        }
+                    });
                 });
 
             } else {
@@ -152,11 +169,10 @@
             chatRooms.forEach(room => {
                 const listItem = document.createElement("li");
                 listItem.classList.add("list-group-item");
-    
                 listItem.innerHTML = `
                     <a href="/messages?chat_room_id=${room.chat_room_id}&receiver_id=${room.other_user_id}" 
                     class="text-decoration-none">
-                        Chat with User ${room.other_user_id}
+                        Chat with ${room.other_username} &#128172; 
                     </a>
                 `;
 

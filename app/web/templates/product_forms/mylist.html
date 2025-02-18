@@ -39,20 +39,27 @@ function displayProducts(products) {
         let productDiv = document.createElement("div");
         productDiv.classList.add("product-card");
         productDiv.classList.add("card");
-        productDiv.classList.add("m-1");
-
+        
+        let productName = product.name;
+        let productDescription = product.description;
+        productName += `<span class="card-text"> - ${productDescription} </span>`;
         productDiv.innerHTML = `
-            <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-top">
-            <div class="card-body">
-            <h5 class="card-title">${product.name} </h3>
-            <small class="text-${product.activated? "success": "danger"}"> ${product.activated? "Active": "Not Active"} </small>
-            <p class="card-text">${product.description}</p>
-            <p class="">${displayPrice(product.price, product.is_dollar)}</p>
-            <p>Category: ${product.category}</p>
-            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">Delete</button>
-            <a class="btn btn-sm btn-outline-success" href="/update-product/${product.id}" >update</a>
-            </div>
-        `;
+                <div class="card-img-top">
+                    <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-inside">
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">${productName} </h5>
+                    <small class="is_active text-${product.activated? "success": "danger"}"> ${product.activated? "Активный &#9889;": "Не активный &#10060;"} </small>
+                    <p class="card-price">
+                        ${displayPrice(product.price, product.is_dollar)}
+                    </p>
+                    
+                    <button class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="deleteProduct(${product.id})"> &#128465;	</button>
+                    <a class="btn btn-sm btn-outline-success my_item_update_btn" href="/update-product/${product.id}" > &#128395;</a>
+                    
+                </div>
+                `;
         productListDiv.appendChild(productDiv);
     });
 }
@@ -60,12 +67,20 @@ function displayProducts(products) {
 function displayPrice(price, isDollar) {
     const exchangeRate = 87.8;
     
+    function formatLargeNumbers(value, isUSD = false) {
+        if (value >= 10_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
+        if (value >= 10_000_000) return (value / 1_000_000).toFixed(1) + (isUSD ? " млн" : " млн");
+        if (value >= 100_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        if (value >= 10_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        return value.toFixed(0);
+    }
+
     if (isDollar) {
         let som = price * exchangeRate;
-        return `$${price.toFixed(2)} <small>(${som.toFixed(0)} сом)</small>`;
+        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} с.</small>`;
     } else {
         let usd = price / exchangeRate;
-        return `${price.toFixed(0)} сом <small> ($${usd.toFixed(2)}) </small>`;
+        return `${formatLargeNumbers(price, false)} с.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
     }
 }
 
