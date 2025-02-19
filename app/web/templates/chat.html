@@ -15,6 +15,13 @@
     <button class="btn btn-success" id="sendMessageBtn">Send</button>
 </div>
 
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    let room_id = urlParams.get("room_id");
+    if (!room_id){
+        room_id = {{room_id}}
+    }
+</script>
 <script src="{{ url_for('static', path='/chat.js') }}"></script>
 
 {% endblock %}

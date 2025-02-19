@@ -3,7 +3,14 @@
     <a class = "nav-link" href="/">Home</a>
 
     {% if current_user %}
-    <a class = "nav-link" href="/about"> &#x1F464; {{current_user.username|title}} </a> 
+    <a class = "nav-link" href="/about"> 
+        &#x1F464; {{current_user.username|title}} 
+        
+        {% if unread_rooms > 0 %}
+            <span class='unread_rooms_note'>{{unread_rooms}}</span>
+        {% endif %}
+       
+    </a> 
     {% endif %}
 
     <button class="btn btn-sm btn-outline-primary dropdown-toggle py-0 px-4" type="button" 

@@ -1,5 +1,6 @@
 from fastapi import Request, Depends
 from app.services.user_service import UserService
+from app.services.chat_service import ChatService
 from sqlalchemy.orm import Session
 from app.infra.database.db import get_db
 from app.utils.auth import get_current_user
@@ -37,4 +38,10 @@ def global_context(request: Request, db: Session = Depends(get_db)):
         except Exception:
             user = None
 
-    return {"request": request, "current_user": user}
+    # get count of chat_rooms where user's messages are not read 
+    count = 0
+    if user:
+        chat_service = ChatService(db)
+        count = chat_service.get_unread_chat_rooms(user.id)
+    
+    return {"request": request, "current_user": user, 'unread_rooms': count}

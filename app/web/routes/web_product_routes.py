@@ -32,6 +32,20 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
     
     return templates.TemplateResponse("chat.html", {**context, "other_id": other_id})
 
+@router.get("/messages/users")
+def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
+    """ Serve the product listing page """
+    user_id = request.query_params.get("user_id")
+    receiver_id = request.query_params.get("receiver_id")
+    product_id = request.query_params.get("product_id")
+    
+    chat_service = ChatService(db)
+    if user_id == receiver_id:
+        return
+    room = chat_service.get_or_create_chat_room(user_id, receiver_id)
+    
+    return templates.TemplateResponse("chat.html", {**context, "other_id": receiver_id, "room_id": room.id})
+
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):
     """ Serve the product listing page """

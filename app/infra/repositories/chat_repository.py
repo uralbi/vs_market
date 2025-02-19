@@ -131,3 +131,19 @@ class ChatRepository:
             raise HTTPException(status_code=404, detail="Chat room not found")
 
         return chat_room.user2_id if chat_room.user1_id == user_id else chat_room.user1_id
+    
+    def get_unread_chat_rooms(self, user_id: int) -> int:
+        """
+        Count chat rooms where the user has unread messages.
+        """
+        return (
+            self.db.query(ChatRoom.id)
+            .join(Message, ChatRoom.id == Message.chat_room_id)
+            .filter(
+                Message.sender_id != user_id,   # Messages sent by the other user
+                Message.is_read == False,       # Unread messages
+                (ChatRoom.user1_id == user_id) | (ChatRoom.user2_id == user_id)  # User is part of the chat
+            )
+            .distinct(ChatRoom.id)  # Ensure we count unique chat rooms
+            .count()
+        )

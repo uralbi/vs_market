@@ -269,3 +269,14 @@
     color: green;
 }
 
+
+/* NAVIGATION */
+
+.unread_rooms_note {
+    border: solid 1px rgb(219, 207, 207);
+    padding: 0 4px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--price-color); 
+    margin: 0 0 2px 0;
+}

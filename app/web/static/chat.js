@@ -1,6 +1,4 @@
 
-const urlParams = new URLSearchParams(window.location.search);
-const room_id = urlParams.get("room_id");
 const accessToken = getAccessTokenFromCookie()
 
 let user2Id;
