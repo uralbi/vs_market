@@ -49,7 +49,7 @@ async function refreshAccessToken() {
         return data.access_token;
     } catch (error) {
         console.error("Token refresh error:", error);
-        logout();
+        return null;
     }
 }
 
@@ -107,3 +107,38 @@ async function logout() {
     window.location.href = "/";
 }
 
+
+function displayPrice(price, isDollar) {
+    const exchangeRate = 87.8;
+    
+    function formatLargeNumbers(value, isUSD = false) {
+        if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
+        if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + (isUSD ? " млн" : " млн");
+        if (value >= 100_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        if (value >= 10_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        return value.toFixed(1);
+    }
+
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `${formatLargeNumbers(price, false)} c.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
+    }
+}
+
+function displayPrice_org(price, isDollar) {
+    const exchangeRate = 87.8;
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `$${price} <br> <small> ${som.toFixed(2)} c.</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `${price} c.<br><small> $${usd.toFixed(2)} </small>`;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    sessionStorage.setItem("lastPage", window.location.href);
+});

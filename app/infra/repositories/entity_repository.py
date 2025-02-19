@@ -32,7 +32,7 @@ class EntityRepository:
         """
         return self.db.query(EntityModel).filter(EntityModel.id == entity_id).first()
     
-    def get_entity_by_user(self, user_id: int):
+    def get_entity_by_user_id(self, user_id: int):
         """"
         Fetch an entity by user ID
         """

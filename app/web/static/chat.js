@@ -3,16 +3,19 @@ const urlParams = new URLSearchParams(window.location.search);
 const user2Id = urlParams.get("receiver_id");  // This is the other user in the chat
 
 // Get User's Own ID from Token
-const token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-const accessToken = token ? token.split('=')[1] : '';
+const accessToken = getAccessTokenFromCookie()
 
-if (!accessToken) {
-    alert("Authentication required. Please log in.");
-    window.location.href = "/login";
+function getAccessTokenFromCookie() {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name === "access_token") return value;
+    }
+    return null;
 }
 
 // Fetch authenticated user's ID
-async function getUserId() {
+async function getUserId(accessToken) {
     try {
         const response = await fetch(`/api/auth/me`, {
             headers: {
@@ -20,7 +23,6 @@ async function getUserId() {
             }
         });
         const user = await response.json();
-        
         return {"user_id": user.user_id, "user_name": user.username}
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -30,13 +32,12 @@ async function getUserId() {
 }
 
 // Fetch chat history from API
-async function loadChatHistory(userId, user2Id) {
+async function loadChatHistory(accessToken, user2Id) {
     try {
         const response = await fetch(`/chat/messages?user2_id=${user2Id}`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
-                "Content-Type": "application/json"
             }
         });
 
@@ -62,8 +63,14 @@ let userId;
 let userName;
 
 // Initialize WebSocket and load messages
-getUserId().then(user => {
-    
+getUserId(accessToken).then(user => {
+
+    console.log('doc ref:', document.referrer)
+
+    if (user.user_id == user2Id) { 
+        window.location.href = document.referrer || "/";
+        }
+
     if (!user.user_id) {
         console.log('No user id')    
         return
@@ -72,6 +79,8 @@ getUserId().then(user => {
     recieverId = user2Id;
     userName = user.user_name;
 
+    console.log('user and receiver:', userId, user2Id)
+    
     socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}`);
 
     socket.onopen = () => {
@@ -94,7 +103,7 @@ getUserId().then(user => {
 
     // Load chat history when the page loads
     if (user2Id) {
-        loadChatHistory(userId, user2Id);
+        loadChatHistory(accessToken, user2Id);
     }
 });
 

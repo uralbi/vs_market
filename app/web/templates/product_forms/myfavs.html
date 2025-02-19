@@ -37,7 +37,7 @@
 
                 productItem.innerHTML = `
                 <div class="card-body">
-                    <h5 class="card-title">${productName} </h5>
+                    <a href="/product/${product.id}"><h5 class="card-title">${productName} </h5></a>
                     <p class="card-price">
                         ${displayPrice(product.price, product.is_dollar)}
                     </p>

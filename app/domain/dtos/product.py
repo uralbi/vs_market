@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, HttpUrl
-from typing import List
+from typing import List, Optional
+from app.domain.dtos.entity import EntityCreateDTO
 from datetime import datetime
 
 

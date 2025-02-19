@@ -159,10 +159,11 @@ def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depen
     product_service = ProductService(db)
     return product_service.get_user_products(user.id, limit, offset)
 
+
 @router.get("/list", response_model=List[ProductDTO])
 def get_products_list(db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
     """
-    Get a list of products, sorted by latest first.
+    Get a list of recent products.
     """
     product_service = ProductService(db)
     return product_service.get_all_products(limit, offset)
@@ -178,6 +179,7 @@ async def update_product(
         activated: bool = Form(True),
         category: str = Form(None),
         images: List[UploadFile] = File(None),  # Optional images
+        keep_existing_images: bool = Form(True),
         token: str = Depends(token_scheme),
         db: Session = Depends(get_db)
     ):
@@ -207,9 +209,14 @@ async def update_product(
 
     if images:
         image_service = ImageService()
-        image_urls = [await image_service.process_and_store_image(image) for image in images]
-        product_service.update_product_images(product_id, image_urls)
+        new_image_urls = [await image_service.process_and_store_image(image) for image in images]
 
+        if not keep_existing_images:  
+            product_service.update_product_images(product_id, new_image_urls, keep_existing_images)
+        else:
+            existing_image_urls = [img.image_url for img in product.images]
+            product_service.update_product_images(product_id, existing_image_urls + new_image_urls, keep_existing_images)
+    
     updated_product = product_service.update_product(product_id, user, updated_data)
 
     return updated_product
@@ -226,6 +233,7 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
+    owner_entity = product.owner.entity
     product_dto = ProductDTO.model_validate(product)
     product_dto.image_urls = [img.image_url for img in product.images]
     

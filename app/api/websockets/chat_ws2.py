@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, Depends
 from sqlalchemy.orm import Session
 from app.infra.database.db import get_db
-from app.infra.websockets.ws_consumer import ChatConsumer
+from app.api.websockets.ws_consumer import ChatConsumer
 
 router = APIRouter(
     prefix='/ws/v2/chat',

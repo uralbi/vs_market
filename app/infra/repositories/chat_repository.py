@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from sqlalchemy import or_
 from app.infra.database.models import ChatRoom, Message, UserModel
 from datetime import datetime
@@ -37,20 +38,37 @@ class ChatRepository:
         self.db.refresh(message)
         return message
 
-    def get_chat_history(self, chat_room_id: int) -> List[Message]:
-        """Retrieve all messages from a chat room."""
-        return (
+    def get_chat_history(self, user1_id: int, user2_id: int):
+        """Retrieve chat history including sender usernames, only if the chat room exists."""
+
+        chat_room = (
+            self.db.query(ChatRoom)
+            .filter(
+                ((ChatRoom.user1_id == user1_id) & (ChatRoom.user2_id == user2_id)) |
+                ((ChatRoom.user1_id == user2_id) & (ChatRoom.user2_id == user1_id))
+            )
+            .first()
+        )
+
+        if not chat_room:
+            return []  # Return empty list if chat room doesn't exist
+
+        # Step 2: Fetch messages along with sender usernames
+        messages = (
             self.db.query(
                 Message.sender_id,
-                UserModel.username,
+                UserModel.username,  # ✅ Fetch username
                 Message.content,
                 Message.timestamp
             )
-            .filter(Message.chat_room_id == chat_room_id)
-            .join(UserModel, Message.sender_id == UserModel.id)  # Join messages with users
-            .order_by(Message.timestamp.asc())
+            .join(UserModel, UserModel.id == Message.sender_id)  
+            .filter(Message.chat_room_id == chat_room.id) 
+            .order_by(Message.timestamp.asc())  
             .all()
         )
+
+        return messages  # ✅ Returns list of tuples: (sender_id, sender_username, content, timestamp)
+
 
     def get_user_chat_rooms(self, user_id: int):
         """Fetch all chat rooms where the user is a participant."""
@@ -63,3 +81,12 @@ class ChatRepository:
                   )
             .all()
         )
+    
+    def get_chat_room_by_id(self, chat_room_id: int):
+        """Fetch a chat room by ID"""
+        return self.db.query(ChatRoom).filter(ChatRoom.id == chat_room_id).first()
+
+    def delete_chat_room(self, chat_room):
+        """Delete a chat room and cascade delete its messages"""
+        self.db.delete(chat_room)
+        self.db.commit()

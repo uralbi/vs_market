@@ -31,6 +31,14 @@
     <div class="form-control" id="curr_images">
     </div>
 
+    <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="keep_existing_images" name="keep_existing_images" checked>
+        <label class="form-check-label" for="keep_existing_images">
+            Keep Existing Images?
+        </label>
+    </div>
+
+    
     <label class="form-label">Upload Images (Optional):</label>
     <input class="form-control" type="file" id="update_images" multiple>
 
@@ -114,9 +122,12 @@
         let images = document.getElementById("update_images").files;
         let is_dollar = document.getElementById("update_is_dollar").checked
         let activated = document.getElementById("update_activated").checked
+        let keepExistingImages = document.getElementById("keep_existing_images").checked;
+
         
         formData.append("activated", activated.toString());
         formData.append("is_dollar", is_dollar.toString());
+        formData.append("keep_existing_images", keepExistingImages.toString());
         if (name) formData.append("name", name);
         if (description) formData.append("description", description);
         if (price) formData.append("price", price);

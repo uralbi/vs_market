@@ -28,27 +28,27 @@ async function fetchProducts() {
         }
 
         products.forEach(product => {
-
             let productCard = document.createElement("div");
             productCard.classList.add("product-card");
             productCard.classList.add("card");            
-            let imageUrl = ''
-            if (product.image_urls) {
-                imageUrl = product.image_urls.length > 0 ? product.image_urls[0] : "/static/no-image.png";
-            } else {
-                imageUrl = "static/no-image.png";
-            }
+            
+            let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
+
             
             let productName = product.name;
             let productDescription = product.description;
             productName += `<span class="card-text"> - ${productDescription} </span>`;
             productCard.innerHTML = `
                 <div class="card-img-top">
-                    <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-inside">
+                    ${createImageCarousel(product.id, imageUrls)}
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">${productName} </h5>
-                    <a href="/messages?receiver_id=${product.owner_id}" class="chat_btn btn btn-outline-primary btn-sm">&#128172;</a>
+                    <a href="/product/${product.id}"><h5 class="card-title">${productName} </h5></a>
+                  
+                    <button class="chat_btn btn btn-outline-primary btn-sm" onclick="openChat(${product.owner_id})">
+                        &#128172;
+                    </button>
+
                     <button class="btn btn-sm btn-outline-primary pin_btn" id="pin_${product.id}" 
                         onclick="addToFavorites(${product.id})">
                         &#128206;
@@ -61,7 +61,8 @@ async function fetchProducts() {
 
             productContainer.appendChild(productCard);
         });
-
+    
+        
     } catch (error) {
         console.error("Error fetching products:", error);
         document.getElementById("productContainer").innerHTML = "<p>Error loading products.</p>";
@@ -71,78 +72,60 @@ async function fetchProducts() {
 
 fetchProducts();
 
-async function addToFavorites(productId) {
-    
-    let tokenRow = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+function createImageCarousel(productId, imageUrls) {
+    let indicators = "";
+    let slides = "";
 
-    if (!tokenRow) {
-        console.warn("User is not authenticated.");
-        return;  // Stop execution if no token is found
-    }
-
-    let token = tokenRow.split("=")[1]
-
-    let response = await fetch(`/favs/${productId}`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+    imageUrls.forEach((imgUrl, index) => {
+        const activeClass = index === 0 ? "active" : "";
+        indicators += `
+            <button type="button" data-bs-target="#carousel_${productId}" data-bs-slide-to="${index}" class="${activeClass}" aria-label="Slide ${index + 1}"></button>
+        `;
+        slides += `
+            <div class="carousel-item ${activeClass}">
+                <img src="/${imgUrl}" class="d-block w-100 rounded" alt="Product Image">
+            </div>
+        `;
     });
 
-    if (response.ok) {
+    return `
+        <div id="carousel_${productId}" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">${indicators}</div>
+            <div class="carousel-inner">${slides}</div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel_${productId}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel_${productId}" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    `;
+}
 
-        let button = document.getElementById(`pin_${productId}`)
-        button.classList.remove("btn-outline-success");
-        button.classList.add("btn-primary");
-    } else {
-        let error = await response.json();
-        alert(error.detail);
+async function openChat(receiverId) {
+    try {
+        const user = await authenticatedRequest('me'); 
+        if (!user) {
+            alert("Войдите чтоб написать продавцу.");
+            return;
+        }
+
+        if (user.user_id === receiverId) {
+            alert("Forbidden.");
+            return;
+        }
+        window.location.href = `/messages?user_id=${user.user_id}&receiver_id=${receiverId}`;
+
+    } catch (error) {
+        console.error("Authentication error:", error);
+        alert("Войдите чтоб написать продавцу.");
     }
 }
 
-async function removeFromFavorites(productId) {
 
-
-    let tokenRow = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-
-    if (!tokenRow) {
-        console.warn("User is not authenticated.");
-        return;  // Stop execution if no token is found
-    }
-
-    let token = tokenRow.split("=")[1];  // Extract token value
-
-    let response = await fetch(`/favs/${productId}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-        console.log('Unpinned')
-    } else {
-        let error = await response.json();
-        alert(error.detail);
-    }
-}
-
-function displayPrice(price, isDollar) {
-    const exchangeRate = 87.8;
-    
-    function formatLargeNumbers(value, isUSD = false) {
-        if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
-        if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + (isUSD ? " млн" : " млн");
-        if (value >= 100_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
-        if (value >= 10_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
-        return value.toFixed(1);
-    }
-
-    if (isDollar) {
-        let som = price * exchangeRate;
-        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
-    } else {
-        let usd = price / exchangeRate;
-        return `${formatLargeNumbers(price, false)} c.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
-    }
-}
 </script>
-
+<script src="{{ url_for('static', path='utils.js') }}"></script>
 
 {% endblock %}

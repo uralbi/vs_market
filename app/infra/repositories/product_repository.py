@@ -114,11 +114,15 @@ class ProductRepository:
         self.db.refresh(product)
         return product
 
-    def update_product_images(self, product_id: int, image_urls: List[str]):
+    def update_product_images(self, product_id: int, image_urls: List[str], keep_existing: bool = True):
         """Replace images for a product."""
         
         old_images = self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).all()
-        delete_images_from_disk(old_images)
+        
+        if not keep_existing:
+            delete_images_from_disk(old_images)
+            self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).delete()
+    
         
         self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).delete()
 

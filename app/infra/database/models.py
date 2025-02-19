@@ -33,7 +33,7 @@ class Message(Base):
 
     chat_room = relationship("ChatRoom", back_populates="messages")
     sender = relationship("UserModel", foreign_keys=[sender_id])
-
+    
 
 # Association Table: Many-to-Many between Users & Products
 favorites_table = Table(
