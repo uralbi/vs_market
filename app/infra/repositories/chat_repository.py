@@ -1,6 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from fastapi import HTTPException
-from sqlalchemy import or_
+from sqlalchemy import or_, func, case
 from app.infra.database.models import ChatRoom, Message, UserModel
 from datetime import datetime
 from typing import List
@@ -69,18 +69,49 @@ class ChatRepository:
 
         return messages  # ✅ Returns list of tuples: (sender_id, sender_username, content, timestamp)
 
-
     def get_user_chat_rooms(self, user_id: int):
-        """Fetch all chat rooms where the user is a participant."""
-        return (
-            self.db.query(ChatRoom)
-            .filter(UserModel.id != user_id)
+        """
+        Fetch all chat rooms where the user is a participant.
+        Also, check if the chat room contains unread messages for the user.
+        """
+        OtherUser = aliased(UserModel)
+
+        chat_rooms = (
+            self.db.query(
+                ChatRoom.id,
+                ChatRoom.user1_id,
+                ChatRoom.user2_id,
+                case(
+                    (func.count(Message.id).filter(
+                        Message.sender_id != user_id,  
+                        Message.is_read == False
+                    ) > 0, 1),
+                    else_=0
+                ).label("has_unread_messages"),
+                OtherUser.username  # ✅ Correctly fetch the other user's username
+            )
+            .outerjoin(Message, ChatRoom.id == Message.chat_room_id)
+            .join(OtherUser, 
+                case(
+                    (ChatRoom.user1_id == user_id, ChatRoom.user2_id),
+                    (ChatRoom.user2_id == user_id, ChatRoom.user1_id)
+                ) == OtherUser.id,  # ✅ Dynamically select the correct user
+                isouter=True
+            )
             .filter((ChatRoom.user1_id == user_id) | (ChatRoom.user2_id == user_id))
-            .join(UserModel, 
-                  (ChatRoom.user1_id == UserModel.id) | (ChatRoom.user2_id == UserModel.id)
-                  )
+            .group_by(ChatRoom.id, ChatRoom.user1_id, ChatRoom.user2_id, OtherUser.username)
             .all()
-        )
+            )
+
+        return [
+                    {
+                        "chat_room_id": room.id,
+                        "other_user_id": room.user2_id if room.user1_id == user_id else room.user1_id,
+                        "other_user_username": room[4],
+                        "has_unread_messages": bool(room.has_unread_messages)
+                    }
+                    for room in chat_rooms
+                ]
     
     def get_chat_room_by_id(self, chat_room_id: int):
         """Fetch a chat room by ID"""

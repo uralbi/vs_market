@@ -30,10 +30,11 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey("users.id"))
     content = Column(Text, nullable=False)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
-
+    is_read = Column(Boolean, default=False)
+    
     chat_room = relationship("ChatRoom", back_populates="messages")
     sender = relationship("UserModel", foreign_keys=[sender_id])
-    
+
 
 # Association Table: Many-to-Many between Users & Products
 favorites_table = Table(

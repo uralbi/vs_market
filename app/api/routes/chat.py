@@ -54,23 +54,24 @@ def get_chat_history(user2_id: int, token: str = Depends(token_scheme), db: Sess
         ]
     }
 
+
 @router.get("/rooms")
 def get_user_chat_rooms(token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """
-    Fetch all chat rooms for the authenticated user.
+    Fetch all chat rooms for the authenticated user, including unread message status.
     """
     user = user_authorization(token, db)
     chat_service = ChatService(db)
     chat_rooms = chat_service.get_user_chat_rooms(user.id)
 
-    for room in chat_rooms:
-        print(room.user1.username)
-        
+    for r in chat_rooms:
+        print(r.items())
     return [
         {
-            "chat_room_id": room.id,
-            "other_user_id": room.user2_id if room.user1_id == user.id else room.user1_id,
-            "other_username": room.user2.username if room.user1_id == user.id else room.user1.username,
+            "chat_room_id": room['chat_room_id'],  
+            "other_user_id": room["other_user_id"],  
+            "other_username": room["other_user_username"],
+            "has_unread_messages": room["has_unread_messages"] 
         }
         for room in chat_rooms
     ]
