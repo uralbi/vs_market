@@ -1,40 +1,17 @@
-// Get `user2_id` from URL
-const urlParams = new URLSearchParams(window.location.search);
-const user2Id = urlParams.get("receiver_id");  // This is the other user in the chat
 
-// Get User's Own ID from Token
+const urlParams = new URLSearchParams(window.location.search);
+const room_id = urlParams.get("room_id");
 const accessToken = getAccessTokenFromCookie()
 
-function getAccessTokenFromCookie() {
-    const cookies = document.cookie.split("; ");
-    for (let cookie of cookies) {
-        const [name, value] = cookie.split("=");
-        if (name === "access_token") return value;
-    }
-    return null;
-}
+let user2Id;
+let socket;
+let userId;
+let userName;
 
-// Fetch authenticated user's ID
-async function getUserId(accessToken) {
-    try {
-        const response = await fetch(`/api/auth/me`, {
-            headers: {
-                "Authorization": `Bearer ${accessToken}`
-            }
-        });
-        const user = await response.json();
-        return {"user_id": user.user_id, "user_name": user.username}
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        alert("Error retrieving user info.");
-        window.location.href = "/login";
-    }
-}
 
-// Fetch chat history from API
-async function loadChatHistory(accessToken, user2Id) {
+async function loadChatHistory(accessToken, room_id) {
     try {
-        const response = await fetch(`/chat/messages?user2_id=${user2Id}`, {
+        const response = await fetch(`/chat/messages?room_id=${room_id}`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
@@ -57,55 +34,48 @@ async function loadChatHistory(accessToken, user2Id) {
     }
 }
 
-// WebSocket variable to be accessible globally
-let socket;
-let userId;
-let userName;
-
 // Initialize WebSocket and load messages
-getUserId(accessToken).then(user => {
+async function InitializeChat(room_id, access_token){
+    await loadOtherUser(room_id);
 
-    console.log('doc ref:', document.referrer)
+    getUserId(accessToken).then(user => {
+        if (user.user_id == user2Id) { 
+            window.location.href = document.referrer || "/";
+            }
 
-    if (user.user_id == user2Id) { 
-        window.location.href = document.referrer || "/";
+        if (!user.user_id) { console.log('No user id'); return};
+
+        userId = user.user_id;
+        recieverId = user2Id;
+        userName = user.user_name;
+        
+        socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}`);
+
+        socket.onopen = () => {
+            console.log("Connected to WebSocket");
+            document.getElementById("chatBox").innerHTML += '<div class="text-center text-muted">Connected to chat</div>';
+        };
+
+        socket.onerror=(error) => {
+            console.error("websocket error:", error)
         }
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            displayMessage(data.sender_username, data.message, "msg_received");
+        };
 
-    if (!user.user_id) {
-        console.log('No user id')    
-        return
-    };
-    userId = user.user_id;
-    recieverId = user2Id;
-    userName = user.user_name;
+        socket.onclose = () => {
+            console.log("WebSocket disconnected");
+            document.getElementById("chatBox").innerHTML += '<div class="text-center text-danger">Disconnected</div>';
+        };
 
-    console.log('user and receiver:', userId, user2Id)
-    
-    socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}`);
+        // Load chat history when the page loads
+        loadChatHistory(accessToken, room_id);
 
-    socket.onopen = () => {
-        console.log("Connected to WebSocket");
-        document.getElementById("chatBox").innerHTML += '<div class="text-center text-muted">Connected to chat</div>';
-    };
+    });
+};
 
-    socket.onerror=(error) => {
-        console.error("websocket error:", error)
-    }
-    socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        displayMessage(data.sender_username, data.message, "msg_received");
-    };
-
-    socket.onclose = () => {
-        console.log("WebSocket disconnected");
-        document.getElementById("chatBox").innerHTML += '<div class="text-center text-danger">Disconnected</div>';
-    };
-
-    // Load chat history when the page loads
-    if (user2Id) {
-        loadChatHistory(accessToken, user2Id);
-    }
-});
+InitializeChat(room_id, accessToken);
 
 // Move sendMessage function OUTSIDE `getUserId().then(...)`
 function sendMessage() {
@@ -168,4 +138,58 @@ function displayMessage(sender, message, type, timestamp = new Date().toISOStrin
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+async function getOtherUser(roomId) {
+    try {
+        const token = getAccessTokenFromCookie(); // Retrieve auth token
 
+        const response = await fetch(`/chat/counterpart?room_id=${roomId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch other user");
+        }
+
+        const data = await response.json();
+        return data.other_user_id; // ✅ Returns the other user's ID
+    } catch (error) {
+        console.error("Error fetching other user:", error);
+        return null;
+    }
+}
+
+async function loadOtherUser(room_id) {
+    try {
+        user2Id = await getOtherUser(room_id);
+    } catch (error) {
+        console.error("Error fetching other user:", error);
+    }
+}
+
+function getAccessTokenFromCookie() {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name === "access_token") return value;
+    }
+    return null;
+}
+
+async function getUserId(accessToken) {
+    try {
+        const response = await fetch(`/api/auth/me`, {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
+        const user = await response.json();
+        return {"user_id": user.user_id, "user_name": user.username}
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        alert("Error retrieving user info.");
+        window.location.href = "/login";
+    }
+}

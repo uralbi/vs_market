@@ -38,36 +38,22 @@ class ChatRepository:
         self.db.refresh(message)
         return message
 
-    def get_chat_history(self, user1_id: int, user2_id: int):
-        """Retrieve chat history including sender usernames, only if the chat room exists."""
-
-        chat_room = (
-            self.db.query(ChatRoom)
-            .filter(
-                ((ChatRoom.user1_id == user1_id) & (ChatRoom.user2_id == user2_id)) |
-                ((ChatRoom.user1_id == user2_id) & (ChatRoom.user2_id == user1_id))
-            )
-            .first()
-        )
-
-        if not chat_room:
-            return []  # Return empty list if chat room doesn't exist
-
-        # Step 2: Fetch messages along with sender usernames
-        messages = (
+    def get_chat_history(self, chat_room_id: int):
+        """
+        Retrieve all messages from a specific chat room.
+        """
+        return (
             self.db.query(
                 Message.sender_id,
-                UserModel.username,  # ✅ Fetch username
+                UserModel.username,
                 Message.content,
                 Message.timestamp
             )
-            .join(UserModel, UserModel.id == Message.sender_id)  
-            .filter(Message.chat_room_id == chat_room.id) 
-            .order_by(Message.timestamp.asc())  
+            .join(UserModel, Message.sender_id == UserModel.id)
+            .filter(Message.chat_room_id == chat_room_id)  # ✅ Filter by chat room
+            .order_by(Message.timestamp.asc())
             .all()
         )
-
-        return messages  # ✅ Returns list of tuples: (sender_id, sender_username, content, timestamp)
 
     def get_user_chat_rooms(self, user_id: int):
         """
@@ -121,3 +107,27 @@ class ChatRepository:
         """Delete a chat room and cascade delete its messages"""
         self.db.delete(chat_room)
         self.db.commit()
+    
+    def mark_messages_as_read(self, user_id: int, chat_room_ids: List[int]):
+        """
+        Mark all unread messages in chat rooms as read for the authenticated user.
+        """
+        if not chat_room_ids:  # ✅ Prevent unnecessary queries
+            return
+        
+        self.db.query(Message).filter(
+            Message.chat_room_id.in_(chat_room_ids), 
+            Message.sender_id != user_id, 
+            Message.is_read == False
+        ).update({Message.is_read: True}, synchronize_session=False)
+
+        self.db.commit()
+    
+    def get_other_user_id(self, room_id: int, user_id: int) -> int:
+        """Finds the other user in the chat room"""
+        chat_room = self.db.query(ChatRoom).filter(ChatRoom.id == room_id).first()
+
+        if not chat_room:
+            raise HTTPException(status_code=404, detail="Chat room not found")
+
+        return chat_room.user2_id if chat_room.user1_id == user_id else chat_room.user1_id

@@ -77,7 +77,11 @@
     height: 120px;
     overflow-y: scroll;
 }
+/* PROFILE PAGE */
 
+.my_badge_unread {
+    margin: 0 4px;
+}
 .fav_card {
     width: 230px;
     height: 100px;
@@ -264,3 +268,4 @@
 .product_price small {
     color: green;
 }
+

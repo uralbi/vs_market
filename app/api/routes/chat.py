@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.infra.database.db import get_db
 from app.services.chat_service import ChatService
@@ -12,6 +12,19 @@ router = APIRouter(
     )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+
+@router.get("/counterpart")
+def get_other_user(token: str = Depends(token_scheme), room_id: int = Query(..., description="chat room id"), db: Session = Depends(get_db)):
+    """
+    Fetch the other user (counterpart) in a given chat room.
+    """
+    user = user_authorization(token, db)
+    chat_service = ChatService(db)
+    other_user_id = chat_service.get_other_user_id(room_id, user.id)
+
+    return {"other_user_id": other_user_id}
+
 
 @router.delete("/rooms/{chat_room_id}")
 def delete_chat_room(chat_room_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
@@ -34,14 +47,15 @@ def delete_chat_room(chat_room_id: int, token: str = Depends(token_scheme), db: 
 
 
 @router.get("/messages")
-def get_chat_history(user2_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+def get_chat_history(room_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """
     Fetch chat history between the authenticated user and another user.
     """
     user = user_authorization(token, db)
     chat_service = ChatService(db)
-    messages = chat_service.get_chat_history(user.id, user2_id)
-
+    messages = chat_service.get_chat_history(room_id, user.id)
+    chat_service.mark_messages_as_read(user.id, [room_id,])
+    
     return {
         "messages": [
             {
@@ -63,9 +77,8 @@ def get_user_chat_rooms(token: str = Depends(token_scheme), db: Session = Depend
     user = user_authorization(token, db)
     chat_service = ChatService(db)
     chat_rooms = chat_service.get_user_chat_rooms(user.id)
-
-    for r in chat_rooms:
-        print(r.items())
+    # chat_service.mark_messages_as_read(user.id, [room["chat_room_id"] for room in chat_rooms])
+    
     return [
         {
             "chat_room_id": room['chat_room_id'],  

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app.domain.dtos.entity import EntityCreateDTO, EntityUpdateDTO
 from app.infra.repositories.entity_repository import EntityRepository
-from app.infra.database.models import EntityModel
+from app.infra.database.models import EntityModel, Message
 from app.domain.entities.user import User
 
 
@@ -56,3 +56,4 @@ class EntityService:
 
         self.entity_repo.delete_entity(entity)
         return {"message": "Entity deleted successfully"}
+

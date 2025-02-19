@@ -121,7 +121,6 @@
     });
     
         
-
     async function loadChatRooms(token) {
         try {
             const response = await fetch(`/chat/rooms/`, {
@@ -151,8 +150,8 @@
                 const listItem = document.createElement("li");
                 listItem.classList.add("list-group-item");
                 listItem.innerHTML = `
-                    <a href="/messages?user_id={{ current_user.id }}&receiver_id=${room.other_user_id}" 
-                    class="text-decoration-none">
+                    <a href="/messages?room_id=${room.chat_room_id}" class="text-decoration-none">
+                    <span class="my_badge_unread"> ${room.has_unread_messages ? "📩": "✔️"} </span>
                         Chat with ${room.other_username} &#128172; 
                     </a>
                     <button class="btn btn-danger btn-sm" onclick="deleteChatRoom(${room.chat_room_id})">
