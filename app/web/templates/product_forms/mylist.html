@@ -65,8 +65,9 @@ function displayProducts(products) {
 }
 
 async function deleteProduct(productId) {
-    let token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split("=")[1];
-
+    let token = getAccessTokenFromCookie();
+    const confirmed = confirm("Подтвердите удаление!");
+    if (!confirmed) return;
     let response = await fetch(`/api/products/delete/${productId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }

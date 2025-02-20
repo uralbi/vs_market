@@ -223,17 +223,22 @@ async def update_product(
 @router.get("/{product_id}", response_model=ProductDTO)
 def get_product(product_id: int, request: Request, db: Session = Depends(get_db), ):
     """Fetch product details by ID."""
-    
+    sd
     token = request.headers.get("Authorization").replace("Bearer ", "")
     product_service = ProductService(db)
-    user = user_authorization(token, db) if token else None
-
+    user = None
+    if token != 'null':
+        try:
+            user = user_authorization(token, db)
+        except Exception as e:
+            logger.info(f"Trying get product detail with invalid token, Error: {e}")
+            user = None
     product = product_service.get_product_by_id(product_id, user)
 
+    print('product is:', product)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    owner_entity = product.owner.entity
     product_dto = ProductDTO.model_validate(product)
     product_dto.image_urls = [img.image_url for img in product.images]
     

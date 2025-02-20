@@ -55,7 +55,14 @@
                 });
 
 
-            if (!response.ok) throw new Error("Product not found");
+            if (!response.ok ) {
+                if (document.referrer) {
+                    window.location.href = document.referrer; // ✅ Redirect to the referring page
+                } else {
+                    window.history.back(); // ✅ If no referrer, use history back
+                }
+                throw new Error("Product is not available yet"); 
+            }
     
             const product = await response.json();
 
@@ -67,7 +74,6 @@
             
             if (!product.activated) {
                 let elem = document.getElementById("is_activated_product").textContent = "NOT ACTIVATED"
-                
             }
             
             // Display all product images in Bootstrap Carousel
@@ -81,11 +87,15 @@
             // Update chat link
             document.getElementById("chatSeller").dataset.receiverId = product.owner_id;
             document.getElementById("chatSeller").dataset.productId = product.id;
+
+            if (product.owner_id == "{{current_user.id}}") {
+                document.getElementById("chatSeller").classList.add('d-none')
+            }
             loadEntityInfo(product.owner_id)
 
         } catch (error) {
             console.error("Error loading product:", error);
-            alert("Failed to load product details.");
+            alert(error);
         }
     }
     

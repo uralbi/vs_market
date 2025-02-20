@@ -114,11 +114,11 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         const deleteBtn = document.getElementById("deleteEntityBtn");
-        if (deleteBtn && !deleteBtn.hasAttribute("listener")) { // ✅ Prevent duplicate listeners
-            deleteBtn.setAttribute("listener", "true"); // ✅ Mark as already added
+        if (deleteBtn && !deleteBtn.hasAttribute("listener")) { // Prevent duplicate listeners
+            deleteBtn.setAttribute("listener", "true"); // Mark as already added
             deleteBtn.addEventListener("click", async function(event) {
                 event.preventDefault();
-                const confirmed = confirm("Are you sure you want to delete your entity?");
+                const confirmed = confirm("Подтвердите удаление.");
                 if (!confirmed) return;
     
                 try {

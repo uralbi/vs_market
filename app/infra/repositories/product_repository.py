@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
+from fastapi import HTTPException
 from app.infra.database.models import ProductModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
 from typing import List, Optional
@@ -75,8 +76,8 @@ class ProductRepository:
         product = query.first()
 
         if product and user and product.owner_id != user.id and not product.activated:
-            return None  # Prevent unauthorized users from accessing deactivated products
-
+            return HTTPException(status_code=403, detail="Unauthorized")
+        
         return product
 
     def delete_product(self, product_id: int, user):
