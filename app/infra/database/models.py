@@ -87,7 +87,7 @@ class ProductModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, index=True)
-    description = Column(Text, nullable=True)
+    description = Column(Text, nullable=False)
     price = Column(Float, nullable=False)
     is_dollar = Column(Boolean, default=False, nullable=False)
     category = Column(String(100), nullable=False, index=True)

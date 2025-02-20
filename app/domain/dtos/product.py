@@ -6,7 +6,7 @@ from datetime import datetime
 
 class ProductCreateDTO(BaseModel):
     name: str = Field(..., min_length=3, max_length=255)
-    description: str = Field(None, max_length=500)
+    description: str = Field(..., max_length=10000)
     price: float = Field(..., gt=0)
     category: str = Field(..., min_length=2, max_length=100)
     image_urls: List[str] = Field(default=[], max_items=10)  # Max 10 images

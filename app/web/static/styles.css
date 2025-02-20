@@ -133,7 +133,8 @@
 
 .card-body .pin_btn, .card-body .chat_btn {
     /* background-color: rgba(83, 81, 81, 0.3); */
-    border: solid 0.5px gray;
+    border: none;
+
 }
 
 .card-body .pin_btn {
@@ -269,7 +270,9 @@
     color: green;
 }
 
-
+.product_description{
+    white-space: pre-line;;
+}
 /* NAVIGATION */
 
 .unread_rooms_note {

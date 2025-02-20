@@ -1,15 +1,13 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form, Query
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form, Query, Request
 from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
 from typing import List
 from app.infra.database.db import get_db
 from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
 from app.services.image_service import ImageService
 from app.services.user_service import UserService
-from app.domain.security.auth_token import decode_access_token
 import asyncio, json
 import redis.asyncio as redis
 from app.domain.security.auth_user import user_authorization
@@ -223,11 +221,13 @@ async def update_product(
 
 
 @router.get("/{product_id}", response_model=ProductDTO)
-def get_product(product_id: int, db: Session = Depends(get_db)):
+def get_product(product_id: int, request: Request, db: Session = Depends(get_db), ):
     """Fetch product details by ID."""
     
+    token = request.headers.get("Authorization").replace("Bearer ", "")
     product_service = ProductService(db)
-    user = None
+    user = user_authorization(token, db) if token else None
+
     product = product_service.get_product_by_id(product_id, user)
 
     if not product:

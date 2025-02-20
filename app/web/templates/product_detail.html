@@ -9,11 +9,15 @@
         <div id="productImageContainer" class="text-center">
             <img id="productImage" src="" class="img-fluid rounded shadow" alt="Product Image">
         </div>
+        
     </div>
 
     <!-- Product Details -->
     <div class="col-md-6">
         <h2 id="productName" class="product_name"></h2>
+
+        <div id="is_activated_product" class="text-danger badge d-flex my-4 fs-5 p-0"></div>
+
         <p id="productCategory" class="product_category"></p>
         <p id="productPrice" class="product_price"></p>
         <p id="productDescription" class="product_description text-muted"></p>
@@ -41,17 +45,31 @@
         }
     
         try {
-            const response = await fetch(`/api/products/${productId}`);
+            let token = getAccessTokenFromCookie();
+            const response = await fetch(`/api/products/${productId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+
             if (!response.ok) throw new Error("Product not found");
     
             const product = await response.json();
-    
+
             // Populate product details
             document.getElementById("productName").textContent = product.name;
             document.getElementById("productCategory").textContent = product.category;
             document.getElementById("productPrice").innerHTML = displayPrice_org(product.price, product.is_dollar);
-            document.getElementById("productDescription").textContent = product.description;
-    
+            document.getElementById("productDescription").innerHTML = product.description;
+            
+            if (!product.activated) {
+                let elem = document.getElementById("is_activated_product").textContent = "NOT ACTIVATED"
+                
+            }
+            
             // Display all product images in Bootstrap Carousel
             const imageContainer = document.getElementById("productImageContainer");
             if (product.image_urls.length > 0) {

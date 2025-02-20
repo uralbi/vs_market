@@ -5,18 +5,12 @@
 
 <form id="productForm" enctype="multipart/form-data">
 
-    <div class="form-check mt-2">
-        <label class="form-label" for="activated">
-            Активировать?
-        </label>
-        <input class="form-input" type="checkbox" id="activated" name="update_activated">
-    </div>
-
     <label class='form-label' for="name">Product Name:</label>
     <input class="form-control form-controm-sm" type="text" id="name" name="name" required>
 
-    <label class='form-label' for="description">Description:</label>
-    <textarea class="form-control form-controm-sm" id="description" name="description" required></textarea>
+    <label class="form-label" for="editor">Description:</label>
+    <div id="editor"></div> 
+    <input type="hidden" name="description" id="description">
 
     <label class='form-label' for="price">Price:</label>
     <input class="form-control form-controm-sm" type="number" id="price" name="price" step="0.01" required>
@@ -34,6 +28,13 @@
     <label class='form-label' for="images">Upload Images (Max: 10)</label>
     <input class="form-control form-controm-sm" type="file" id="images" name="images" multiple accept="image/*">
 
+    <div class="form-check mt-4 fw-bold p-0">
+        <label class="form-label" for="activated">
+            Активировать?
+        </label>
+        <input class="form-input" type="checkbox" id="activated" name="update_activated" checked>
+    </div>
+    
     <button class="btn btn-sm btn-outline-primary" type="submit">Create Product</button>
 </form>
 
@@ -45,7 +46,7 @@
     
         let formData = new FormData();
         formData.append("name", document.getElementById("name").value);
-        formData.append("description", document.getElementById("description").value);
+        formData.append("description", quill.root.innerHTML);
         formData.append("price", document.getElementById("price").value);
         formData.append("category", document.getElementById("category").value);
         formData.append("is_dollar", document.getElementById("is_dollar").checked ? "true" : "false");
@@ -89,4 +90,26 @@
     </script>
     
 
+    
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <script>
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: "Enter product description...",
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+    </script>
+
+    
 {% endblock %}
