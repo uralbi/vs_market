@@ -24,7 +24,7 @@
         <div class="prodcut_ent_WhatsApp" id="entityWhatsApp"></div>
 
         <div class="mt-3">
-            <a href="#" id="chatSeller" class="btn btn-sm btn-outline-primary chat_link_btn" data-receiver-id=>💬 Сообщение</a>
+            <a href="#" id="chatSeller" class="btn btn-sm btn-outline-primary chat_link_btn" data-receiver-id data-product-id>💬 Сообщение</a>
             <button class="btn btn-sm btn-outline-success" onclick="addToFavorites({{product_id}})">⭐ Добавить</button>
         </div>
     </div>
@@ -61,8 +61,8 @@
             }
     
             // Update chat link
-            document.getElementById("chatSeller").dataset.receiverId = product.id;
-            
+            document.getElementById("chatSeller").dataset.receiverId = product.owner_id;
+            document.getElementById("chatSeller").dataset.productId = product.id;
             loadEntityInfo(product.owner_id)
 
         } catch (error) {
@@ -124,6 +124,18 @@
         }
     }
 
+    document.querySelectorAll(".chat_link_btn").forEach(button => {
+        button.addEventListener("click", async function () {
+            try{ await authenticatedRequest('me') }
+            catch(error){
+                alert("Войдите чтоб написать продавцу.")
+                return
+            }
+            const receiverId = this.getAttribute("data-receiver-id");
+            const productId = this.getAttribute("data-product-id");
+            window.location.href = `/messages/users?user_id={{current_user.id}}&receiver_id=${receiverId}&product_id=${productId}`;
+        });
+    });
 
 </script>
 

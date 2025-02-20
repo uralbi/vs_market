@@ -69,16 +69,20 @@ async function InitializeChat(room_id, access_token){
 
         // Load chat history when the page loads
         loadChatHistory(accessToken, room_id);
+        
 
     });
 };
 
 InitializeChat(room_id, accessToken);
 
+
 // Move sendMessage function OUTSIDE `getUserId().then(...)`
+
+
 function sendMessage() {
 
-    if (!userName) {
+    if (!userName || !messageInput.value) {
         alert("Please enter a message");
         return;
     }

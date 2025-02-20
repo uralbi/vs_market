@@ -115,7 +115,7 @@ async function openChat(receiverId, product_id) {
             alert("Forbidden.");
             return;
         }
-        window.location.href = `/messages/users?user_id=${user.user_id}&receiver_id=${receiverId}$product_id=${product_id}`;
+        window.location.href = `/messages/users?user_id=${user.user_id}&receiver_id=${receiverId}&product_id=${product_id}`;
 
     } catch (error) {
         console.error("Authentication error:", error);

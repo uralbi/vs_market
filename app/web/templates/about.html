@@ -4,16 +4,37 @@
 
 <div class="container">
 
-<h1> Моя страница </h1>
+<h1> Моя страница </h1> {{current_user.username}}
 
 <hr>
-<h2>Entity Details</h2>
-<p><strong>Entity Name:</strong> <span id="entityName">Loading...</span></p>
-<p><strong>Phone:</strong> <span id="entityPhone">Loading...</span></p>
-<p><strong>Address:</strong> <span id="entityAddress">Loading...</span></p>
-<p><strong>WhatsApp:</strong> <span id="entityWhatsApp">Loading...</span></p>
 
-<button id="deleteEntityBtn" class="btn btn-sm btn-outline-danger" >Delete Entity</button>
+    <div class="card shadow-sm border-0 rounded-3 w-25 mb-4">
+        <div class="card-body p-2">
+            <h4 class="mb-1 text-primary">Мой профиль</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                    <span class="fw-semibold">Название:</span>
+                    <span id="entityName" class="text-muted">Loading...</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                    <span class="fw-semibold">Телефон:</span>
+                    <span id="entityPhone" class="text-muted">Loading...</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                    <span class="fw-semibold">Адрес:</span>
+                    <span id="entityAddress" class="text-muted">Loading...</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                    <span class="fw-semibold">Востап:</span>
+                    <span id="entityWhatsApp" class="text-muted">Loading...</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+
+<button id="deleteEntityBtn" class="btn btn-sm btn-outline-danger" >Удалить Профиль</button>
 
 <hr>
 

@@ -46,15 +46,4 @@ async function removeFromFavorites(productId) {
     }
 }
 
-document.querySelectorAll(".chat_link_btn").forEach(button => {
-    button.addEventListener("click", async function () {
-        try{ await authenticatedRequest('me') }
-        catch(error){
-            alert("Войдите чтоб написать продавцу.")
-            return
-        }
-        const receiverId = this.getAttribute("data-receiver-id");
-        const lastPage = sessionStorage.getItem("lastPage") || "/";  // Get last page
-        window.location.href = `/messages?receiver_id=${receiverId}&prev_page=${encodeURIComponent(lastPage)}`;
-    });
-});
+

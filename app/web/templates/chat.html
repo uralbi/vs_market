@@ -5,7 +5,7 @@
 <h3 class="text-center">Chat</h3>
 
 <div class="mb-3">
-    <p id="chat_title"> Chat with User </p>
+    <p id="chat_title"> Тема : {{ product }}</p> 
 </div>
 
 <div class="chat-box border p-3" id="chatBox" style="max-height: 400px; overflow-y: auto;"></div>
@@ -18,9 +18,10 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     let room_id = urlParams.get("room_id");
-    if (!room_id){
-        room_id = {{room_id}}
+     if (!room_id){
+        room_id = "{{room_id}}"
     }
+    const productName = "{{product}}"
 </script>
 <script src="{{ url_for('static', path='/chat.js') }}"></script>
 
