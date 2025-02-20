@@ -6,7 +6,6 @@ from app.infra.repositories.chat_repository import ChatRepository
 
 class ChatService:
     def __init__(self, db: Session):
-        self.db = db
         self.repo = ChatRepository(db)
 
     def get_or_create_chat_room(self, user1_id: int, user2_id: int):

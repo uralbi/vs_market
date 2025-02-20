@@ -10,6 +10,86 @@ Base = declarative_base()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+
+class MovieModel(Base):
+    __tablename__ = "movies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255), nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    file_path = Column(String(500), nullable=False)  # Path to the actual video file
+    thumbnail_path = Column(String(500), nullable=True)  # Thumbnail image
+    duration = Column(Float, nullable=True)  # Duration in seconds
+    is_public = Column(Boolean, default=True, nullable=False)  # Whether movie is public
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("UserModel", back_populates="movies")
+
+    views = relationship("MovieViewModel", back_populates="movie", cascade="all, delete-orphan")
+    likes = relationship("MovieLikeModel", back_populates="movie", cascade="all, delete-orphan")
+    comments = relationship("MovieCommentModel", back_populates="movie", cascade="all, delete-orphan")
+    subtitles = relationship("MovieSubtitleModel", back_populates="movie", cascade="all, delete-orphan")
+
+    search_vector = Column(
+        TSVECTOR,
+        Computed(
+            "setweight(to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')), 'A') || "
+            "setweight(to_tsvector('russian', coalesce(title, '') || ' ' || coalesce(description, '')), 'B')",
+            persisted=True
+        )
+    )
+
+    __table_args__ = (
+        Index("idx_movies_search", search_vector, postgresql_using="gin"),  # GIN index for fast searching
+    )
+    
+class MovieViewModel(Base):
+    __tablename__ = "movie_views"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who watched
+    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie being watched
+    watched_at = Column(DateTime, default=datetime.utcnow)  # Timestamp of watch
+    progress = Column(Float, default=0)  # Last watched time in seconds
+
+    movie = relationship("MovieModel", back_populates="views")
+
+
+class MovieCommentModel(Base):
+    __tablename__ = "movie_comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Commenting user
+    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie
+    content = Column(Text, nullable=False)  # Comment content
+    posted_at = Column(DateTime, default=datetime.utcnow)  # Timestamp
+
+    movie = relationship("MovieModel", back_populates="comments")
+
+
+class MovieSubtitleModel(Base):
+    __tablename__ = "movie_subtitles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie
+    language = Column(String(50), nullable=False)  # Language (e.g., "English", "Spanish")
+    file_path = Column(String(500), nullable=False)  # Subtitle file path
+
+    movie = relationship("MovieModel", back_populates="subtitles")
+
+
+class MovieLikeModel(Base):
+    __tablename__ = "movie_likes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who liked
+    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Liked movie
+    liked_at = Column(DateTime, default=datetime.utcnow)  # Timestamp
+
+    movie = relationship("MovieModel", back_populates="likes")
+
+
 class ChatRoom(Base):
     __tablename__ = "chat_rooms"
 

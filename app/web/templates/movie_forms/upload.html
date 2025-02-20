@@ -1,0 +1,23 @@
+<form id="uploadForm">
+    <input type="text" id="title" placeholder="Movie Title" required>
+    <textarea id="description" placeholder="Movie Description"></textarea>
+    <input type="file" id="movieFile" required>
+    <button type="submit">Upload</button>
+</form>
+
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    let formData = new FormData();
+    formData.append("title", document.getElementById("title").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("file", document.getElementById("movieFile").files[0]);
+
+    let response = await fetch("/movies/upload", {
+        method: "POST",
+        body: formData
+    });
+
+    let result = await response.json();
+    alert(result.message);
+});
