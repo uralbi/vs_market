@@ -4,7 +4,7 @@ celery_app = Celery(
     "tasks",
     broker="redis://localhost:6379/0", 
     backend="redis://localhost:6379/0",
-    include=["app.infra.tasks.email_tasks"]
+    include=["app.infra.tasks.email_tasks", "app.infra.tasks.vid_tasks"]
 )
 
 # celery_app.conf.task_routes = {

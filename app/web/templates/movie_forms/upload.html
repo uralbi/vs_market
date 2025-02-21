@@ -1,9 +1,25 @@
-<form id="uploadForm">
-    <input type="text" id="title" placeholder="Movie Title" required>
-    <textarea id="description" placeholder="Movie Description"></textarea>
-    <input type="file" id="movieFile" required>
-    <button type="submit">Upload</button>
-</form>
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="card shadow-lg p-4 border-0 rounded-4" style="max-width: 450px; width: 100%;">
+        <h4 class="text-center fw-bold mb-3">Upload Movie</h4>
+        <form id="uploadForm">
+            <div class="mb-3">
+                <label for="title" class="form-label">Movie Title</label>
+                <input type="text" id="title" class="form-control rounded-3" placeholder="Enter movie title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" class="form-control rounded-3" rows="3" placeholder="Enter movie description"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="movieFile" class="form-label">Upload File</label>
+                <input type="file" id="movieFile" class="form-control" accept=".mp4, .mkv, .avi, .mov, .webm" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 rounded-3">Upload</button>
+        </form>
+    </div>
+</div>
+
+<script>
 
 document.getElementById("uploadForm").addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -13,11 +29,15 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     formData.append("description", document.getElementById("description").value);
     formData.append("file", document.getElementById("movieFile").files[0]);
 
-    let response = await fetch("/movies/upload", {
+    let token = getAccessTokenFromCookie();
+    
+    let response = await fetch("/api/movies/upload", {
         method: "POST",
-        body: formData
+        body: formData,  // Sending form data, not JSON
+        headers: { "Authorization": `Bearer ${token}`},
     });
 
     let result = await response.json();
     alert(result.message);
 });
+</script>

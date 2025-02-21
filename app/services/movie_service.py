@@ -34,3 +34,12 @@ class MovieService:
     def delete_movie(self, movie_id: int):
         """Delete a movie record."""
         return self.repo.delete_movie(movie_id)
+
+    def search_movies(self, query: str, limit: int = 10, offset: int = 0):
+        """
+        Perform a full-text search on movies.
+        """
+        if not query or len(query) < 2:
+            return []
+
+        return self.repo.search_movies(query, limit, offset)

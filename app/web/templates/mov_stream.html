@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="text-center">Поиск Фильм</h2>
+
+<!-- Search Form -->
+<div class="input-group mb-3">
+    <input type="text" id="searchQuery" class="form-control" placeholder="Поиск по названию или описанию">
+    <button class="btn btn-primary" onclick="searchMovies()">Search</button>
+</div>
+
+<button class="btn btn-secondary mb-3" onclick="toggleTheme()" style="float: right;"> &#128161; </button>
+
+
+<div class="container text-center">
+    
+</div>
+
+
+<div class="container text-center mt-5">
+    <div class="video-container mt-4">
+        <video id="videoPlayer" class="w-100 rounded-3" controls></video>
+    </div>
+    <label for="qualitySelector" class="fw-bold">Выбрать качество видео:</label>
+    <select id="qualitySelector" class="form-select w-25 mx-auto" onchange="changeQuality()">
+        <option value="auto">Auto</option>
+    </select>
+</div>
+
+<!-- Search Results -->
+<ul id="results" class="list-group mt-3"></ul>
+
+<script>
+    let hls;
+    document.addEventListener("DOMContentLoaded", function () {
+        const video = document.getElementById("videoPlayer");
+        const movieId = new URLSearchParams(window.location.search).get("movie_id");
+        if (movieId) {
+            loadVideo(movieId);
+        }
+    });
+
+    async function searchMovies() {
+        let query = document.getElementById("searchQuery").value.trim();
+        if (!query) {
+            alert("Please enter a search term.");
+            return;
+        }
+
+        let response = await fetch(`/api/movies/search?query=${encodeURIComponent(query)}&limit=10&offset=0`);
+        let movies = await response.json();
+
+        let resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = ""; // Clear previous results
+
+        if (movies.length === 0) {
+            resultsDiv.innerHTML = `<p class="text-center text-muted">No movies found.</p>`;
+            return;
+        }
+
+        movies.forEach(movie => {
+            let movieCard = `
+                <li class="list-group-item">
+                    <a href="#" onclick="loadVideo(${movie.id})"><strong>${movie.title}</strong></a> - ${movie.description}
+                </li>
+            `;
+            resultsDiv.innerHTML += movieCard;
+        });
+    }
+
+    function loadVideo(movieId) {
+        const video = document.getElementById("videoPlayer");
+        const hlsUrl = `/api/movies/${movieId}/hls`; // FastAPI HLS API
+
+        if (Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(hlsUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                video.play();
+                populateQualitySelector();
+            });
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = hlsUrl;
+            video.addEventListener("loadedmetadata", function () {
+                video.play();
+            });
+        } else {
+            alert("Your browser does not support HLS streaming.");
+        }
+    }
+
+    function populateQualitySelector() {
+        const qualitySelector = document.getElementById("qualitySelector");
+        qualitySelector.innerHTML = `<option value="auto">Auto</option>`; // Reset options
+
+        hls.levels.forEach((level, index) => {
+            let resolution = `${level.height}p`;
+            let option = `<option value="${index}">${resolution}</option>`;
+            qualitySelector.innerHTML += option;
+        });
+    }
+
+    function changeQuality() {
+        const qualitySelector = document.getElementById("qualitySelector");
+        let selectedQuality = qualitySelector.value;
+        
+        if (selectedQuality === "auto") {
+            hls.currentLevel = -1; // Enable Auto Quality
+        } else {
+            hls.currentLevel = parseInt(selectedQuality); // Set Selected Quality
+        }
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        body.classList.toggle("dark-mode");
+    }
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+
+
+{% endblock %}

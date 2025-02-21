@@ -135,10 +135,9 @@ class UserModel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     entity = relationship("EntityModel", back_populates="creator", uselist=False, cascade="all, delete-orphan")
-    
     products = relationship("ProductModel", back_populates="owner", cascade="all, delete-orphan")
-    
     favorite_products = relationship("ProductModel", secondary=favorites_table, back_populates="favorited_by")
+    movies = relationship("MovieModel", back_populates = "owner", cascade="all, delete-orphan"    )
     
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.hashed_password)

@@ -62,13 +62,9 @@
         for (let i = 0; i < images.length; i++) {
             formData.append("images", images[i]);
         }
-    
-        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-        if (!token) {
-            alert("You need to be logged in to create a product.");
-            return;
-        }
-        token = token.split('=')[1];
+        
+        
+        let token = getAccessTokenFromCookie();
     
         let response = await fetch("/api/products/create", {
             method: "POST",

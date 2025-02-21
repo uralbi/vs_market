@@ -1,6 +1,8 @@
 
 <nav class="nav justify-content-end">
     <a class = "nav-link" href="/">Home</a>
+    
+    <a class = "nav-link" href="/movies/stream">Фильмы</a>
 
     {% if current_user %}
     <a class = "nav-link" href="/about"> 
@@ -15,7 +17,7 @@
 
     <button class="btn btn-sm btn-outline-primary dropdown-toggle py-0 px-4" type="button" 
         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-        Actions
+        Действия
     </button>
     
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -24,8 +26,9 @@
         <li> <a class="dropdown-item" href="/register">Register</a> </li>
         {% else %}
         <div class="dropdown-divider"></div>
-        <li> <a class="dropdown-item" href="/create-product">Create Product</a>  </li>
-        <li> <a class="dropdown-item" role=button id="logoutBtn">Logout</a> </li>
+        <li> <a class="nav-link dropdown-item" href="/create-product">Создать обьявление</a>  </li>
+        <li> <a class ="nav-link dropdown-item" href="/movies/upload">Загрузить Видео</a> </li>
+        <li> <a class="nav-link dropdown-item" role=button id="logoutBtn">Выйти</a> </li>
         {% endif %}
     </ul>
 </nav>
