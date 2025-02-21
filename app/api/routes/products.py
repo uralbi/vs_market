@@ -223,7 +223,7 @@ async def update_product(
 @router.get("/{product_id}", response_model=ProductDTO)
 def get_product(product_id: int, request: Request, db: Session = Depends(get_db), ):
     """Fetch product details by ID."""
-    sd
+    
     token = request.headers.get("Authorization").replace("Bearer ", "")
     product_service = ProductService(db)
     user = None
