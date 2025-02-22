@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, aliased
 from fastapi import HTTPException
 from sqlalchemy import or_, func, case
-from app.infra.database.models import MovieModel
+from app.infra.database.models import MovieModel, MovieViewModel
 from sqlalchemy.sql import text
 from datetime import datetime
 from typing import List
@@ -23,12 +23,16 @@ class MovieRepository:
         """Fetch a movie by its ID."""
         return self.db.query(MovieModel).filter(MovieModel.id == movie_id).first()
 
-    def get_all_movies(self, is_public: bool = True):
-        """Fetch all public movies (or all movies for admin)."""
-        query = self.db.query(MovieModel)
-        if is_public:
-            query = query.filter(MovieModel.is_public == True)
-        return query.all()
+    def get_movies(self, limit: int, offset: int):
+        """Retrieve public movies with pagination."""
+        return (
+            self.db.query(MovieModel)
+            .filter(MovieModel.is_public == True)
+            .order_by(MovieModel.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
     def update_movie(self, movie_id: int, update_data: dict):
         """Update a movie's details."""
@@ -71,4 +75,28 @@ class MovieRepository:
             .all()
         )
         return movies
-        
+    
+    def get_movie_progress(self, movie_id: int, user_id: int):
+        """Retrieve user's last watched progress for a movie."""
+        return self.db.query(MovieViewModel).filter_by(movie_id=movie_id, user_id=user_id).first()
+
+    def save_movie_progress(self, movie_id: int, user_id: int, progress: int):
+        """Save or update user's last watched progress."""
+        view = self.get_movie_progress(movie_id, user_id)
+        if view:
+            view.progress = progress
+        else:
+            view = MovieViewModel(movie_id=movie_id, user_id=user_id, progress=progress)
+            self.db.add(view)
+        self.db.commit()
+        return view
+
+    def update_movie_thumbnail(self, movie_id: int, thumbnail_path: str):
+        """
+        Update the movie's thumbnail path in the database.
+        """
+        movie = self.db.query(MovieModel).filter(MovieModel.id == movie_id).first()
+        if movie:
+            movie.thumbnail_path = thumbnail_path
+            self.db.commit()
+            self.db.refresh(movie)

@@ -44,13 +44,14 @@ class MovieModel(Base):
         Index("idx_movies_search", search_vector, postgresql_using="gin"),  # GIN index for fast searching
     )
     
+    
 class MovieViewModel(Base):
     __tablename__ = "movie_views"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who watched
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie being watched
-    watched_at = Column(DateTime, default=datetime.utcnow)  # Timestamp of watch
+    watched_at = Column(DateTime, default=datetime.now)  # Timestamp of watch
     progress = Column(Float, default=0)  # Last watched time in seconds
 
     movie = relationship("MovieModel", back_populates="views")

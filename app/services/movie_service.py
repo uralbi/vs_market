@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.infra.repositories.movie_repository import MovieRepository
-from app.infra.database.models import MovieModel
+from app.infra.database.models import MovieModel, MovieViewModel
 
 
 class MovieService:
@@ -23,9 +23,9 @@ class MovieService:
         """Retrieve a movie by ID."""
         return self.repo.get_movie_by_id(movie_id)
 
-    def get_all_movies(self, is_public: bool = True):
-        """Retrieve all public movies."""
-        return self.repo.get_all_movies(is_public)
+    def get_movies(self, limit: int, offset: int):
+        """Fetch paginated movies."""
+        return self.repo.get_movies(limit, offset)
 
     def update_movie(self, movie_id: int, update_data: dict):
         """Update movie details."""
@@ -35,7 +35,7 @@ class MovieService:
         """Delete a movie record."""
         return self.repo.delete_movie(movie_id)
 
-    def search_movies(self, query: str, limit: int = 10, offset: int = 0):
+    def search_movies(self, query: str, limit: int = 20, offset: int = 0):
         """
         Perform a full-text search on movies.
         """
@@ -43,3 +43,15 @@ class MovieService:
             return []
 
         return self.repo.search_movies(query, limit, offset)
+    
+    def track_movie_progress(self, movie_id: int, user_id: int, progress: int):
+        """Track and update user's progress in a movie."""
+        return self.repo.save_movie_progress(movie_id, user_id, progress)
+    
+    def get_movie_progress(self, movie_id: int, user_id: int):
+        """Retrieve user's progress in a movie."""
+        return self.repo.get_movie_progress(movie_id, user_id)
+    
+    def update_movie_thumbnail(self, movie_id: int, thumbnail_path: str):
+        """ Update the movie's thumbnail path in the database """
+        return self.repo.update_movie_thumbnail(movie_id, thumbnail_path)

@@ -1,16 +1,13 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
 from app.utils.context import global_context
+from app.core.template_config import templates
 import os
+
 
 router = APIRouter(    
     prefix='',
     tags=['Websites'])
-
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "../templates"))
-
 
 @router.get("/login", name="login_page")
 def about_page(request: Request, context: dict = Depends(global_context)):

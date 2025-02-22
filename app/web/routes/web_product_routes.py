@@ -6,17 +6,16 @@ from app.infra.database.db import get_db
 from app.utils.context import global_context
 from app.services.chat_service import ChatService
 from app.services.product_service import ProductService
+from app.core.template_config import templates
 import os
+from app.utils.misc import time_ago
+
 
 router = APIRouter(    
     prefix='',
     tags=['Websites'])
 
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "../templates"))
-
-
+    
 @router.get("/product/{product_id}")
 def get_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Product Detail page """

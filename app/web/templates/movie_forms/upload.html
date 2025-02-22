@@ -14,30 +14,43 @@
                 <label for="movieFile" class="form-label">Upload File</label>
                 <input type="file" id="movieFile" class="form-control" accept=".mp4, .mkv, .avi, .mov, .webm" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100 rounded-3">Upload</button>
+            <button type="submit" class="btn btn-sm btn-primary w-100 rounded-3">Upload</button>
         </form>
     </div>
 </div>
 
 <script>
 
-document.getElementById("uploadForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
+    document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        
+        let formData = new FormData();
+        formData.append("title", document.getElementById("title").value);
+        formData.append("description", document.getElementById("description").value);
+        formData.append("file", document.getElementById("movieFile").files[0]);
     
-    let formData = new FormData();
-    formData.append("title", document.getElementById("title").value);
-    formData.append("description", document.getElementById("description").value);
-    formData.append("file", document.getElementById("movieFile").files[0]);
-
-    let token = getAccessTokenFromCookie();
+        let token = getAccessTokenFromCookie();
+        
+        try {
+            let response = await fetch("/api/movies/upload", {
+                method: "POST",
+                body: formData,  // Sending form data, not JSON
+                headers: { "Authorization": `Bearer ${token}` },
+            });
     
-    let response = await fetch("/api/movies/upload", {
-        method: "POST",
-        body: formData,  // Sending form data, not JSON
-        headers: { "Authorization": `Bearer ${token}`},
+            let result = await response.json();
+    
+            if (response.ok) {
+                alert(result.message);
+                document.getElementById("uploadForm").reset();
+            } else {
+                alert("Upload failed: " + result.detail);
+            }
+        } catch (error) {
+            console.error("Error uploading movie:", error);
+            alert("An error occurred while uploading the movie.");
+        }
     });
+    
 
-    let result = await response.json();
-    alert(result.message);
-});
 </script>

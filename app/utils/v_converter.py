@@ -99,3 +99,23 @@ def convert_to_hls(input_video_path: str, output_dir: str):
             master_playlist.write(f"{os.path.basename(playlist)}\n")
 
     return master_playlist_path
+
+
+def generate_thumbnail(video_path: str, filename: str, time: int = 2) -> str:
+    """
+    Generate a thumbnail from the video using FFmpeg at the given time (default: 5 seconds).
+    """
+    THUMBNAIL_FOLDER = "media/movies/thumbs"
+    thumbnail_filename = f"{filename}.jpg"
+    thumbnail_path = os.path.join(THUMBNAIL_FOLDER, thumbnail_filename)
+
+    command = [
+        "ffmpeg", "-i", video_path, "-ss", str(time), "-vframes", "1",
+        "-vf", "scale=320:-1", thumbnail_path, "-y"
+    ]
+
+    try:
+        subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return thumbnail_path
+    except subprocess.CalledProcessError:
+        return None

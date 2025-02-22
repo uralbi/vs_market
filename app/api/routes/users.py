@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response
+from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response, Body
 from app.services.user_service import UserService
 from app.infra.database.db import get_db
 from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO
@@ -8,7 +8,7 @@ from app.domain.security.auth_token import decode_access_token, create_access_to
 from fastapi.security import OAuth2PasswordBearer
 from app.services.product_service import ProductService
 from app.domain.security.auth_user import user_authorization
-from typing import Optional
+from pydantic import BaseModel
 
 router = APIRouter(
     prefix='/api/auth',
@@ -97,9 +97,15 @@ async def read_current_user(token: str = Security(token_scheme), db: Session = D
     return {"username": user.username, "email": user.email, "is_active": user.is_active, "user_id": user.id}
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+    
 @router.post("/refresh")
-async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+async def refresh_token(payload: RefreshTokenRequest, db: Session = Depends(get_db)):
+
+    refresh_token = payload.refresh_token
     payload = verify_refresh_token(refresh_token)  # Validate refresh token
+    
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 

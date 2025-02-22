@@ -1,34 +1,78 @@
 
-<nav class="nav justify-content-end">
+<nav class="nav justify-content-end fixed-top">
+        
     <a class = "nav-link" href="/">Home</a>
     
-    <a class = "nav-link" href="/movies/stream">Фильмы</a>
+    <a class = "nav-link" href="/movies/search">Фильмы</a>
 
     {% if current_user %}
     <a class = "nav-link" href="/about"> 
-        &#x1F464; {{current_user.username|title}} 
-        
-        {% if unread_rooms > 0 %}
-            <span class='unread_rooms_note'>{{unread_rooms}}</span>
-        {% endif %}
-       
+      <i class="bi bi-person-circle"></i>  {{current_user.username|title}} 
     </a> 
+
+        {% if unread_rooms > 0 %}
+
+            <li class="nav-link dropdown">
+
+              <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                <i class="bi bi-chat-square-text"></i>
+                <span class="badge bg-success badge-number">{{unread_rooms}}</span>
+              </a>
+      
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                <li class="dropdown-header">
+                   У вас {{unread_rooms}} сообщений.
+                   <!--
+                  <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">Посмотреть</span></a> 
+                  -->
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                
+                {% for room in rooms%}
+                  <li class="message-item">
+                    <a href="/messages?room_id={{room[0]}}">
+                      <!-- Favicons 
+                      <img src="assets/img/messages-1.jpg" alt="" class="rounded-circle">
+                      -->
+                      <div>
+                        <i class="bi bi-person-circle"></i>
+                        <h4>   {{room[1]|title}} </h4>
+                        {% for msg in room[2] %}
+                          <p>{{msg}}</p>
+                        {% endfor %}
+                          <small> {{room[3]|time_ago}} </small>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                {% endfor %}
+      
+              </ul>
+          </li>
+
+        {% endif %}
+    
     {% endif %}
 
-    <button class="btn btn-sm btn-outline-primary dropdown-toggle py-0 px-4" type="button" 
+    <a class="nav-link dropdown-toggle px-4" type="button" role="button"
         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-        Действия
-    </button>
+        <i class="bi bi-activity"></i> Действия
+        </a>
     
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         {% if not current_user or current_user == 'None'%}
-        <li> <a class="dropdown-item" href="/login">Login</a> </li>
-        <li> <a class="dropdown-item" href="/register">Register</a> </li>
+        <li> <a class="dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Login</a> </li>
+        <li> <a class="dropdown-item" href="/register"><i class="bi bi-pencil-square"></i> Register</a> </li>
         {% else %}
         <div class="dropdown-divider"></div>
-        <li> <a class="nav-link dropdown-item" href="/create-product">Создать обьявление</a>  </li>
-        <li> <a class ="nav-link dropdown-item" href="/movies/upload">Загрузить Видео</a> </li>
-        <li> <a class="nav-link dropdown-item" role=button id="logoutBtn">Выйти</a> </li>
+        <li> <a class="nav-link dropdown-item" href="/create-product"><i class="bi bi-file-earmark-richtext"></i> Создать обьявление</a>  </li>
+        <li> <a class ="nav-link dropdown-item" href="/movies/upload"><i class="bi bi-cloud-arrow-up"></i> Загрузить Видео</a> </li>
+        <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-up-left"></i> Выйти</a> </li>
         {% endif %}
+        <li><a class="nav-link dropdown-item btn btn-secondary" role="button" onclick="toggleTheme()" > <i class="bi bi-lightbulb"></i> Свет </a></li>
     </ul>
 </nav>

@@ -2,79 +2,100 @@
 
 {% block content %}
 
-<h2 class="text-center">Поиск Фильм</h2>
 
-<!-- Search Form -->
-<div class="input-group mb-3">
-    <input type="text" id="searchQuery" class="form-control" placeholder="Поиск по названию или описанию">
-    <button class="btn btn-primary" onclick="searchMovies()">Search</button>
-</div>
-
-<button class="btn btn-secondary mb-3" onclick="toggleTheme()" style="float: right;"> &#128161; </button>
-
-
-<div class="container text-center">
-    
-</div>
-
-
-<div class="container text-center mt-5">
-    <div class="video-container mt-4">
-        <video id="videoPlayer" class="w-100 rounded-3" controls></video>
-    </div>
-    <label for="qualitySelector" class="fw-bold">Выбрать качество видео:</label>
-    <select id="qualitySelector" class="form-select w-25 mx-auto" onchange="changeQuality()">
+<div class="text-start float-end w-25 mb-3">
+    <label for="qualitySelector" class="">Выбрать качество видео:</label>
+    <select id="qualitySelector" class="form-select " onchange="changeQuality()">
         <option value="auto">Auto</option>
     </select>
 </div>
 
-<!-- Search Results -->
-<ul id="results" class="list-group mt-3"></ul>
+<div class="container text-center mt-5">
+    <div class="video-container mt-4">
+        <video id="videoPlayer" class="w-100 rounded-3" data-movie-id controls></video>
+    </div>
+</div>
 
 <script>
+
     let hls;
     document.addEventListener("DOMContentLoaded", function () {
         const video = document.getElementById("videoPlayer");
-        const movieId = new URLSearchParams(window.location.search).get("movie_id");
+        const movieId = new URLSearchParams(window.location.search).get("id");
+
         if (movieId) {
+            video.setAttribute("data-movie-id", movieId);
             loadVideo(movieId);
         }
     });
 
-    async function searchMovies() {
-        let query = document.getElementById("searchQuery").value.trim();
-        if (!query) {
-            alert("Please enter a search term.");
-            return;
+    async function getMovieProgress(movieId, access_token) {
+        let requestBody = JSON.stringify({ access_token: access_token });
+        const response = await fetch(`/api/movies/${movieId}/progress`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: requestBody
+        });
+        const data = await response.json();
+        return data.progress || 0; 
+    }
+    
+    document.addEventListener("DOMContentLoaded", async () => {
+        const videoElement = document.getElementById("videoPlayer");
+        const movieId = videoElement.dataset.movieId; // Assuming you set data-movie-id on the video element
+        const access_token = getAccessTokenFromCookie(); 
+        if (access_token) {
+            const progress = await getMovieProgress(movieId, access_token);
+            videoElement.currentTime = progress;
         }
+    });
 
-        let response = await fetch(`/api/movies/search?query=${encodeURIComponent(query)}&limit=10&offset=0`);
-        let movies = await response.json();
-
-        let resultsDiv = document.getElementById("results");
-        resultsDiv.innerHTML = ""; // Clear previous results
-
-        if (movies.length === 0) {
-            resultsDiv.innerHTML = `<p class="text-center text-muted">No movies found.</p>`;
-            return;
-        }
-
-        movies.forEach(movie => {
-            let movieCard = `
-                <li class="list-group-item">
-                    <a href="#" onclick="loadVideo(${movie.id})"><strong>${movie.title}</strong></a> - ${movie.description}
-                </li>
-            `;
-            resultsDiv.innerHTML += movieCard;
+    async function saveMovieProgress(movieId, progress, access_token) {
+        if (!access_token){ return }
+        let requestBody = JSON.stringify({ access_token: access_token, progress: progress });
+        await fetch(`/api/movies/${movieId}/track`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: requestBody,
         });
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const access_token = getAccessTokenFromCookie();
+        if (!access_token){return}
+        const videoElement = document.getElementById("videoPlayer");
+        const movieId = videoElement.dataset.movieId;
+        let lastSavedTime = 0;
+        videoElement.addEventListener("timeupdate", () => {
+            const currentTime = Math.floor(videoElement.currentTime);
+            if (currentTime % 5 === 0 && currentTime !== lastSavedTime) { // Save every 5 seconds
+                saveMovieProgress(movieId, currentTime, access_token);
+                lastSavedTime = currentTime;
+            }
+        });
+        videoElement.addEventListener("ended", () => {
+            saveMovieProgress(movieId, 0, access_token); // Reset progress when finished
+        });
+    });
+
     function loadVideo(movieId) {
+
+        const access_token = getAccessTokenFromCookie();
+        if (!access_token){return}
         const video = document.getElementById("videoPlayer");
+
         const hlsUrl = `/api/movies/${movieId}/hls`; // FastAPI HLS API
 
         if (Hls.isSupported()) {
-            hls = new Hls();
+            hls = new Hls({
+                xhrSetup: function(xhr) {
+                    xhr.setRequestHeader("Authorization", `Bearer ${access_token}`); // Securely pass token in headers
+                }
+            });
             hls.loadSource(hlsUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function () {
@@ -111,11 +132,6 @@
         } else {
             hls.currentLevel = parseInt(selectedQuality); // Set Selected Quality
         }
-    }
-
-    function toggleTheme() {
-        const body = document.body;
-        body.classList.toggle("dark-mode");
     }
 
 </script>

@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
+app.mount("/media", StaticFiles(directory="media/movies/thumbs"), name="media")
 
 app.include_router(video.router)
 app.include_router(web_v_routes.router)

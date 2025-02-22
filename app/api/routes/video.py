@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, Form, Depends, Response, HTTPException, File, Query
+from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
@@ -6,10 +6,11 @@ from app.infra.database.db import get_db
 from app.infra.database.models import MovieModel, MovieViewModel, MovieCommentModel, MovieLikeModel, MovieSubtitleModel
 from app.domain.security.auth_user import user_authorization
 from fastapi.security import OAuth2PasswordBearer
-from app.infra.tasks.vid_tasks import process_video_hls
+from app.infra.tasks.vid_tasks import process_video_hls, generate_thumbnail_task
 from app.domain.dtos.movie import MovieDTO
 import os, shutil
 from pathlib import Path
+from pydantic import BaseModel
 
 
 router = APIRouter(
@@ -30,23 +31,50 @@ def search_movies(query: str, db: Session = Depends(get_db)):
 
 
 @router.get("/")
-def get_movies(db: Session = Depends(get_db)):
-    """ Fetches all movies """
-    movies = db.query(MovieModel).filter(MovieModel.is_public == True).all()
+def get_movies(
+    limit: int = Query(20, ge=1, le=100), offset: int = Query(0, ge=0),  db: Session = Depends(get_db)
+        ):
+    """
+    Fetch public movies with pagination.
+    """
+    movie_service = MovieService(db)
+    movies = movie_service.get_movies(limit, offset)
     return movies
 
 
-# @router.post("/{movie_id}/track")
-# def track_movie(movie_id: int, progress: int, db: Session = Depends(get_db)):
-#     """ Save user's last watched progress """
-#     view = db.query(MovieView).filter_by(movie_id=movie_id, user_id=1).first()
-#     if view:
-#         view.progress = progress
-#     else:
-#         view = MovieView(movie_id=movie_id, user_id=1, progress=progress)
-#         db.add(view)
-#     db.commit()
-#     return {"message": "Progress saved"}
+
+class AccessTokenRequest(BaseModel):
+    access_token: str
+    
+@router.post("/{movie_id}/progress")
+def get_movie_progress(movie_id: int, payload: AccessTokenRequest, db: Session = Depends(get_db)):
+    """
+    Retrieve the last watched progress of the user for a given movie.
+    """
+    token = payload.access_token
+    user = user_authorization(token, db)
+    movie_service = MovieService(db)
+
+    view = movie_service.get_movie_progress(movie_id, user.id)
+
+    return {"progress": view.progress if view else 0}
+
+class ProgressRequest(BaseModel):
+    access_token: str
+    progress: int
+    
+@router.post("/{movie_id}/track")
+def track_movie(movie_id: int, payload: ProgressRequest, db: Session = Depends(get_db)):
+    """
+    Save user's last watched progress using the service layer.
+    """
+    token = payload.access_token
+    progress = payload.progress
+    user = user_authorization(token, db)
+    movie_service = MovieService(db)
+    movie_service.track_movie_progress(movie_id, user.id, progress)
+    
+    return {"message": "Progress saved"}
 
 
 UPLOAD_FOLDER = "media/movies/"
@@ -84,7 +112,9 @@ async def upload_movie(
     
     mov_service = MovieService(db) # Create movie entry in the database
     
-    movie = mov_service.create_movie(title, description, file_path, is_public, owner_id=user.id)  # Replace with actual user
+    movie = mov_service.create_movie(title, description, file_path, is_public, owner_id=user.id)
+    
+    generate_thumbnail_task.delay(movie.id, str(file_path), filename)
 
     return {"message": "Upload successful, processing started!", "movie_id": movie.id, "file_path": file_path}
 
@@ -104,10 +134,11 @@ def like_movie(movie_id: int, token, db: Session = Depends(get_db)):
 
 
 @router.get("/{movie_id}/hls")
-async def stream_hls(movie_id: int, db: Session = Depends(get_db)):
+async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Session = Depends(get_db)):
     """
     Serve the master `.m3u8` playlist for a given movie.
     """
+    user=user_authorization(token, db)
     movie = db.query(MovieModel).filter(MovieModel.id == movie_id).first()
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
@@ -115,7 +146,7 @@ async def stream_hls(movie_id: int, db: Session = Depends(get_db)):
     base_filename = Path(movie.file_path).stem  # Extract filename without extension
     hls_directory = Path(movie.file_path).parent / "hls"
     master_playlist_path = hls_directory / f"{base_filename}_master.m3u8"
-
+    
     if not master_playlist_path.exists():
         raise HTTPException(status_code=404, detail="HLS playlist not found")
 
