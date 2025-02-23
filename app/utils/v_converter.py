@@ -20,9 +20,12 @@ def get_video_resolution(input_video_path: str):
     try:
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         video_info = json.loads(result.stdout)
-        width = video_info["streams"][0]["width"]
-        height = video_info["streams"][0]["height"]
-        return width, height
+        if "streams" in video_info and video_info["streams"]:
+            width = video_info["streams"][0]["width"]
+            height = video_info["streams"][0]["height"]
+            if width and height:
+                print(f"Video resolution detected: {width} x {height}")
+                return width, height
     except Exception as e:
         print(f"Error detecting resolution: {e}")
         return None, None  # Default to skipping 2K & 4K if detection fails
@@ -44,7 +47,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
     filename = Path(input_video_path).stem  # Extract filename without extension
     width, height = get_video_resolution(input_video_path)
 
-    # Define quality levels dynamically based on video resolution
+    # Define quality levels dynamically based on video resolution 1280 / 720
     variants = []
 
     if width and height:
@@ -56,22 +59,27 @@ def convert_to_hls(input_video_path: str, output_dir: str):
             variants.append({"name": "1080p", "resolution": "1920x1080", "bitrate": "5000k"})
         if width >= 1280 and height >= 720:
             variants.append({"name": "720p", "resolution": "1280x720", "bitrate": "2800k"})
+        if width >= 1100 and 600 > height >= 480:
+            variants.append({"name": "Original", "resolution": f"{width}x{height}", "bitrate": "5000k"})
         if width >= 854 and height >= 480:
             variants.append({"name": "480p", "resolution": "854x480", "bitrate": "1200k"})
 
     variant_playlists = []
-
+    print(variants)
     for variant in variants:
         variant_output_m3u8 = os.path.join(output_dir, f"{filename}_{variant['name']}.m3u8")
         variant_ts_files = os.path.join(output_dir, f"{filename}_{variant['name']}_%03d.ts")
 
         command = [
             "ffmpeg",
+            "-hwaccel", "auto",
             "-i", input_video_path,  
             "-vf", f"scale={variant['resolution']}",  # Resize video
             "-c:v", "libx264",
             "-preset", "fast",
             "-b:v", variant["bitrate"],
+            "-bufsize", "5000k",
+            "-threads", "4",
             "-c:a", "aac",
             "-b:a", "192k",
             "-ac", "2",
@@ -85,6 +93,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
         # Run FFmpeg command
         try:
             subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(f"Created HLS variant: {variant['name']} ({variant['resolution']})")
             variant_playlists.append((variant_output_m3u8, variant["bitrate"], variant["resolution"]))
         except subprocess.CalledProcessError as e:
             print(f"Error converting video {variant['name']}: {e}")
@@ -101,7 +110,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
     return master_playlist_path
 
 
-def generate_thumbnail(video_path: str, filename: str, time: int = 2) -> str:
+def generate_thumbnail(video_path: str, filename: str, time: int = 20) -> str:
     """
     Generate a thumbnail from the video using FFmpeg at the given time (default: 5 seconds).
     """

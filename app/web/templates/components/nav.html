@@ -1,9 +1,9 @@
 
 <nav class="nav justify-content-end fixed-top">
         
-    <a class = "nav-link" href="/">Home</a>
+    <a class = "nav-link" href="/"><i class="bi bi-box-seam"></i> Объявления</a>
     
-    <a class = "nav-link" href="/movies/search">Фильмы</a>
+    <a class = "nav-link" href="/movies/search"> <i class="bi bi-film"></i> Фильмы</a>
 
     {% if current_user %}
     <a class = "nav-link" href="/about"> 
@@ -22,9 +22,9 @@
               <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
                 <li class="dropdown-header">
                    У вас {{unread_rooms}} сообщений.
-                   <!--
-                  <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">Посмотреть</span></a> 
-                  -->
+                   
+                  <a href="#"><span class="badge bg-success p-2 ms-2">Посмотреть</span></a> 
+                  
                 </li>
                 <li>
                   <hr class="dropdown-divider">

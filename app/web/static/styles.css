@@ -7,6 +7,9 @@
     --link-color3: #7182cf;
 }
 
+body {
+    background: #d3d5e1 !important;
+}
 body a{
     text-decoration: none;
 }
@@ -14,6 +17,7 @@ body a{
 main {
     margin-top: 60px;
 }
+
 body button {
     color: var(--link-color1);
     border: solid 1px var(--link-color1);
@@ -26,12 +30,30 @@ body button {
 body button:hover {
 }
 
+.form-control, input, .card-body,  
+.card-body li, .list-group-item {
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
 #productList {
     width: 100%;
     height: 280px;
     overflow-y: scroll;
 }
 
+.product-card {
+    margin: 4px;
+    float: left;
+    width: 200px;
+    height: 204px !important;
+    box-shadow: 2px 2px 4px var(--link-color3),
+                -1px -1px 6px #ffffff;
+}
+
+.card {
+    border: none !important;
+}
 .product-card p {
     margin: 0px;
     padding: 0px;
@@ -41,6 +63,7 @@ body button:hover {
  .product-card .card-body  {
     padding: 6px 4px;
     min-height: 80px;
+    border: none !important;
  }
 
  .product-card a{
@@ -49,13 +72,6 @@ body button:hover {
  .product-card .btn-sm {
     padding: 0px 12px;
  }
-
-.product-card {
-    margin: 4px;
-    float: left;
-    width: 200px;
-    height: 204px !important;
-}
 
 .product-card .card-title {
     display: inline-block;
@@ -446,7 +462,7 @@ background-color: #f6f9ff;
     color: rgb(201, 207, 235);
 }
 .nav .nav-link {
-    padding-bottom: 4px;
+    padding-bottom: 8px;
 }
 .nav .nav-icon {
     font-size: 20px;
@@ -458,10 +474,10 @@ background-color: #f6f9ff;
 
 .nav .badge-number {
     position: absolute;
-    inset: 8px 9px auto auto;
+    inset: 6px 9px auto auto;
     font-weight: normal;
     font-size: 12px;
-    padding: 3px 6px;
+    padding: 2px 4px;
 }
 
 .dropdown-footer{

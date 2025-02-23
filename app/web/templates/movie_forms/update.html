@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="text-center">Update Movie</h2>
+<form id="updateForm">
+    <div>
+        <label for="title">Movie Title</label>
+        <input type="text" id="title" class="form-control">
+    </div>
+    <div>
+        <label for="description">Description</label>
+        <textarea id="description" class="form-control" rows="3"></textarea>
+    </div>
+    <div>
+        <label>
+            <input type="checkbox" id="isPublic"> Make movie public
+        </label>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Update Movie</button>
+    <a href="/about" class="btn btn-danger">Cancel</a>
+</form>
+        
+
+<script>
+    // ✅ Get movie ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get("id");
+
+    if (!movieId) {
+        alert("Error: Movie ID is missing.");
+        window.location.href = "/about";
+    }
+
+    async function fetchMovieDetails() {
+        const token = getAccessTokenFromCookie();
+        if (!token) {
+            alert("Authentication required.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/movies/${movieId}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const movie = await response.json();
+            document.getElementById("title").value = movie.title;
+            document.getElementById("description").value = movie.description;
+            document.getElementById("isPublic").checked = movie.is_public;
+        } catch (error) {
+            alert("Error loading movie: " + error.message);
+        }
+    }
+
+    async function updateMovie(event) {
+        event.preventDefault();
+    
+        const token = getAccessTokenFromCookie();
+        if (!token) {
+            alert("Authentication required.");
+            return;
+        }
+    
+        // Get current values from form
+        const title = document.getElementById("title").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const isPublic = document.getElementById("isPublic").checked;
+    
+        // ✅ Only send fields that are modified (ignore empty values)
+        let updatedMovie = {};
+        if (title) updatedMovie.title = title;
+        if (description) updatedMovie.description = description;
+        updatedMovie.is_public = isPublic;
+    
+        try {
+            const response = await fetch(`/api/movies/${movieId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedMovie)
+            });
+    
+            const result = await response.json();
+    
+            if (!response.ok) {
+                throw new Error(result.detail);
+            }
+    
+            alert("Movie updated successfully!");
+            window.location.href = "/movies/search";
+        } catch (error) {
+            alert("Error updating movie: " + error.message);
+        }
+    }
+    
+
+    document.addEventListener("DOMContentLoaded", fetchMovieDetails);
+    document.getElementById("updateForm").addEventListener("submit", updateMovie);
+</script>
+
+{% endblock %}

@@ -63,6 +63,7 @@ class MovieRepository:
         
         movies = (
             self.db.query(MovieModel)
+            .filter(MovieModel.is_public == True)
             .filter(
                 (MovieModel.search_vector.op("@@")(search_query) | MovieModel.search_vector.op("@@")(search_query_rus)) |  # Full-text search
                 (MovieModel.title.ilike(f"%{query}%")) |  # Substring match in title
@@ -100,3 +101,18 @@ class MovieRepository:
             movie.thumbnail_path = thumbnail_path
             self.db.commit()
             self.db.refresh(movie)
+            
+    def get_user_movies(self, user_id: int):
+        """ Get user's movies """
+        return self.db.query(MovieModel).filter(MovieModel.owner_id == user_id).all()
+
+    def update_movie(self, movie_id: int, title: str, description: str, is_public: bool):
+        movie = self.get_movie_by_id(movie_id)
+        if movie:
+            movie.title = title
+            movie.description = description
+            movie.is_public = is_public
+            self.db.commit()
+            self.db.refresh(movie)
+            return movie
+        return None

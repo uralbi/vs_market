@@ -3,8 +3,9 @@
 {% block content %}
 
 
+
 <div class="text-start float-end w-25 mb-3">
-    <label for="qualitySelector" class="">Выбрать качество видео:</label>
+    <label for="qualitySelector" class="">Выбрать качество:</label>
     <select id="qualitySelector" class="form-select " onchange="changeQuality()">
         <option value="auto">Auto</option>
     </select>
@@ -15,6 +16,8 @@
         <video id="videoPlayer" class="w-100 rounded-3" data-movie-id controls></video>
     </div>
 </div>
+
+<div id="movie-details"></div>
 
 <script>
 
@@ -88,12 +91,12 @@
         if (!access_token){return}
         const video = document.getElementById("videoPlayer");
 
-        const hlsUrl = `/api/movies/${movieId}/hls`; // FastAPI HLS API
-
+        const hlsUrl = `/api/movies/${movieId}/hls`;
+        
         if (Hls.isSupported()) {
             hls = new Hls({
                 xhrSetup: function(xhr) {
-                    xhr.setRequestHeader("Authorization", `Bearer ${access_token}`); // Securely pass token in headers
+                    xhr.setRequestHeader("Authorization", `Bearer ${access_token}`);
                 }
             });
             hls.loadSource(hlsUrl);
@@ -133,6 +136,46 @@
             hls.currentLevel = parseInt(selectedQuality); // Set Selected Quality
         }
     }
+
+    async function fetchMovieDetails(movieId) {
+        try {
+            let accessToken = getAccessTokenFromCookie();
+
+            const response = await fetch(`/api/movies/${movieId}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch movie details");
+            }
+            const movie = await response.json();
+            displayMovieCard(movie);
+        } catch (error) {
+            console.error("Error fetching movie:", error);
+            document.getElementById("movie-container").innerHTML = "<p>Movie not found</p>";
+        }
+    }
+    
+    function displayMovieCard(movie) {
+        const movieContainer = document.getElementById("movie-details");
+        movieContainer.innerHTML = `
+            <div class="p-3">
+                    <h5 class="card-title">${movie.title}</h5>
+                    <p class="card-text">${movie.description}</p>
+            </div>
+        `;
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        const movieId = new URLSearchParams(window.location.search).get("id");
+        if (movieId) {
+            fetchMovieDetails(movieId);
+        }
+    });
 
 </script>
 

@@ -16,8 +16,8 @@ async function addToFavorites(productId) {
 
     if (response.ok) {
         let button = document.getElementById(`pin_${productId}`)
-        button.classList.remove("btn-outline-success");
-        button.classList.add("btn-primary");
+        button.classList.remove("btn-outline-secondary");
+        button.classList.add("btn-outline-primary");
     } else {
         let error = await response.json();
         alert(error.detail);
@@ -39,6 +39,9 @@ async function removeFromFavorites(productId) {
     });
 
     if (response.ok) {
+        let button = document.getElementById(`pin_${productId}`)
+        button.classList.remove("btn-outline-primary");
+        button.classList.add("btn-outline-secondary");
         console.log('Unpinned')
     } else {
         let error = await response.json();

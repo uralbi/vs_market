@@ -1,0 +1,93 @@
+
+<h2>My Movies</h2>
+    <p id="loading">Loading...</p>
+    <ol id="movies-list">  </ol>
+    <p id="error-message" class="error" style="display: none;"></p>
+
+    <script>
+
+        async function fetchMyMovies() {
+            const token = getAccessTokenFromCookie();
+
+            if (!token) {
+                document.getElementById("error-message").textContent = "Authentication required. Please log in.";
+                document.getElementById("error-message").style.display = "block";
+                document.getElementById("loading").style.display = "none";
+                return;
+            }
+
+            try {
+                const response = await fetch("api/movies/my", {
+                    method: "GET",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                const movies = await response.json();
+                displayMovies(movies);
+            } catch (error) {
+                document.getElementById("error-message").textContent = "No movies yet"
+                document.getElementById("error-message").style.display = "block";
+            } finally {
+                document.getElementById("loading").style.display = "none";
+            }
+        }
+
+        function displayMovies(movies) {
+            const moviesList = document.getElementById("movies-list");
+            moviesList.innerHTML = ""; // Clear existing list
+
+            if (movies.length === 0) {
+                document.getElementById("error-message").textContent = "No movies found.";
+                document.getElementById("error-message").style.display = "block";
+                return;
+            }
+
+            movies.forEach(movie => {
+                const li = document.createElement("li");
+                li.innerHTML = `<strong>${movie.title}</strong>: ${movie.description}
+                    <a role="button" class="btn btn-sm btn-outline-success" href="/movies/stream?id=${movie.id}">Смотреть</a> 
+                    <a role="button" class="btn btn-sm btn-outline-success" href="/movies/update?id=${movie.id}">Редактировать</a> 
+                    <a role="button" class="btn btn-sm btn-outline-danger" onclick=Delete_movie_btn(${movie.id})>Удалить</a> 
+                `;
+                moviesList.appendChild(li);
+            });
+        }
+
+        async function Delete_movie_btn(movieId, button) {
+            if (!confirm("Вы уверены, что хотите удалить этот фильм?")) {
+                return;
+            }
+        
+            const token = getAccessTokenFromCookie(); // Get auth token
+            if (!token) {
+                alert("Ошибка: Требуется авторизация.");
+                return;
+            }
+        
+            try {
+                const response = await fetch(`api/movies/${movieId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+        
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+        
+                alert("Фильм успешно удален.");
+                
+                const listItem = button.closest("li");
+                if (listItem) listItem.remove();
+                
+            } catch (error) {
+                console.log("error in deletion:", error.message)
+                alert("Ошибка при удалении фильма");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchMyMovies);
+    </script>

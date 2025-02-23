@@ -44,7 +44,7 @@ def process_video_hls(self, video_path: str, output_dir: str):
 
 
 @celery_app.task
-def generate_thumbnail_task(movie_id: int, video_path: str, filename: str, time: int = 2):
+def generate_thumbnail_task(movie_id: int, video_path: str, filename: str, time: int = 20):
     """
     Celery task to generate a thumbnail from the video and update the database.
     """
@@ -54,7 +54,7 @@ def generate_thumbnail_task(movie_id: int, video_path: str, filename: str, time:
     db: Session = SessionLocal()
     try:
         thumbnail_path = generate_thumbnail(video_path, filename, 5)
-        thumbnail_path = thumbnail_path.replace("media/movies/thumbs", "media")
+        thumbnail_path = thumbnail_path.replace("media/movies/thumbs", "/media")
         movie_service = MovieService(db)
         movie_service.update_movie_thumbnail(movie_id, thumbnail_path)
         db.commit()

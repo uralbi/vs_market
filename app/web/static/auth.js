@@ -44,7 +44,6 @@ function getRefreshTokenFromCookie() {
 }
 
 async function refreshAccessToken() {
-
     try {
         let refresh_token = getRefreshTokenFromCookie();
         if (!refresh_token) {
@@ -62,8 +61,8 @@ async function refreshAccessToken() {
 
         if (!response.ok) {
             const errorText = await response.text()
-            console.error("response error:", errorText)
-            throw new Error("Failed to refresh token")
+            clearAuthCookies();
+            return null;
         };
         
         const data = await response.json();
@@ -82,9 +81,9 @@ async function authenticatedRequest(endpoint, options = {}) {
         accessToken = await refreshAccessToken();
         if (!accessToken) {
             console.error("Authentication required: No valid access token.");
+            clearAuthCookies();
             throw new Error("Authentication required");
         }
-        window.location.reload();
     }
 
     // Set authorization header with valid token
@@ -126,6 +125,12 @@ function isTokenExpired(token) {
         console.error("Invalid token:", error);
         return true;  // Assume expired if there's an error
     }
+}
+
+function clearAuthCookies() {
+    document.cookie = "access_token=; Max-Age=0; path=/";
+    document.cookie = "refresh_token=; Max-Age=0; path=/";
+    console.warn("Authentication tokens cleared.");
 }
 
 const logoutBtn = document.getElementById("logoutBtn");
@@ -172,11 +177,6 @@ function displayPrice_org(price, isDollar) {
         return `${price} c.<br><small> $${usd.toFixed(2)} </small>`;
     }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    sessionStorage.setItem("lastPage", window.location.href);
-    authenticatedRequest('me');
-});
 
 
 function getTimeDifference(updatedAt) {
@@ -244,3 +244,43 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.add("dark-mode");
     }
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+AOS.init();
+});
+
+
+function createProductCard(product, delay) {
+    let productCard = document.createElement("div");
+    productCard.classList.add("product-card", "card");
+    productCard.setAttribute("data-aos", "fade-in");
+    productCard.setAttribute("data-aos-delay", delay);
+    let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
+    let productName = `${product.name} <span class="card-text"> - ${product.description} </span>`;
+    productCard.innerHTML = `
+        <div class="card-img-top">
+            ${createImageCarousel(product.id, imageUrls)}
+        </div>
+        <div class="card-body">
+            <a href="/product/${product.id}"><h5 class="card-title">${productName}</h5></a>
+
+            <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                data-aos-delay="10"
+                onclick="openChat(${product.owner_id}, ${product.id})">
+                <i class="bi bi-chat-left-text"></i>
+            </button>
+
+            <button class="btn btn-sm btn-outline-secondary pin_btn"
+                id="pin_${product.id}" 
+                onclick="addToFavorites(${product.id})">
+                <i class="bi bi-paperclip"></i>
+            </button>
+
+            <p class="card-price">
+                ${displayPrice(product.price, product.is_dollar)}
+            </p>
+        </div>
+    `;
+
+    return productCard;
+}

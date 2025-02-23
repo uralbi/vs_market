@@ -65,19 +65,10 @@ class ProductRepository:
                     for product in products
                 ]
     
-    def get_product_by_id(self, product_id: int, user) -> ProductModel:
+    def get_product_by_id(self, product_id: int) -> ProductModel:
         """Fetch a product by id."""
-        
         query = self.db.query(ProductModel).filter(ProductModel.id == product_id).options(joinedload(ProductModel.images))
-
-        if not user:
-            query = query.filter(ProductModel.activated == True)  # Only return activated products if no user
-
-        product = query.first()
-
-        if product and user and product.owner_id != user.id and not product.activated:
-            return HTTPException(status_code=403, detail="Unauthorized")
-        
+        product = query.first()        
         return product
 
     def delete_product(self, product_id: int, user):

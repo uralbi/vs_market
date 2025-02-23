@@ -13,6 +13,10 @@ router = APIRouter(
     prefix='/movies',
     tags=['Videos'])
 
+@router.get("/update")
+def stream_movie_page(request: Request, context: dict = Depends(global_context)):
+    """ Movie Search page """
+    return templates.TemplateResponse("movie_forms/update.html", {**context, })
 
 @router.get("/search")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):

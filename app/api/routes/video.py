@@ -5,6 +5,7 @@ from app.services.movie_service import MovieService
 from app.infra.database.db import get_db
 from app.infra.database.models import MovieModel, MovieViewModel, MovieCommentModel, MovieLikeModel, MovieSubtitleModel
 from app.domain.security.auth_user import user_authorization
+from app.domain.dtos.movie import UpdateMovieRequest
 from fastapi.security import OAuth2PasswordBearer
 from app.infra.tasks.vid_tasks import process_video_hls, generate_thumbnail_task
 from app.domain.dtos.movie import MovieDTO
@@ -21,6 +22,54 @@ router = APIRouter(
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
+@router.put("/{id}")
+def update_movie(id: int, request: UpdateMovieRequest, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Update a movie's title, description, or visibility.
+    """
+    user = user_authorization(token, db)  # Extract user from token
+    movie_service = MovieService(db)
+    updated_movie = movie_service.update_movie(id, user.id, request.title, request.description, request.is_public)
+
+    if updated_movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    if updated_movie == "forbidden":
+        raise HTTPException(status_code=403, detail="You are not authorized to edit this movie")
+
+    return {"message": "Movie updated successfully", "movie": updated_movie}
+
+
+@router.get("/my")
+def get_my_movies(token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Fetch all movies uploaded by the authenticated user.
+    """
+    user = user_authorization(token, db)  # Extract user from token
+    movie_service = MovieService(db)
+    movies = movie_service.get_user_movies(user.id)
+
+    if not movies:
+        raise HTTPException(status_code=404, detail="No movies found for this user")
+
+    return movies
+
+
+@router.delete("/{id}")
+def delete_movie(id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Delete a movie by ID.
+    """
+    user = user_authorization(token, db)
+    movie_service = MovieService(db)
+    deleted = movie_service.delete_movie(id, user.id)
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    return {"message": "Movie deleted successfully"}
+
+
 @router.get("/search")
 def search_movies(query: str, db: Session = Depends(get_db)):
     """
@@ -28,6 +77,20 @@ def search_movies(query: str, db: Session = Depends(get_db)):
     """
     movie_service = MovieService(db)
     return movie_service.search_movies(query)
+
+
+@router.get("/{id}")
+def get_movie(id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Fetch public movies with pagination.
+    """
+    try:
+        user = user_authorization(token, db)
+    except Exception as e:
+        user = None
+    movie_service = MovieService(db)
+    movie = movie_service.get_movie_by_id(id, user)
+    return movie
 
 
 @router.get("/")
@@ -40,7 +103,6 @@ def get_movies(
     movie_service = MovieService(db)
     movies = movie_service.get_movies(limit, offset)
     return movies
-
 
 
 class AccessTokenRequest(BaseModel):
@@ -139,7 +201,8 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     Serve the master `.m3u8` playlist for a given movie.
     """
     user=user_authorization(token, db)
-    movie = db.query(MovieModel).filter(MovieModel.id == movie_id).first()
+    movie_service = MovieService(db)
+    movie = movie_service.get_movie_by_id(movie_id)
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
 

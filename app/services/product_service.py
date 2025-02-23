@@ -50,9 +50,16 @@ class ProductService:
         """
         return self.product_repo.get_user_products(owner_id, 100, 0)
     
-    def get_product_by_id(self, id: int, user):
-        return self.product_repo.get_product_by_id(id, user)
-    
+    def get_product_by_id(self, id: int, user=None):
+        product = self.product_repo.get_product_by_id(id)
+        if not product:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        if not user and product.activated:
+            return product
+        if user and product.owner_id == user.id:
+            return product
+        return HTTPException(status_code=404, detail="Movie not found")
+        
     def delete_product(self, product_id: int, user):
         """ Delete a product and its associated images """
         product = self.product_repo.get_product_by_id(product_id, user)

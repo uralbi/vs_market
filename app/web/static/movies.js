@@ -28,7 +28,7 @@ function displayMovies(movies, div_id) {
         
         movieCard.innerHTML = `
             <div class="card shadow-sm">
-                <img src="/${movie.thumbnail_path || '/media/no_image.webp'}" class="card-img-top" alt="Movie Thumbnail">
+                <img src="${movie.thumbnail_path || '/media/no_image.webp'}" class="card-img-top" alt="Movie Thumbnail">
                 <div class="card-body">
                     <h5 class="card-title">${movie.title}</h5>
                     <p class="card-text">${movie.description.substring(0, 100)}...</p>

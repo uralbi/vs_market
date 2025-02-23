@@ -15,7 +15,7 @@ class MovieModel(Base):
     __tablename__ = "movies"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), nullable=False, index=True)
+    title = Column(String(255), nullable=False, index=True, unique=True)
     description = Column(Text, nullable=True)
     file_path = Column(String(500), nullable=False)  # Path to the actual video file
     thumbnail_path = Column(String(500), nullable=True)  # Thumbnail image

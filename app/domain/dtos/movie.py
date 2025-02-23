@@ -10,3 +10,9 @@ class MovieDTO(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UpdateMovieRequest(BaseModel):
+    title: str | None
+    description: str | None
+    is_public: bool
