@@ -73,7 +73,8 @@ class ProductService:
         return self.product_repo.get_latest_product()
 
     def update_product(self, product_id: int, user, updated_data: dict) -> ProductModel:
-        return self.product_repo.update_product(product_id, user, updated_data)
+        # check if product owner is user
+        return self.product_repo.update_product(product_id, updated_data)
 
     def update_product_images(self, product_id: int, image_urls: List[str], keep_existing: bool = True):
         return self.product_repo.update_product_images(product_id, image_urls, keep_existing)

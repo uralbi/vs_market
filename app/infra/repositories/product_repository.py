@@ -93,9 +93,9 @@ class ProductRepository:
                 .order_by(ProductModel.created_at.desc()).first()
                 )
     
-    def update_product(self, product_id: int, user, updated_data: dict) -> Optional[ProductModel]:
+    def update_product(self, product_id: int, updated_data: dict) -> Optional[ProductModel]:
         """Update product details."""
-        product = self.get_product_by_id(product_id, user)
+        product = self.get_product_by_id(product_id)
         if not product:
             return None
 

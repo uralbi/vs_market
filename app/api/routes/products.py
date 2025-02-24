@@ -213,7 +213,10 @@ async def update_product(
             product_service.update_product_images(product_id, new_image_urls, keep_existing_images)
         else:
             existing_image_urls = [img.image_url for img in product.images]
-            product_service.update_product_images(product_id, existing_image_urls + new_image_urls, keep_existing_images)
+            total_imgs = existing_image_urls + new_image_urls
+            if len(total_imgs) >10:
+                total_imgs = total_imgs[-10:]
+            product_service.update_product_images(product_id, total_imgs, keep_existing_images)
     
     updated_product = product_service.update_product(product_id, user, updated_data)
 

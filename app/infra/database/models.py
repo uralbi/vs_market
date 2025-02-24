@@ -1,14 +1,22 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey, \
                         Text, Float, Table, Index, UniqueConstraint, Computed
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from passlib.context import CryptContext
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from datetime import datetime
+from enum import Enum
+from sqlalchemy.dialects.postgresql import ENUM
 
+class UserRole(str, Enum):
+    ADMIN = "ADMIN"
+    MANAGER = "MANAGER"
+    USER = "USER"
+
+    
 Base = declarative_base()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 
 class MovieModel(Base):
@@ -134,6 +142,12 @@ class UserModel(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    role = Column(
+        ENUM(UserRole, name="userrole", create_type=False), 
+        default=UserRole.USER,
+        nullable=False
+    )
     
     entity = relationship("EntityModel", back_populates="creator", uselist=False, cascade="all, delete-orphan")
     products = relationship("ProductModel", back_populates="owner", cascade="all, delete-orphan")

@@ -1,8 +1,8 @@
-"""Updated ProductModel for indexing russian and english
+"""user model migrate
 
-Revision ID: c21f01851059
-Revises: cff691f0def8
-Create Date: 2025-02-15 15:33:12.248613
+Revision ID: 222eda7f1448
+Revises: 355ac71de9bb
+Create Date: 2025-02-24 21:12:25.526644
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'c21f01851059'
-down_revision: Union[str, None] = 'cff691f0def8'
+revision: str = '222eda7f1448'
+down_revision: Union[str, None] = '355ac71de9bb'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
