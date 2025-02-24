@@ -1,11 +1,16 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
 <form id="updateProductForm">
     <input type="hidden" id="product_id" value="">
 
-    <label class="form-label">Name:</label>
-    <input class="form-control" type="text" id="update_name" placeholder="Product Name">
+    <label class="form-label">Название</label>
+    <input class="form-control" type="text" id="update_name" placeholder="Название объявления">
 
 
-    <label class="form-label" for="editor">Description:</label>
+    <label class="form-label" for="editor">Описание</label>
     <div id="editor"></div> 
     <input type="hidden" name="description" id="update_description">
 
@@ -20,21 +25,21 @@
         </label>
     </div>
 
-    <label class="form-label">Category:</label>
+    <label class="form-label">Категории</label>
     <input class="form-control" type="text" id="update_category">
 
-    <label class="form-label">Current Images:</label>
+    <label class="form-label">Текущие фотографии</label>
     <div class="form-control" id="curr_images">
     </div>
 
     <div class="form-check mt-2">
         <input class="form-check-input" type="checkbox" id="keep_existing_images" name="keep_existing_images" checked>
         <label class="form-check-label" for="keep_existing_images">
-            Keep Existing Images?
+            Сохранить текущие фотографии?
         </label>
     </div>
 
-    <label class="form-label">Upload Images (Optional):</label>
+    <label class="form-label"> Загрузить фотографии</label>
     <input class="form-control" type="file" id="update_images" multiple>
 
     <div class="form-check mt-4 fw-bold p-0">
@@ -43,7 +48,7 @@
         
     </div>
 
-    <button class="mt-2 btn btn-sm btn-outline-success" type="submit">Update Product</button>
+    <button class="mt-2 btn btn-sm btn-outline-success" type="submit">Обновить объявления</button>
 
 </form>
 
@@ -173,3 +178,5 @@
     });
 
 </script>
+
+{% endblock %}

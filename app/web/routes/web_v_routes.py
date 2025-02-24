@@ -22,17 +22,17 @@ def stream_movie_page(request: Request, context: dict = Depends(global_context))
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
     """ Movie Search page """
 
-    return templates.TemplateResponse("mov_search.html", {**context, })
+    return templates.TemplateResponse("movie_forms/search.html", {**context, })
 
 
 @router.get("/stream")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
     """ Movie View page """
 
-    return templates.TemplateResponse("mov_stream.html", {**context, })
+    return templates.TemplateResponse("movie_forms/stream.html", {**context, })
 
 @router.get("/upload")
 def upload_page(request: Request, context: dict = Depends(global_context)):
     """ Movie Upload page """
 
-    return templates.TemplateResponse("mov_upload.html", {**context, })
+    return templates.TemplateResponse("movie_forms/upload.html", {**context, })

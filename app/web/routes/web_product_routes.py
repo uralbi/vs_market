@@ -20,7 +20,7 @@ router = APIRouter(
 def get_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Product Detail page """
 
-    return templates.TemplateResponse("product_detail.html", {**context, "product_id": product_id,})
+    return templates.TemplateResponse("product_forms/detail.html", {**context, "product_id": product_id,})
 
 @router.get("/messages")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
@@ -58,9 +58,9 @@ def product_list_page(request: Request, context: dict = Depends(global_context))
 @router.get("/update-product/{product_id}")
 def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Update product page """
-    return templates.TemplateResponse("update_product.html", {**context, "product_id": product_id})
+    return templates.TemplateResponse("product_forms/update.html", {**context, "product_id": product_id})
 
 @router.get("/create-product")
 def create_product_page(request: Request, context: dict = Depends(global_context)):
     """ Create product page """
-    return templates.TemplateResponse("create_product.html", {**context, "title": "Create Product"})
+    return templates.TemplateResponse("product_forms/create.html", {**context, "title": "Create Product"})

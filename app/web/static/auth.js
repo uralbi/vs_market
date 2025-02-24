@@ -230,12 +230,17 @@ function toggleTheme() {
     const body = document.body;
     body.classList.toggle("dark-mode");
     
+    const themeIcon = document.getElementById("themeIcon");
     // ✅ Save the current mode in cookies
     if (body.classList.contains("dark-mode")) {
         setCookie("theme", "dark", 30);  // Save for 30 days
+        themeIcon.classList.replace("bi-lightbulb-fill", "bi-lightbulb"); // Switch to moon icon
     } else {
         setCookie("theme", "light", 30);
+        themeIcon.classList.replace("bi-lightbulb", "bi-lightbulb-fill"); // Switch back to lightbulb
     }
+
+
 }
 
 // ✅ Load theme on page load

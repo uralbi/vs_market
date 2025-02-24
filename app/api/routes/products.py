@@ -233,7 +233,8 @@ def get_product(product_id: int, request: Request, db: Session = Depends(get_db)
         except Exception as e:
             logger.info(f"Trying get product detail with invalid token, Error: {e}")
             user = None
-    product = product_service.get_product_by_id(product_id, user)
+            
+    product = product_service.get_product_by_id(product_id)
 
     print('product is:', product)
     if not product:

@@ -177,14 +177,15 @@
     
             chatRooms.forEach(room => {
                 const listItem = document.createElement("li");
-                listItem.classList.add("list-group-item");
+                listItem.classList.add("my_list_group");
                 listItem.innerHTML = `
                     <a href="/messages?room_id=${room.chat_room_id}" class="text-decoration-none">
-                    <span class="my_badge_unread"> ${room.has_unread_messages ? "📩": "✔️"} </span>
-                        Chat with ${room.other_username} &#128172; 
+                    
+                        Chat with ${room.other_username}  <span class="my_badge_unread"> 
+                        ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-warning"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
                     </a>
-                    <button class="btn btn-danger btn-sm" onclick="deleteChatRoom(${room.chat_room_id})">
-                        🗑️ 
+                    <button class="btn btn-outline-danger btn-sm float-end" onclick="deleteChatRoom(${room.chat_room_id})">
+                        <i class="bi bi-trash3"></i> 
                 </button>
                 `;
 
@@ -226,13 +227,13 @@
 
 <script>
     document.getElementById("deactivateButton").addEventListener("click", async function() {
-        if (!confirm("Are you sure you want to deactivate your account? This action is irreversible.")) {
+        if (!confirm("Удалить Аккаунт?.")) {
             return;
         }
 
         let token = getAccessTokenFromCookie();
         if (!token) {
-            alert("You are not logged in!");
+            alert("Вы не вошли в систему!");
             return;
         }
         token = token.split("=")[1];
