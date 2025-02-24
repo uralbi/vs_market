@@ -34,17 +34,6 @@ class MovieRepository:
             .all()
         )
 
-    def update_movie(self, movie_id: int, update_data: dict):
-        """Update a movie's details."""
-        movie = self.get_movie_by_id(movie_id)
-        if not movie:
-            return None
-        for key, value in update_data.items():
-            setattr(movie, key, value)
-        self.db.commit()
-        self.db.refresh(movie)
-        return movie
-
     def delete_movie(self, movie_id: int):
         """Delete a movie record."""
         movie = self.get_movie_by_id(movie_id)
@@ -106,13 +95,18 @@ class MovieRepository:
         """ Get user's movies """
         return self.db.query(MovieModel).filter(MovieModel.owner_id == user_id).all()
 
-    def update_movie(self, movie_id: int, title: str, description: str, is_public: bool):
+    def update_movie(self, movie_id: int, update_data: dict):
+        """
+        Dynamically update a movie's details using a dictionary.
+        """
         movie = self.get_movie_by_id(movie_id)
-        if movie:
-            movie.title = title
-            movie.description = description
-            movie.is_public = is_public
-            self.db.commit()
-            self.db.refresh(movie)
-            return movie
-        return None
+        if not movie:
+            return None
+
+        for key, value in update_data.items():
+            if value is not None:
+                setattr(movie, key, value)
+
+        self.db.commit()
+        self.db.refresh(movie)
+        return movie

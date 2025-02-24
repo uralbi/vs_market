@@ -17,6 +17,10 @@ def time_ago(timestamp):
         return f"{diff.seconds // 60} мин назад"
     elif diff < timedelta(days=1):
         return f"{diff.seconds // 3600}ч. назад"
+    elif diff < timedelta(days=2):
+        return f"{diff.days} день назад"
+    elif diff < timedelta(days=5):
+        return f"{diff.days} дня назад"
     elif diff < timedelta(days=30):
         return f"{diff.days} дней назад"
     elif diff < timedelta(days=365):

@@ -34,9 +34,34 @@ class MovieService:
         """Fetch paginated movies."""
         return self.repo.get_movies(limit, offset)
 
-    def update_movie(self, movie_id: int, update_data: dict):
-        """Update movie details."""
-        return self.repo.update_movie(movie_id, update_data)
+    def update_movie(self, 
+                     movie_id: int, user_id: int, 
+                     title: str = None, 
+                     description: str = None, is_public: bool = None, 
+                     thumbnail_path: str = None):
+
+        """
+        Updates movie details dynamically.
+        """
+        movie = self.repository.get_movie(movie_id)
+
+        if not movie:
+            return None  # Movie not found
+
+        if movie.owner_id != user_id:
+            return "forbidden"  # User is not authorized
+
+        update_data = {}
+        if title is not None:
+            update_data["title"] = title
+        if description is not None:
+            update_data["description"] = description
+        if is_public is not None:
+            update_data["is_public"] = is_public
+        if thumbnail_path is not None:
+            update_data["thumbnail_path"] = thumbnail_path
+
+        return self.repository.update_movie(movie_id, update_data)
 
     def delete_movie(self, movie_id: int, user_id: int):
         """Delete a movie record."""
@@ -84,16 +109,31 @@ class MovieService:
     
     def update_movie_thumbnail(self, movie_id: int, thumbnail_path: str):
         """ Update the movie's thumbnail path in the database """
+        
+        # movie = self.repo.get_movie_by_id(movie_id)
+        # if movie.thumbnail_path:
+        #     thumb_path = movie.thumbnail_path.replace("media", "media/movies/thumbs")
+        #     if os.path.exists(thumb_path):
+        #         os.remove(thumb_path)
+
+        thumbnail_path = thumbnail_path.replace("media/movies/thumbs", "/media")
+        
         return self.repo.update_movie_thumbnail(movie_id, thumbnail_path)
     
     def get_user_movies(self, user_id: int):
         """ Get user's movies """
         return self.repo.get_user_movies(user_id)
     
-    def update_movie(self, movie_id: int, user_id: int, title: str, description: str, is_public: bool):
+    def update_movie(self, movie_id: int, user_id: int, update_data: dict):
+        """
+        Updates movie details dynamically.
+        """
         movie = self.repo.get_movie_by_id(movie_id)
+
         if not movie:
             return None  # Movie not found
+
         if movie.owner_id != user_id:
-            return "forbidden"  # User is not the owner
-        return self.repo.update_movie(movie_id, title, description, is_public)
+            return "forbidden"  # User is not authorized
+
+        return self.repo.update_movie(movie_id, update_data)

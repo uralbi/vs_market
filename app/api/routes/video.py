@@ -23,19 +23,48 @@ token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 @router.put("/{id}")
-def update_movie(id: int, request: UpdateMovieRequest, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+async def update_movie(id: int, 
+                       request: UpdateMovieRequest = Depends(),  # ✅ Handle thumbnail separately
+                       token: str = Depends(token_scheme), 
+                       db: Session = Depends(get_db)):
     """
-    Update a movie's title, description, or visibility.
+    Update a movie's title, description, visibility, or thumbnail.
     """
     user = user_authorization(token, db)  # Extract user from token
     movie_service = MovieService(db)
-    updated_movie = movie_service.update_movie(id, user.id, request.title, request.description, request.is_public)
 
-    if updated_movie is None:
+    movie = movie_service.get_movie_by_id(id, user)
+    if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
-    
-    if updated_movie == "forbidden":
+
+    if movie.owner_id != user.id:
         raise HTTPException(status_code=403, detail="You are not authorized to edit this movie")
+
+    thumbnail = request.thumbnail_path
+    if thumbnail:
+        upload_dir = "media/movies/thumbs"
+        os.makedirs(upload_dir, exist_ok=True)
+        file_ext = os.path.splitext(thumbnail.filename)[1].lower()
+        thumbnail_filename = f"movie_{id}{file_ext}"
+        thumbnail_path = os.path.join(upload_dir, thumbnail_filename)
+        with open(thumbnail_path, "wb") as buffer:
+            shutil.copyfileobj(thumbnail.file, buffer)        
+        movie_service.update_movie_thumbnail(id, thumbnail_path)
+
+    # ✅ Build `update_data` dictionary for the other fields
+    update_data = {}
+    if request.title is not None:
+        update_data["title"] = request.title
+    if request.description is not None:
+        update_data["description"] = request.description
+    if request.is_public is not None:
+        update_data["is_public"] = request.is_public
+
+    # ✅ Update only the modified fields
+    if update_data:
+        updated_movie = movie_service.update_movie(id, user.id, update_data)
+    else:
+        updated_movie = movie  # No changes to title/description/is_public
 
     return {"message": "Movie updated successfully", "movie": updated_movie}
 
@@ -176,7 +205,7 @@ async def upload_movie(
     
     movie = mov_service.create_movie(title, description, file_path, is_public, owner_id=user.id)
     
-    generate_thumbnail_task.delay(movie.id, str(file_path), filename)
+    generate_thumbnail_task.delay(movie.id, str(file_path), f"movie_{movie.id}")
 
     return {"message": "Upload successful, processing started!", "movie_id": movie.id, "file_path": file_path}
 

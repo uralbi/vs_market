@@ -12,6 +12,12 @@
         <label for="description">Description</label>
         <textarea id="description" class="form-control" rows="3"></textarea>
     </div>
+
+    <div>
+        <label for="thumbnail">Update Thumbnail</label>
+        <input type="file" id="thumbnail" class="form-control" accept="image/*">
+    </div>
+
     <div>
         <label>
             <input type="checkbox" id="isPublic"> Make movie public
@@ -66,26 +72,29 @@
             alert("Authentication required.");
             return;
         }
-    
-        // Get current values from form
+            
+        // ✅ Only send fields that are modified (ignore empty values)
+        let formData = new FormData();
+
         const title = document.getElementById("title").value.trim();
         const description = document.getElementById("description").value.trim();
         const isPublic = document.getElementById("isPublic").checked;
-    
-        // ✅ Only send fields that are modified (ignore empty values)
-        let updatedMovie = {};
-        if (title) updatedMovie.title = title;
-        if (description) updatedMovie.description = description;
-        updatedMovie.is_public = isPublic;
-    
+
+        if (title) formData.append("title", title);
+        if (description) formData.append("description", description);
+        formData.append("is_public", isPublic);  // Always include `is_public`
+
+        // ✅ Handle thumbnail file
+        const thumbnailInput = document.getElementById("thumbnail");
+        if (thumbnailInput.files.length > 0) {
+            formData.append("thumbnail_path", thumbnailInput.files[0]);  // ✅ Correctly append file
+        }
+
         try {
             const response = await fetch(`/api/movies/${movieId}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(updatedMovie)
+                headers: { "Authorization": `Bearer ${token}` },
+                body: formData
             });
     
             const result = await response.json();
@@ -95,7 +104,7 @@
             }
     
             alert("Movie updated successfully!");
-            window.location.href = "/movies/search";
+            window.location.href = "/about";
         } catch (error) {
             alert("Error updating movie: " + error.message);
         }
