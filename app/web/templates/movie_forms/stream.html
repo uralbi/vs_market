@@ -69,7 +69,10 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const access_token = getAccessTokenFromCookie();
-        if (!access_token){return}
+        if (!access_token){
+            alert("Для просмотра необходимо войти.")
+            window.location.href = "/movies/search"
+            return}
         const videoElement = document.getElementById("videoPlayer");
         const movieId = videoElement.dataset.movieId;
         let lastSavedTime = 0;

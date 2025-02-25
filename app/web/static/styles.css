@@ -270,17 +270,19 @@ body button:hover {
         }
 
 #chatBox .msg_received span {
+    font-weight: 300;
     margin: 0 6px;
     padding: 4px 16px;
     border-radius: 6px;
-    border: solid 1px rgb(125, 177, 237);
+    border: solid 0.6px rgb(125, 177, 237);
     color: rgb(54, 139, 236);
 }
 #chatBox .msg_sent span {
+    font-weight: 300;
     margin: 0 6px;
     padding: 4px 16px;
     border-radius: 6px;
-    border: solid 1px rgb(93, 166, 93);
+    border: solid 0.6px rgb(93, 166, 93);
     color: rgb(26, 108, 59);
  }
 
@@ -341,6 +343,12 @@ body button:hover {
 }
 
 /* Dark Mode Styling */
+
+.dark-mode .msg_sent span {
+    border: solid 1px rgb(26, 108, 59) !important;
+    color: rgb(93, 166, 93) !important;
+ }
+
 .dark-mode {
     background-color: #080912 !important;
     color: rgb(112, 121, 138) !important;
@@ -515,7 +523,6 @@ background-color: #f6f9ff;
 .nav .nav-icon {
     font-size: 20px;
     color: #7182cf;
-    margin-right: 20px;
     margin-top: -10px;
     position: relative;
   }
@@ -549,6 +556,6 @@ background-color: #f6f9ff;
     margin: 0px 4px;
     border-radius: 4px;
     height: 75px;
-    width: auto;
+    width: auto
 
     }

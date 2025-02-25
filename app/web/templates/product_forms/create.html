@@ -3,6 +3,8 @@
 {% block content %}
 <h2>Create New Product</h2>
 
+<div class="card-body p-3">
+
 <form id="productForm" enctype="multipart/form-data">
 
     <label class='form-label' for="name">Product Name:</label>
@@ -39,6 +41,8 @@
 </form>
 
 <p id="statusMessage"></p>
+
+</div>
 
 <script>
     document.getElementById("productForm").addEventListener("submit", async function(event) {
