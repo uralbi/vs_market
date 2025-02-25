@@ -56,10 +56,13 @@
 
 
             if (!response.ok ) {
+                let error = await response.json()
                 if (document.referrer) {
-                    window.location.href = document.referrer; // ✅ Redirect to the referring page
+                    console.log('error', error)
+                    window.location.href = document.referrer; // Redirect to the referring page
                 } else {
-                    window.history.back(); // ✅ If no referrer, use history back
+                    console.log('error', error)
+                    window.history.back(); // If no referrer, use history back
                 }
                 throw new Error("Product is not available yet"); 
             }

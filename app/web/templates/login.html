@@ -76,7 +76,7 @@
             document.cookie = `refresh_token=${data.refresh_token}; path=/`;
             window.location.href = "/about"; // Redirect on success
         } else {
-            document.getElementById("loginError").innerText = data.detail;
+            showMessage(data.detail, 'danger')
         }
     });
     </script>

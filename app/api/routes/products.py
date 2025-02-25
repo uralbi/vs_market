@@ -243,7 +243,7 @@ def get_product(product_id: int, request: Request, db: Session = Depends(get_db)
             logger.info(f"Trying get product detail with invalid token, Error: {e}")
             user = None
             
-    product = product_service.get_product_by_id(product_id)
+    product = product_service.get_product_by_id(product_id, user)
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")

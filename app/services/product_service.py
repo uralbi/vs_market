@@ -55,7 +55,7 @@ class ProductService:
         
         if not product:
             raise HTTPException(status_code=404, detail="Item not found")
-        if not user and product.activated:
+        if product.activated:
             return product
         if user and product.owner_id == user.id:
             return product
