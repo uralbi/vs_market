@@ -9,6 +9,11 @@ router = APIRouter(
     prefix='',
     tags=['Websites'])
 
+@router.get("/admin", name="login_page")
+def admin_page(request: Request, context: dict = Depends(global_context)):
+    """Serve the Admin page"""
+    return templates.TemplateResponse("admin.html", {**context, "title": "iAdmin"})
+
 @router.get("/login", name="login_page")
 def about_page(request: Request, context: dict = Depends(global_context)):
     """Serve the Login page"""

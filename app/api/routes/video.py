@@ -31,6 +31,10 @@ async def update_movie(id: int,
     Update a movie's title, description, visibility, or thumbnail.
     """
     user = user_authorization(token, db)  # Extract user from token
+    
+    if user.role != "ADMIN":
+        HTTPException(status_code=401, detail="Unauthorized")
+    
     movie_service = MovieService(db)
 
     movie = movie_service.get_movie_by_id(id, user)
@@ -90,6 +94,10 @@ def delete_movie(id: int, token: str = Depends(token_scheme), db: Session = Depe
     Delete a movie by ID.
     """
     user = user_authorization(token, db)
+    
+    if user.role != "ADMIN":
+        HTTPException(status_code=401, detail="Unauthorized")
+        
     movie_service = MovieService(db)
     deleted = movie_service.delete_movie(id, user.id)
 
@@ -184,6 +192,9 @@ async def upload_movie(
 
     user = user_authorization(token, db)
     
+    if user.role != "ADMIN":
+        HTTPException(status_code=401, detail="Unauthorized")
+        
     file_extension = os.path.splitext(file.filename)[1].lower()
     filename = os.path.basename(file.filename).rsplit(".", 1)[0]  # Extract filename without extension
     
@@ -202,9 +213,8 @@ async def upload_movie(
     process_video_hls.delay(file_path, HLS_FOLDER) # Trigger HLS conversion via Celery
     
     mov_service = MovieService(db) # Create movie entry in the database
-    
     movie = mov_service.create_movie(title, description, file_path, is_public, owner_id=user.id)
-    
+    print('movie path:', movie.file_path)
     generate_thumbnail_task.delay(movie.id, str(file_path), f"movie_{movie.id}")
 
     return {"message": "Upload successful, processing started!", "movie_id": movie.id, "file_path": file_path}

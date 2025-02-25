@@ -69,9 +69,11 @@ class MovieService:
         movie = self.repo.get_movie_by_id(movie_id)
         if not movie or movie.owner_id != user_id:
             return False
-    
+
         if movie.thumbnail_path:
-            thumb_path = movie.thumbnail_path.replace("media", "media/movies/thumbs")
+            thumb_path = movie.thumbnail_path.replace("/media", "media/movies/thumbs")
+            # before thumb: /media/movie_22.jpg
+            # after thubm: /media/movies/thumbs/movie_22.jpg
             if os.path.exists(thumb_path):
                 os.remove(thumb_path)
                 

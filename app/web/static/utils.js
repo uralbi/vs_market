@@ -1,3 +1,6 @@
+
+
+
 async function addToFavorites(productId) {
     
     try{ await authenticatedRequest('me') }
@@ -48,5 +51,3 @@ async function removeFromFavorites(productId) {
         alert(error.detail);
     }
 }
-
-

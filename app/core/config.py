@@ -6,8 +6,8 @@ load_dotenv()
 
 class Config:
     
+    DOMAIN = os.getenv("DOMAIN")
     ALLOWED_ORIGINS = ["*"]
-    
     CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND")
     CELERY_TASK_ROUTES: dict= {

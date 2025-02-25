@@ -8,7 +8,8 @@ from app.domain.security.get_hash import get_password_hash
 from app.infra.repositories.user_repository import UserRepository
 from app.domain.dtos.product import ProductDTO
 from fastapi import HTTPException
-from typing import List
+from typing import List, Optional
+from app.core.config import settings
 
 
 class UserService:
@@ -77,7 +78,7 @@ class UserService:
 
     def send_activation_email(self, email: str):
         acc_token = create_access_token({"sub": email})
-        verification_link = f"http://127.0.0.1:8000/api/auth/verify-email?token={acc_token}"
+        verification_link = f"{settings.DOMAIN}/api/auth/verify-email?token={acc_token}"
         send_verification_email.delay(email, verification_link)
     
     def deactivate_user(self, email:str):
@@ -93,5 +94,18 @@ class UserService:
         """Get a user's favorite products with images."""
         return self.repo.get_favorite_products(user_id)
     
-    def deactivate_user_products(self, user_id: int):
-        return self.repo.deactivate_user_products(user_id)
+    def deactivate_user(self, user_id: int):
+        return self.repo.deactivate_user(user_id)
+    
+    def get_all_users(self, limit: int, offset: int, 
+                      email: Optional[str]=None, is_active: Optional[bool]=None) -> List[UserModel]:
+        """ Fetch all users by email or is_active """
+        query = self.repo.get_all_users()
+        
+        if email:
+            query = query.filter(UserModel.email.ilike(f"%{email}%"))
+
+        if is_active is not None:
+            query = query.filter(UserModel.is_active == is_active)
+
+        return query.offset(offset).limit(limit).all()

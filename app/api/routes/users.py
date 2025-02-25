@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from app.services.product_service import ProductService
 from app.domain.security.auth_user import user_authorization
 from pydantic import BaseModel
+from typing import Optional
 
 router = APIRouter(
     prefix='/api/auth',
@@ -24,10 +25,32 @@ def deactivate(token: str = Depends(token_scheme), db: Session = Depends(get_db)
     """
 
     user = user_authorization(token, db)
-    
+    user_service = UserService(db)
+    user_service.deactivate_user(user.id)
     product_service = ProductService(db)
     product_service.deactivate_user_products(user.id)
     return {"message": "Your account is deactivated, and will be deleted in 30 days!."}
+
+
+class UserIDRequest(BaseModel):
+    user_id: int
+    
+@router.post("/deactivate_user")
+def deactivate_user(payload: UserIDRequest, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Logs out the user by clearing the authentication token from cookies.
+    """
+    print("the user id: ", payload.user_id)
+    user_id = payload.user_id
+    user = user_authorization(token, db)
+    
+    if user.role != "ADMIN":
+        return HTTPException(status_code=401, detail="Unauthorized")
+    user_service = UserService(db)
+    user_service.deactivate_user(user_id)
+    product_service = ProductService(db)
+    product_service.deactivate_user_products(user_id)
+    return {"message": "Your account is deactivated"}
 
 @router.put("/change-password")
 def change_password(
@@ -89,6 +112,23 @@ def logout(response: Response, db: Session = Depends(get_db)):
     return {"message": "Logged out"}
 
 
+@router.get("/users")
+async def get_all_user(
+    limit: int, offset: int, 
+    email: Optional[str] = Query(None, description="Search by email (substring match)"),
+    is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    token: str = Security(token_scheme), 
+    db: Session = Depends(get_db)):
+    
+    user = user_authorization(token, db)
+
+    if not user or user.role != 'ADMIN':
+        raise HTTPException(status_code=404, detail="User not found")  
+    user_service = UserService(db)
+    users = user_service.get_all_users(limit, offset, email, is_active)
+    return users
+
+
 @router.get("/me")
 async def read_current_user(token: str = Security(token_scheme), db: Session = Depends(get_db)):
     user = user_authorization(token, db)
@@ -128,8 +168,8 @@ async def login(user: UserLoginDTO, db: Session = Depends(get_db)):
     if not stored_user or not stored_user.verify_password(user.password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     if not stored_user.is_active:
-        user_service.send_activation_email(stored_user.email)
-        raise HTTPException(status_code=400, detail="Account not activated. Please verify your email.")
+        # user_service.send_activation_email(stored_user.email)
+        raise HTTPException(status_code=400, detail="Account not activated. Please contact the web manager.")
 
     access_token = create_access_token({"sub": stored_user.email})
     refresh_token = create_refresh_token({"sub": stored_user.email})

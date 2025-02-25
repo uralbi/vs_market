@@ -168,3 +168,4 @@ class ProductRepository:
     def deactivate_user_products(self, user_id: int):
         self.db.query(ProductModel).filter(ProductModel.owner_id == user_id).update({"activated": False})
         self.db.commit()
+        return {"message": "Products are deactivated"}

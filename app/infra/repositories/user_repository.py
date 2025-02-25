@@ -3,7 +3,7 @@ from sqlalchemy.sql import select
 from app.infra.database.models import UserModel, ProductModel, favorites_table
 from app.domain.interfaces.user_repository import IUserRepository
 from app.domain.dtos.product import ProductDTO
-from typing import List
+from typing import List, Optional
 
 
 class UserRepository(IUserRepository):
@@ -47,3 +47,13 @@ class UserRepository(IUserRepository):
             )
             for product in favorite_products
         ]
+    
+    def get_all_users(self):
+        """
+        Fetch all users with.
+        """
+        return self.db.query(UserModel)
+
+    def deactivate_user(self, user_id: int):
+        self.db.query(UserModel).filter(UserModel.id == user_id).update({"is_active": False})
+        self.db.commit()
