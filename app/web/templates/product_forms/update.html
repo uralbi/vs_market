@@ -9,76 +9,76 @@
     <input type="hidden" id="product_id" value="">
 
     <div class="row mb-3">
-        <label class="form-label col-sm-2 col-form-label">Название</label>
-        <div class="col-sm-10">
+        <label class="form-label col-md-2 col-form-label">Название</label>
+        <div class="col-md-10">
             <input class="form-control" type="text" id="update_name" placeholder="Название объявления">
         </div>
     </div>
 
     <div class="row">
-        <label class="form-label col-sm-2 col-form-label" for="editor">Описание</label>
-        <div class="col-sm-10">
+        <label class="form-label col-md-2 col-form-label" for="editor">Описание</label>
+        <div class="col-md-10">
             <div id="editor"></div> 
             <input type="hidden" name="description" id="update_description">
         </div>
     </div>
 
-    <div class="row mb-3 mt-5">
-        <label class="form-label col-sm-2 col-form-label">Price:</label>
-        <div class="col-sm-10">
+    <div class="row mb-3 mt-4">
+        <label class="form-label col-md-2 col-form-label">Price:</label>
+        <div class="col-md-10">
             <input class="form-control" type="number" id="update_price" step="0.01">
         </div>
     </div>
 
     <div class="row mb-3">
-            <label class="form-label col-sm-2 col-form-label" for="is_dollar">
+            <label class="form-label col-md-2 col-form-label" for="is_dollar">
             В Долларах? </label>
-        <div class="col-sm-10 form-check mt-2 ps-5">
+        <div class="col-md-10 form-check mt-2 ps-5">
             <input class="form-check-input" type="checkbox" id="update_is_dollar" name="is_dollar">
         </div>
     </div>
 
     <div class="row mb-3">
-        <label class="form-label col-sm-2 col-form-label">Категории</label>
-        <div class="col-sm-10">
+        <label class="form-label col-md-2 col-form-label">Категории</label>
+        <div class="col-md-10">
             <input class="form-control" type="text" id="update_category">
         </div>
     </div>
 
     <div class="row mb-3">
-            <label class="form-label col-sm-2 col-form-label">Текущие фотографии</label>
-        <div class="col-sm-10">
+            <label class="form-label col-md-2 col-form-label">Текущие фотографии</label>
+        <div class="col-md-10">
             <div class="form-control" id="curr_images"></div>
         </div>
     </div>
    
     <div class="row mb-3">
-        <label class="form-label col-sm-2 col-form-label" for="keep_existing_images">
+        <label class="form-label col-md-2 col-form-label" for="keep_existing_images">
             Сохранить текущие фотографии?
         </label>
-        <div class="col-sm-10 form-check mt-2 ps-5">
+        <div class="col-md-10 form-check mt-2 ps-5">
             <input class="form-check-input" type="checkbox" id="keep_existing_images" name="keep_existing_images" checked>     
         </div>
     </div>
 
     <div class="row mb-3">
-            <label class="form-label col-sm-2 col-form-label"> Загрузить фотографии</label>
-        <div class="col-sm-10">
+            <label class="form-label col-md-2 col-form-label"> Загрузить фотографии</label>
+        <div class="col-md-10">
             <input class="form-control" type="file" id="update_images" multiple>
         </div>
     </div>
 
 
     <div class="row mb-3">
-            <label class="form-label col-sm-2 col-form-label" for="update_activated"> Активировать? </label>
-        <div class="col-sm-10 form-check mt-2 ps-5">
+            <label class="form-label col-md-2 col-form-label" for="update_activated"> Активировать? </label>
+        <div class="col-md-10 form-check mt-2 ps-5">
             <input class="form-check-input" type="checkbox" id="update_activated" name="update_activated" checked>
         </div>
     </div>
 
     <div class="row mb-3">
-        <label class="form-label col-sm-2 col-form-label"> </label>
-        <div class="col-sm-10 form-check">
+        <label class="form-label col-md-2 col-form-label"> </label>
+        <div class="col-md-10 form-check">
         <button class="mt-2 btn btn-sm btn-success" type="submit">Обновить объявления</button>
         </div>
     </div>
@@ -208,7 +208,7 @@
                 ['bold', 'italic', 'underline', 'strike'],
                 [{ 'color': [] }, { 'background': [] }],
                 [{ 'align': [] }],
-                ['link', 'image'],
+                ['link'],
                 ['clean']
             ]
         }

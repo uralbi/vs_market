@@ -9,7 +9,7 @@ class ProductCreateDTO(BaseModel):
     description: str = Field(..., max_length=10000)
     price: float = Field(..., gt=0)
     category: str = Field(..., min_length=2, max_length=100)
-    image_urls: List[str] = Field(default=[], max_items=10)  # Max 20 images
+    image_urls: List[str] = Field(default=[], max_length=10)  # Max 20 images
     is_dollar: bool = Field(default=False)
     activated: bool = Field(default=True)
     

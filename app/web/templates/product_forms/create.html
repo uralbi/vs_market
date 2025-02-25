@@ -1,33 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Create New Product</h2>
+<h2>Создать объявление</h2>
 
 <div class="card-body p-3">
 
 <form id="productForm" enctype="multipart/form-data">
 
-    <label class='form-label' for="name">Product Name:</label>
+    <label class='form-label' for="name">Название:</label>
     <input class="form-control form-controm-sm" type="text" id="name" name="name" required>
 
-    <label class="form-label" for="editor">Description:</label>
+    <label class="form-label" for="editor">Описание:</label>
     <div id="editor"></div> 
     <input type="hidden" name="description" id="description">
 
     <label class='form-label' for="price">Price:</label>
     <input class="form-control form-controm-sm" type="number" id="price" name="price" step="0.01" required>
 
-    <div class="form-check mt-2">
-        <input class="form-check-input" type="checkbox" id="is_dollar" name="is_dollar">
-        <label class="form-check-label" for="is_dollar">
+    <div class="form-check mb-3 p-0 fw-bold">
+        <label class="form-label" for="is_dollar">
             В Долларах?
         </label>
+        <input class="form-input" type="checkbox" id="is_dollar" name="is_dollar">
     </div>
 
-    <label class='form-label' for="category">Category:</label>
+    <label class='form-label' for="category">Категория:</label>
     <input class="form-control form-controm-sm" type="text" id="category" name="category" required>
 
-    <label class='form-label' for="images">Upload Images (Max: 10)</label>
+    <label class='form-label' for="images">Загрузить фото (Максимально: 10)</label>
     <input class="form-control form-controm-sm" type="file" id="images" name="images" multiple accept="image/*">
 
     <div class="form-check mt-4 fw-bold p-0">
@@ -37,7 +37,7 @@
         <input class="form-input" type="checkbox" id="activated" name="update_activated" checked>
     </div>
     
-    <button class="btn btn-sm btn-outline-primary" type="submit">Create Product</button>
+    <button class="btn btn-sm btn-primary mt-3 px-5" type="submit">Создать</button>
 </form>
 
 <p id="statusMessage"></p>
@@ -80,7 +80,7 @@
     
         let result = await response.json();
         if (response.ok) {
-            document.getElementById("statusMessage").innerText = "Product Created Successfully!";
+            document.getElementById("statusMessage").innerText = "Объявление создано!";
             document.getElementById("productForm").reset();
             window.location.href = "/about";
         } else {
@@ -97,14 +97,14 @@
     <script>
         var quill = new Quill('#editor', {
             theme: 'snow',
-            placeholder: "Enter product description...",
+            placeholder: "Введите описание ...",
             modules: {
                 toolbar: [
                     [{ 'header': [1, 2, false] }],
                     ['bold', 'italic', 'underline', 'strike'],
                     [{ 'color': [] }, { 'background': [] }],
                     [{ 'align': [] }],
-                    ['link', 'image'],
+                    ['link'],
                     ['clean']
                 ]
             }

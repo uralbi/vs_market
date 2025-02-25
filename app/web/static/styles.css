@@ -6,6 +6,8 @@
     --link-color1: #5450bd;
     --link-color2: #434094;
     --link-color3: #7182cf;
+    --form-bg-color: #ced2df;
+    --form-label-color: #7182cf;
 
 }
 
@@ -42,9 +44,16 @@ body button:hover {
     border-radius: 4px;
 }
 
-.form-control       { background: #c9cbd2 !important; }
-.form-control:focus { background: #e9eaf1 !important; }
+.form-control       { background: var(--form-bg-color) !important; }
+.form-control:focus { background: white !important; }
 .list-group-item    { background: var(--light-bg-color) !important; }
+
+.form-label {
+    margin: 6px 0 0 0 !important;
+    color:var(--form-label-color) !important;
+    text-shadow: 0 0 2px white;
+}
+
 
 #productList {
     width: 100%;
@@ -369,7 +378,7 @@ body button:hover {
     background-color: #333 !important;
     color: rgb(112, 121, 138) !important;
 }
-
+.dark-mode .form-label { text-shadow: 0 0 2px black; }
 .dark-mode .form-control:focus { background: #1a1a1a !important; }
 .dark-mode .list-group-item    { background: none !important; }
 .dark-mode .my_list_group {background-color: #212546}
@@ -460,6 +469,23 @@ body button:hover {
 .dark-mode .dropdown-item:hover {
     background-color: #101223;
 }
+
+.dark-mode .ql-snow{
+    background-color: #101223;
+}
+
+.dark-mode .ql-container {
+    background-color: #333;
+}
+
+.dark-mode .ql-snow { 
+    border: 0.5px solid rgb(101, 101, 101) !important; }
+    
+.dark-mode .ql-container {
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
 /* NAVIGATION */
 .nav {
     background-color: #2c315c;
@@ -559,3 +585,11 @@ background-color: #f6f9ff;
     width: auto
 
     }
+
+.ql-container .ql-snow { border: none !important;}
+.ql-container { height: 80% !important; 
+                min-height: 140px !important;
+                background-color: var(--form-bg-color); 
+                border-bottom-right-radius: 6px;
+                border-bottom-left-radius: 6px;}
+.ql-container p {font-size: 1.2em;}
