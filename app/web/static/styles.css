@@ -544,3 +544,11 @@ background-color: #f6f9ff;
 .dropdown-item:hover {
     background-color: #404573 !important;
 }
+
+#curr_images img{
+    margin: 0px 4px;
+    border-radius: 4px;
+    height: 75px;
+    width: auto;
+
+    }
