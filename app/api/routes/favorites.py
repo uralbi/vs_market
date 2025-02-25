@@ -36,7 +36,8 @@ def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Se
     user = user_authorization(token, db)
     
     product_service = ProductService(db)
-    product = product_service.get_product_by_id(product_id, user)
+    
+    product = product_service.get_product_by_id(product_id)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -59,7 +60,7 @@ def remove_from_favorites(product_id: int, token: str = Depends(token_scheme), d
     user = user_authorization(token, db)
     
     product_service = ProductService(db)
-    product = product_service.get_product_by_id(product_id, user)
+    product = product_service.get_product_by_id(product_id)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

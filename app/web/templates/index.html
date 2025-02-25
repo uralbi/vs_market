@@ -5,9 +5,7 @@
 {% include "product_forms/search_form.html" %}
 
 
-
-
-<h4> Новые объявления</h4>
+<h1> Новые объявления</h1>
 
 <div id="productContainer" class="clearfix">
 </div>
@@ -33,7 +31,20 @@ async function fetchProducts() {
             productContainer.appendChild(productCard);
         });
 
-        AOS.refresh();
+        // AOS.refresh();
+        
+        if (typeof AOS !== "undefined") {
+            AOS.refresh();
+        } else {
+            console.warn("AOS is not defined. Retrying...");
+            setTimeout(() => {
+                if (typeof AOS !== "undefined") {
+                    AOS.refresh();
+                } else {
+                    console.error("AOS is still not defined.");
+                }
+            }, 500);  // Wait and retry after 500ms
+        }
         
     } catch (error) {
         console.error("Error fetching products:", error);

@@ -239,8 +239,6 @@ function toggleTheme() {
         setCookie("theme", "light", 30);
         themeIcon.classList.replace("bi-lightbulb", "bi-lightbulb-fill"); // Switch back to lightbulb
     }
-
-
 }
 
 // ✅ Load theme on page load
@@ -250,10 +248,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-AOS.init();
-});
-
+window.onload = function () {
+    if (typeof AOS !== "undefined") {
+        AOS.init();
+    }
+};
 
 function createProductCard(product, delay) {
     let productCard = document.createElement("div");
