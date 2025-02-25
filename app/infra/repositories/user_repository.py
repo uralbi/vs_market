@@ -57,3 +57,9 @@ class UserRepository(IUserRepository):
     def deactivate_user(self, user_id: int):
         self.db.query(UserModel).filter(UserModel.id == user_id).update({"is_active": False})
         self.db.commit()
+
+    
+    def activate_user(self, user_id: int):
+        query = self.db.query(UserModel).filter(UserModel.id == user_id).update({"is_active": True})
+        self.db.commit()
+        return query

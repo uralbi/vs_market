@@ -209,3 +209,13 @@ async def verify_email(token: str = Query(...), db: Session = Depends(get_db)):
     db.commit()
     
     return {"msg": "Email verified. Your account is now activated."}
+
+
+@router.get("/activate_user")
+async def activate_user(user_id: int, token: str = Security(token_scheme), db: Session = Depends(get_db)):
+    user = user_authorization(token, db)
+    if not user or user.role != "ADMIN":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    user_service = UserService(db)
+    act_user = user_service.activate_user(user_id)
+    return {"message": f"User [ {act_user.id} {act_user.email} ] is activated"}

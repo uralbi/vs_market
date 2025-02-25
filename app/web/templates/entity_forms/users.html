@@ -27,7 +27,7 @@
             <th>Created At</th>
             <th>Active</th>
             <th>Deactivate</th>
-            <th>Send Activation</th>
+            <th>Activate</th>
         </tr>
     </thead>
     <tbody id="userTableBody">
@@ -117,7 +117,7 @@
                     </td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="sendActivation(${user.id})">
-                            Send Activation
+                            Activate
                         </button>
                     </td>
                 </tr>`;
@@ -166,6 +166,36 @@
             } catch (error) {
                 console.error("Error deactivating user:", error);
                 alert("Error: " + error.message);
+            }
+        }
+        
+        async function sendActivation(userId) {
+            let token = getAccessTokenFromCookie(); // Function to retrieve the token
+        
+            if (!token) {
+                alert("Unauthorized: Please log in as Admin.");
+                return;
+            }
+        
+            try {
+                const response = await fetch(`/api/auth/activate_user?user_id=${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+        
+                const result = await response.json();
+        
+                if (response.ok) {
+                    alert(result.message);
+                    location.reload(); // Reload to update the user list
+                } else {
+                    alert(`Activation failed: ${result.detail}`);
+                }
+            } catch (error) {
+                console.error("Error activating user:", error);
+                alert("An error occurred while activating the user.");
             }
         }
         

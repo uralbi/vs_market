@@ -53,7 +53,8 @@ class UserService:
 
     def get_user_by_id(self, user_id: int) -> UserModel:
         """Retrieves a user by ID."""
-        return self.db.query(UserModel).filter(UserModel.id == user_id).first()
+        return self.repo.get_user_by_id(user_id)
+        
 
     def get_user_by_username(self, username: str) -> UserModel:
         """Retrieves a user by username."""
@@ -81,21 +82,25 @@ class UserService:
         verification_link = f"{settings.DOMAIN}/api/auth/verify-email?token={acc_token}"
         send_verification_email.delay(email, verification_link)
     
-    def deactivate_user(self, email:str):
-        user = self.get_user_by_email(email)
-        user.is_active = False
-        self.db.commit()
-        self.db.refresh(user)
-        
-        message_body = f"Your account ({email}) deactivate, and will be deleted in 30 days."
-        send_notification_email.delay(email, message_body)
-    
     def get_favorites(self, user_id: int) -> List[ProductDTO]:
         """Get a user's favorite products with images."""
         return self.repo.get_favorite_products(user_id)
     
     def deactivate_user(self, user_id: int):
+        user = self.repo.get_user_by_id(user_id)
+        if not user:
+            return HTTPException(status_code=404, detail="User Not Found")
+        message_body = f"Your account ({user.email}) has been deactivated."
+        send_notification_email.delay(user.email, message_body)
         return self.repo.deactivate_user(user_id)
+    
+    def activate_user(self, user_id: int):
+        user = self.repo.get_user_by_id(user_id)
+        if not user:
+            return HTTPException(status_code=404, detail="User Not Found")
+        message_body = f"Your account ({user.email}) has been Activated."
+        send_notification_email.delay(user.email, message_body)
+        return self.repo.activate_user(user_id)
     
     def get_all_users(self, limit: int, offset: int, 
                       email: Optional[str]=None, is_active: Optional[bool]=None) -> List[UserModel]:
