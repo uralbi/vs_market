@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from app.domain.entities.user import User
 from app.domain.dtos.user import UserRegistrationDTO
 from app.infra.database.models import UserModel
@@ -18,12 +19,13 @@ class UserService:
         self.repo = UserRepository(db)
 
     def register_user(self, user_data: UserRegistrationDTO) -> User:
-        """Registers a new user."""
+        """Registers a new user, handling unique constraint errors."""
         
+        # ✅ Check if email already exists
         existing_user = self.db.query(UserModel).filter(UserModel.email == user_data.email).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
-        
+
         hashed_password = get_password_hash(user_data.password)
 
         db_user = UserModel(
@@ -32,10 +34,21 @@ class UserService:
             hashed_password=hashed_password,
             is_active=False
         )
-        
-        self.db.add(db_user)
-        self.db.commit()
-        self.db.refresh(db_user)
+
+        try:
+            self.db.add(db_user)
+            self.db.commit()
+            self.db.refresh(db_user)
+        except IntegrityError as e:
+            self.db.rollback()
+            error_message = str(e.orig)
+
+            if "ix_users_username" in error_message:  # ✅ Username unique constraint
+                raise HTTPException(status_code=400, detail="Username already taken")
+            elif "ix_users_email" in error_message:  # ✅ Email unique constraint
+                raise HTTPException(status_code=400, detail="Email already registered")
+            else:
+                raise HTTPException(status_code=500, detail="Database error during registration")
 
         self.send_activation_email(db_user.email)
 
