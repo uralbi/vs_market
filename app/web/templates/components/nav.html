@@ -59,8 +59,6 @@
         <i class="bi bi-activity"></i> Действия
     </a>
     
-    <a class="nav-link" role="button" onclick="toggleTheme()" > <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a>
-    
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         {% if not current_user or current_user == 'None'%}
         <li> <a class="dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Войти </a> </li>
@@ -78,6 +76,9 @@
         {% endif %}
         <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-up-left"></i> Выйти</a> </li>
         {% endif %}
-        
+
+        <li><a class="nav-link  dropdown-item" role="button" onclick="toggleTheme()" > <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a></li>
     </ul>
+
+    <div id="status_messages" class="text-center alert fade show" role="alert"></div>
 </nav>

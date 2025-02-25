@@ -63,3 +63,15 @@ class UserRepository(IUserRepository):
         query = self.db.query(UserModel).filter(UserModel.id == user_id).update({"is_active": True})
         self.db.commit()
         return query
+    
+    def add_to_favorites(self, product, user):
+        if product not in user.favorite_products:
+            user.favorite_products.append(product)
+            self.db.commit()
+            self.db.refresh(user)
+
+    def remove_from_favorites(self, product, user):
+        if product in user.favorite_products:
+            user.favorite_products.remove(product)
+            self.db.commit()
+            self.db.refresh(user)

@@ -127,3 +127,9 @@ class UserService:
             query = query.filter(UserModel.is_active == is_active)
 
         return query.offset(offset).limit(limit).all()
+
+    def add_to_favorites(self, product, user):
+        return self.repo.add_to_favorites(product, user)
+    
+    def remove_from_favorites(self, product, user):
+        return self.repo.remove_from_favorites(product, user)

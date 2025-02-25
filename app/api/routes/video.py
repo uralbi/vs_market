@@ -9,7 +9,8 @@ from app.domain.dtos.movie import UpdateMovieRequest
 from fastapi.security import OAuth2PasswordBearer
 from app.infra.tasks.vid_tasks import process_video_hls, generate_thumbnail_task
 from app.domain.dtos.movie import MovieDTO
-import os, shutil
+from app.infra.kafka.kafka_producer import send_kafka_message
+import os, shutil, datetime
 from pathlib import Path
 from pydantic import BaseModel
 
@@ -112,6 +113,13 @@ def search_movies(query: str, db: Session = Depends(get_db)):
     """
     Search for movies using full-text search on title and description.
     """
+    
+    # send_kafka_message(
+    #     topic="movie_search",
+    #     key="search",
+    #     message={"query": query, "timestamp": str(datetime.datetime.now())},
+    # )
+
     movie_service = MovieService(db)
     return movie_service.search_movies(query)
 

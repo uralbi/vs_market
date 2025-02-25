@@ -17,15 +17,15 @@ def user_authorization(token:str, db: Session):
         payload = decode_access_token(token)
         email = payload.get("sub")
         if not email:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(status_code=401, detail="Не верный Токен!, Необходимо Войти заново.")
 
         user_service = UserService(db)
         user = user_service.get_user_by_email(email)
 
         if not user or not user.is_active:
-            raise HTTPException(status_code=403, detail="User not found or inactive")
+            raise HTTPException(status_code=403, detail="Аккаунт не найден или деактивирован")
         return user
     except Exception as e:
         user = None
         logger.error(f"User auth error: {e}") 
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Неверный Токен")

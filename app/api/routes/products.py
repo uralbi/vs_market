@@ -7,8 +7,8 @@ from app.infra.database.db import get_db
 from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
 from app.services.image_service import ImageService
-from app.services.user_service import UserService
-import asyncio, json
+from app.infra.kafka.kafka_producer import send_kafka_message
+import asyncio, json, datetime
 import redis.asyncio as redis
 from app.domain.security.auth_user import user_authorization
 
@@ -43,6 +43,12 @@ async def search_products(
 
     if len(query) < 2:
         raise HTTPException(status_code=400, detail="Search term must be more then 2 characters")
+    
+    # send_kafka_message(
+    #     topic="product_search",
+    #     key="search",
+    #     message={"query": query, "timestamp": str(datetime.datetime.now())},
+    # )
     
     # Generate cache key
     cache_key = f"search:{query}:{limit}:{offset}"
@@ -239,7 +245,6 @@ def get_product(product_id: int, request: Request, db: Session = Depends(get_db)
             
     product = product_service.get_product_by_id(product_id)
 
-    print('product is:', product)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 

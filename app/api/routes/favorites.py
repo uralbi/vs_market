@@ -35,23 +35,21 @@ def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Se
     
     user = user_authorization(token, db)
     
+    user_service = UserService(db)
     product_service = ProductService(db)
     
     product = product_service.get_product_by_id(product_id)
 
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Не найдено")
     if product.owner_id == user.id:
-        raise HTTPException(status_code=400, detail="You cannot favorite your own product")
+        raise HTTPException(status_code=400, detail="Это ваше объявление!")
 
     if product in user.favorite_products:
-        raise HTTPException(status_code=400, detail="Product already in favorites")
-    user.favorite_products.append(product)
-    db.commit()
-
-    return {"message": "Product added to favorites"}
+        user_service.remove_from_favorites(product, user)
+        return {"message": "Объявление удалено из Избранных"}
+    user_service.add_to_favorites(product, user)
+    return {"message": "Объвление добавлено в Избранное"}
 
 
 @router.delete("/{product_id}")
@@ -62,15 +60,13 @@ def remove_from_favorites(product_id: int, token: str = Depends(token_scheme), d
     product_service = ProductService(db)
     product = product_service.get_product_by_id(product_id)
 
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Объявление не найдено")
     if product not in user.favorite_products:
-        raise HTTPException(status_code=400, detail="Product not in favorites")
+        raise HTTPException(status_code=400, detail="Объявления нет в Избранных")
 
     user.favorite_products.remove(product)
     db.commit()
 
-    return {"message": "Product removed from favorites"}
+    return {"message": "Объявление удалено с Избранных"}
 

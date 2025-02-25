@@ -53,8 +53,6 @@ class ProductService:
     def get_product_by_id(self, id: int, user=None):
         product = self.product_repo.get_product_by_id(id)
         
-        print('query prod id:', id)
-        print('service producgt:', product.activated, product.id,)
         if not product:
             raise HTTPException(status_code=404, detail="Item not found")
         if not user and product.activated:

@@ -36,18 +36,24 @@
                 productName += `<span class="card-text"> - ${productDescription} </span>`;
 
                 productItem.innerHTML = `
-                <div class="card-body">
-                    <a href="/product/${product.id}"><h5 class="card-title">${productName} </h5></a>
-                    <p class="card-price">
-                        ${displayPrice(product.price, product.is_dollar)}
-                    </p>
-                    <img class="m-1" src="${product.image_urls[0] || 'static/default.jpg'}">
-                    
 
-                </div>
-                
-                <button class="btn btn-sm btn-outline-danger" onclick="removeFromFavorites(${product.id})">Unpin</button>
-                    
+                    <div class="card">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="${product.image_urls[0] || 'static/default.jpg'}" class="img-fluid rounded-start" alt="...">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <a href="/product/${product.id}"><h5 class="card-title">${productName}</h5></a>
+                                    <p class="card-price">
+                                        ${displayPrice(product.price, product.is_dollar)}
+                                    </p>
+                                    <button class="btn btn-sm btn-outline-danger ms-1 " onclick="removeFromFavorites(${product.id})">
+                                    <i class="bi bi-x-lg"></i> </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                
                 `;
                 productList.appendChild(productItem);
             });
@@ -65,10 +71,12 @@
         });
 
         if (response.ok) {
+            showMessage("Объявление удалено из Избранных!", "success");
             fetchFavoriteProducts(); // Refresh the list
         } else {
             let error = await response.json();
-            alert(error.detail);
+            console.log(error.detail);
+            showMessage("Ошибка при удалении!", "warning");
         }
     }
 

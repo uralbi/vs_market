@@ -27,9 +27,9 @@
         <div class="prodcut_ent_Phone" id="entityPhone"></div>
         <div class="prodcut_ent_WhatsApp" id="entityWhatsApp"></div>
 
-        <div class="mt-3">
-            <a href="#" id="chatSeller" class="btn btn-sm btn-outline-primary chat_link_btn" data-receiver-id data-product-id>💬 Сообщение</a>
-            <button class="btn btn-sm btn-outline-success" onclick="addToFavorites({{product_id}})">⭐ Добавить</button>
+        <div class="mt-3"> 
+            <a href="#" id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></a>
+            <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
         </div>
     </div>
 </div>
@@ -168,6 +168,5 @@
 
 </script>
 
-<script src="{{ url_for('static', path='utils.js') }}"></script>
 
 {% endblock %}
