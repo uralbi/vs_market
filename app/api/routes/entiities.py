@@ -29,12 +29,9 @@ def update_entity(
     """
    
     user = user_authorization(token, db)
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
 
     entity_service = EntityService(db)
-    entity = entity_service.get_entity_by_user(user)
+    entity = entity_service.get_entity_by_user_id(user.id)
 
     if not entity:
         raise HTTPException(status_code=404, detail="No entity found")

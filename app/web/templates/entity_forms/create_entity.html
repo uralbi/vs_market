@@ -25,21 +25,34 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-sm btn-outline-primary mt-3">Create Entity</button>
+        <button type="submit" class="btn btn-sm btn-primary px-5">Создать</button>
     </form>
-
-    <p id="responseMessage"></p>
     
 <script>
     document.getElementById("createEntityForm").addEventListener("submit", async function(event) {
         event.preventDefault(); // Prevent form reload
 
+        let phoneRegex = /^[0-9\(\)\-\+\s]+$/;
+
+        let entityPhone = document.getElementById("entity_phone_c").value.trim();
+        let entityWhatsApp = document.getElementById("entity_whatsapp_c").value.trim();
+
+        if (!phoneRegex.test(entityPhone)) {
+            showMessage("Неверный формат Телефона", "warning");
+            return;
+        }
+    
+        if (!phoneRegex.test(entityWhatsApp)) {
+            showMessage("Неверный формат Номера Вотсап, введите только цифры", "warning");
+            return;
+        }
+
         let token = getAccessTokenFromCookie();
 
         let entityData = {
             entity_name: document.getElementById("entity_name_c").value,
-            entity_phone: document.getElementById("entity_phone_c").value,
-            entity_whatsapp: document.getElementById("entity_whatsapp_c").value,
+            entity_phone: entityPhone,
+            entity_whatsapp: entityWhatsApp,
             entity_address: document.getElementById("entity_address_c").value
         };
 
@@ -55,10 +68,12 @@
         let result = await response.json();
 
         if (response.ok) {
-            document.getElementById("responseMessage").innerText = "Entity created successfully!";
-            await loadUserInfo();
-        } else {
-            document.getElementById("responseMessage").innerText = result.detail || "Failed to create entity.";
+            document.getElementById("createEntityForm").reset();
+            showMessage("Профиль создан", "success");
+            setTimeout(() => {
+                window.location.reload(); }, 2000); 
+            } else {
+            showMessage(`Ошибка при сохранении Профиля: ${result.detail}`, "warning")
         }
     });
 </script>

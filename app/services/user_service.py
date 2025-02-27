@@ -118,7 +118,7 @@ class UserService:
     def get_all_users(self, limit: int, offset: int, 
                       email: Optional[str]=None, is_active: Optional[bool]=None) -> List[UserModel]:
         """ Fetch all users by email or is_active """
-        query = self.repo.get_all_users()
+        query = self.repo.get_all_users().filter(UserModel.role != 'ADMIN')
         
         if email:
             query = query.filter(UserModel.email.ilike(f"%{email}%"))

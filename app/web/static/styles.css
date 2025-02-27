@@ -621,8 +621,8 @@ background-color: #f6f9ff;
 }
 
 .carousel-control-next, .carousel-control-prev {
-    background: #a4a4a4 !important;
-    opacity: 0.2 !important;
+    /* background: #a4a4a4 !important;
+    opacity: 0.2 !important; */
   }
 
 .carousel-indicators {
@@ -664,8 +664,7 @@ background-color: #f6f9ff;
 }
 
 .thumbnail {
-    padding: 6px;
-    border: solid 1px gray;
+    
     margin: 4px;
     width: 80px;
     height: 80px;

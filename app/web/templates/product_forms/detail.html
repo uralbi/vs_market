@@ -109,7 +109,7 @@
     
         let bigImageUrl = imageUrls[0]; // First image is the main image
         let thumbnails = imageUrls.map((url, index) => 
-            `<img src="/${url}" class="thumbnail ${index === 0 ? 'active' : ''}" onclick="swapImage('/${url}')">`
+            `<img src="/${url}" class="thumbnail ${index === 0 ? '' : ''}" onclick="swapImage('/${url}')">`
         ).join("");
     
         return `

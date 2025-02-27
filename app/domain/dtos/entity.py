@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
-import phonenumbers
+from app.utils.phone_val import validate_phone
 
 
 class EntityUpdateDTO(BaseModel):
@@ -8,6 +8,11 @@ class EntityUpdateDTO(BaseModel):
     entity_phone: str | None = None
     entity_address: str | None = None
     entity_whatsapp: str | None = None
+    
+    @field_validator("entity_phone", "entity_whatsapp")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        return validate_phone(value)
 
 
 class EntityCreateDTO(BaseModel):
@@ -16,13 +21,7 @@ class EntityCreateDTO(BaseModel):
     entity_address: str
     entity_whatsapp: str = Field(..., description="WhatsApp number in international format")
 
-    # @field_validator("entity_phone", "entity_whatsapp")
-    # @classmethod
-    # def validate_phone(cls, value: str) -> str:
-    #     try:
-    #         phone_number = phonenumbers.parse(value, None)  # Auto-detect country
-    #         if not phonenumbers.is_valid_number(phone_number):
-    #             raise ValueError("Invalid phone number format")
-    #         return phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.E164)
-    #     except Exception:
-    #         raise ValueError("Invalid phone number")
+    @field_validator("entity_phone", "entity_whatsapp")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        return validate_phone(value)

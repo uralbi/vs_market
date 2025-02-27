@@ -9,8 +9,7 @@
     <div class="card shadow-sm border-0 rounded-3 w-50 mb-4">
         <div class="profile_note"></div>
         <div class="card-body p-2 profile_card">
-            <hr>
-            <h5 class="mb-1 text-secondary my_profile_title">Мой профиль</h5>
+            <h5 class="mb-1 text-primary my_profile_title">Мой профиль <small>(Видимый для всех)</small></h5>
             <div class="profile_card_body">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between align-items-center p-1">
@@ -30,9 +29,7 @@
                         <span id="entityWhatsApp" class="text-muted">Loading...</span>
                     </li>
                 </ul>
-
                 <button id="deleteEntityBtn" class="btn btn-sm btn-outline-danger" >Удалить Профиль</button>
-            
             </div>
         </div>
     </div>
@@ -43,6 +40,9 @@
         <ul class="list-group" id="chatRoomsList"></ul>
 <hr>
 
+{% if current_user.role == "ADMIN" %}
+    {% include "movie_forms/mylist.html" %}
+{% endif %}
 
 {% include "product_forms/mylist.html" %}
 
@@ -55,8 +55,6 @@
 {% include "entity_forms/create_entity.html" %}
 
 <hr>
-
-
 
 {% include "entity_forms/update_entity.html" %}
 
@@ -80,7 +78,7 @@
                 let errorData = await response.json();
                 console.log("No entity for this user");
                 document.getElementsByClassName("profile_card_body")[0].style.display = "none";
-                document.getElementsByClassName("my_profile_title")[0].innerText = "Профиль не создан.";
+                document.getElementsByClassName("my_profile_title")[0].innerHTML = `<a href="#createEntityForm"> Создать профиль видимый для всех</a> `
                 profile_card
 
                 return;
@@ -123,7 +121,7 @@
     
                 try {
                     let token = getAccessTokenFromCookie();
-                    const response = await fetch(`/api/ent/${EntityID}`, {  // ✅ Use corrected `EntitydID`
+                    const response = await fetch(`/api/ent/${EntityID}`, {
                         method: "DELETE",
                         headers: {
                             "Authorization": `Bearer ${token}`,
@@ -132,15 +130,16 @@
                     });
     
                     if (response.ok) {
-                        alert("Entity deleted successfully!");
-                        window.location.reload();
+                        showMessage("Профиль удален!", "success")
+                        setTimeout(() => {
+                            window.location.reload(); }, 2000); 
                     } else {
                         const errorData = await response.json();
-                        alert(`Failed to delete: ${errorData.detail}`);
+                        showMessage(`Ошибка при удалении: ${errorData.detail}`, "warning")
                     }
                 } catch (error) {
                     console.error("Delete error:", error);
-                    alert("Error deleting entity. Please try again.");
+                    showMessage(`Ошибка при удалении, попробуйте позже`, "warning")
                 }
             });
         }
