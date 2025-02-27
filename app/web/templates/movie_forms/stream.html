@@ -3,6 +3,87 @@
 {% block content %}
 
 
+<button onclick="openPurchaseModal()" class="btn btn-sm btn-primary" id="buy_btn">Купить</button>
+
+<div id="paymentModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Оплата через QR</h5>
+                
+                <button type="button" class="btn-close" onclick="closePaymentModal()"></button>
+            </div>
+            <div class="modal-body">
+                <p id="movie_price"></p>
+                <p>Отсканируйте QR-код для оплаты</p>
+                <img id="qrCode" src="" alt="QR Code" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePaymentModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script>
+async function openPurchaseModal() {
+    let token = getAccessTokenFromCookie();
+    if (!token) {
+        showMessage("Войдите в свой аккаунт!", "warning")
+        return
+    }
+    movieId = new URLSearchParams(window.location.search).get("id");
+    try {
+        let response = await fetch(`/api/movies/generate_qr?movie_id=${movieId}`, {  // Use query param
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error("Ошибка при генерации QR-кода");
+        }
+
+        let data = await response.text();
+        let resp = JSON.parse(data)
+        qrImageUrl = resp.qr_path.replace(/^"|"$/g, '');
+        document.getElementById("qrCode").src = `/${qrImageUrl}`;
+        document.getElementById("movie_price").innerHTML=`Цена: ${resp.price} сом.`
+        let modal = new bootstrap.Modal(document.getElementById("paymentModal"));
+        modal.show();
+
+    } catch (error) {
+        console.error("Ошибка:", error);
+        alert("Ошибка при получении QR-кода.");
+    }
+}
+
+function closePaymentModal() {
+    let modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
+    modal.hide();
+    location.reload();  // ✅ Reload after modal closes
+}
+
+async function confirmPayment() {
+    let token = getAccessTokenFromCookie();
+    let movieId = new URLSearchParams(window.location.search).get("id");
+
+    let response = await fetch(`/api/movies/purchase?movie_id=${movieId}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    let result = await response.json();
+    showMessage(result.message, "info");
+
+    if (response.ok) {
+        let modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
+        modal.hide();
+        location.reload();
+    }
+}
+</script>
+
+
 
 <div class="text-start float-end w-25 mb-3">
     <label for="qualitySelector" class="">Выбрать качество:</label>
@@ -70,8 +151,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         const access_token = getAccessTokenFromCookie();
         if (!access_token){
-            alert("Для просмотра необходимо войти.")
-            window.location.href = "/movies/search"
+            showMessage("Для промостра надо авторизоваться!", "warning")
             return}
         const videoElement = document.getElementById("videoPlayer");
         const movieId = videoElement.dataset.movieId;
@@ -91,9 +171,12 @@
     function loadVideo(movieId) {
 
         const access_token = getAccessTokenFromCookie();
-        if (!access_token){return}
+        const buyBtn = document.getElementById("buy_btn");
+        buyBtn.style.display='none'
+        if (!access_token){
+            buyBtn.style.display='block'
+            return}
         const video = document.getElementById("videoPlayer");
-
         const hlsUrl = `/api/movies/${movieId}/hls`;
         
         if (Hls.isSupported()) {
@@ -105,16 +188,31 @@
             hls.loadSource(hlsUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                video.play();
+                
+                video.play();   
                 populateQualitySelector();
             });
+
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    // console.error("HLS Network Error:", data);
+                    msg = JSON.parse(data.networkDetails.response)
+                    if (data.response && data.response.code === 403) {
+                        buyBtn.style.display='block'
+                        showMessage(`${msg.detail}`, "warning");
+                    } else {
+                        showMessage("Ошибка загрузки HLS-потока. Проверьте сеть.", "warning");
+                    }
+                }
+            });
+
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
             video.src = hlsUrl;
             video.addEventListener("loadedmetadata", function () {
                 video.play();
             });
         } else {
-            alert("Your browser does not support HLS streaming.");
+            showMessage("Ваш Браузер не поддреживает HLS streaming", "warning")
         }
     }
 

@@ -2,31 +2,40 @@
 
 {% block content %}
 
-<h2 class="text-center">Update Movie</h2>
-<form id="updateForm">
-    <div>
-        <label for="title">Название</label>
-        <input type="text" id="title" class="form-control">
-    </div>
-    <div>
-        <label for="description">Описание</label>
-        <textarea id="description" class="form-control" rows="3"></textarea>
-    </div>
 
-    <div>
-        <label for="thumbnail">Фото</label>
-        <input type="file" id="thumbnail" class="form-control" accept="image/*">
-    </div>
+<div class="container pt-5 d-flex justify-content-center align-items-center">
+    <div class="card shadow-lg p-4 border-0 rounded-4" style="max-width: 450px; width: 100%;">
+        <h4 class="text-center fw-bold mb-3">Обновить данные фильма</h4>
+        <form id="updateForm"> 
+            <div class="mb-3">
+                <label for="title" class="form-label">Название фильма</label>
+                <input type="text" id="title" class="form-control rounded-3" placeholder="Название">
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание</label>
+                <textarea id="description" class="form-control rounded-3" rows="3" placeholder="Описание"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Цена</label>
+                <input type="number" id="price" class="form-control rounded-3" placeholder="Цена в сомах"
+                min="0" step="1"></textarea>
+            </div>
+            
+            <div>
+                    <label for="thumbnail">Фото</label>
+                   <input type="file" id="thumbnail" class="form-control" accept="image/*">
+            </div>
 
-    <div>
-        <label>
-            <input type="checkbox" id="isPublic"> Сделать общедоступным?
-        </label>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isPublic" checked>
+                <label class="form-check-label" for="isPublic">Сделать общедоступным?</label>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary w-100 rounded-3">Upload</button>
+            <a href="/about" class="btn btn-sm btn-secondary mt-3 w-100 rounded-3">Отменить</a>
+        </form>
     </div>
-    <br>
-    <button type="submit" class="btn btn-primary">Обновить</button>
-    <a href="/about" class="btn btn-danger">Отменить</a>
-</form>
+</div>
+
         
 {% if current_user.role != "ADMIN" %}
     <script>
@@ -65,6 +74,7 @@
             const movie = await response.json();
             document.getElementById("title").value = movie.title;
             document.getElementById("description").value = movie.description;
+            document.getElementById("price").value = movie.price;
             document.getElementById("isPublic").checked = movie.is_public;
         } catch (error) {
             alert("Error loading movie: " + error.message);
@@ -86,15 +96,17 @@
         const title = document.getElementById("title").value.trim();
         const description = document.getElementById("description").value.trim();
         const isPublic = document.getElementById("isPublic").checked;
+        const price = document.getElementById("price").value
 
         if (title) formData.append("title", title);
         if (description) formData.append("description", description);
-        formData.append("is_public", isPublic);  // Always include `is_public`
+        if (price) formData.append("price", price)
 
-        // ✅ Handle thumbnail file
+        formData.append("is_public", isPublic);
+
         const thumbnailInput = document.getElementById("thumbnail");
         if (thumbnailInput.files.length > 0) {
-            formData.append("thumbnail_path", thumbnailInput.files[0]);  // ✅ Correctly append file
+            formData.append("thumbnail_path", thumbnailInput.files[0]);
         }
 
         try {
@@ -110,8 +122,12 @@
                 throw new Error(result.detail);
             }
     
-            alert("Movie updated successfully!");
-            window.location.href = "/about";
+            showMessage("Данные фильма обновлены", "success")
+            setTimeout(() => {
+                window.location.href = "/about";
+            }, 2000);
+
+           
         } catch (error) {
             alert("Error updating movie: " + error.message);
         }

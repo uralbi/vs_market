@@ -1,11 +1,8 @@
 from sqlalchemy.orm import Session, aliased
 from fastapi import HTTPException
-from sqlalchemy import or_, func, case
+from sqlalchemy import or_, func, cast, Interval
 from app.infra.database.models import MovieModel, MovieViewModel
 from sqlalchemy.sql import text
-from datetime import datetime
-from datetime import timedelta
-from typing import List
 from sqlalchemy.orm import Session
 
 
@@ -26,11 +23,9 @@ class MovieRepository:
 
     def get_movies(self, limit: int, offset: int):
         """Retrieve public movies with pagination."""
-        five_minutes_ago = func.now() - text("interval '5 minutes'")
         return (
             self.db.query(MovieModel)
             .filter(MovieModel.is_public == True)
-            .filter(MovieModel.created_at <= five_minutes_ago)
             .order_by(MovieModel.created_at.desc())
             .offset(offset)
             .limit(limit)
@@ -53,12 +48,9 @@ class MovieRepository:
         search_query = func.plainto_tsquery("english", query)  # Convert search query into tsquery
         search_query_rus = func.plainto_tsquery("russian", query)  # Russian search
         
-        five_minutes_ago = func.now() - text("interval '5 minutes'")
-        
         movies = (
             self.db.query(MovieModel)
             .filter(MovieModel.is_public == True)
-            .filter(MovieModel.created_at <= five_minutes_ago)
             .filter(
                 (MovieModel.search_vector.op("@@")(search_query) | MovieModel.search_vector.op("@@")(search_query_rus)) |  # Full-text search
                 (MovieModel.title.ilike(f"%{query}%")) |  # Substring match in title

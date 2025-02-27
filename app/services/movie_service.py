@@ -8,11 +8,12 @@ class MovieService:
     def __init__(self, db: Session):
         self.repo = MovieRepository(db)
 
-    def create_movie(self, title: str, description: str, file_path: str, is_public: bool, owner_id: int):
+    def create_movie(self, title: str, description: str, price: int, file_path: str, is_public: bool, owner_id: int):
         """Create a new movie entry."""
         movie = MovieModel(
             title=title,
             description=description,
+            price=price,
             file_path=file_path,
             is_public=is_public,
             owner_id=owner_id
@@ -24,7 +25,7 @@ class MovieService:
         movie = self.repo.get_movie_by_id(movie_id)
         if not movie:
             raise HTTPException(status_code=404, detail="Movie not found")
-        if not user and movie.is_public:
+        if movie.is_public:
             return movie
         if user and movie.owner_id == user.id:
                 return movie
@@ -33,35 +34,6 @@ class MovieService:
     def get_movies(self, limit: int, offset: int):
         """Fetch paginated movies."""
         return self.repo.get_movies(limit, offset)
-
-    def update_movie(self, 
-                     movie_id: int, user_id: int, 
-                     title: str = None, 
-                     description: str = None, is_public: bool = None, 
-                     thumbnail_path: str = None):
-
-        """
-        Updates movie details dynamically.
-        """
-        movie = self.repository.get_movie(movie_id)
-
-        if not movie:
-            return None  # Movie not found
-
-        if movie.owner_id != user_id:
-            return "forbidden"  # User is not authorized
-
-        update_data = {}
-        if title is not None:
-            update_data["title"] = title
-        if description is not None:
-            update_data["description"] = description
-        if is_public is not None:
-            update_data["is_public"] = is_public
-        if thumbnail_path is not None:
-            update_data["thumbnail_path"] = thumbnail_path
-
-        return self.repository.update_movie(movie_id, update_data)
 
     def delete_movie(self, movie_id: int, user_id: int):
         """Delete a movie record."""

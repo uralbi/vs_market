@@ -48,10 +48,10 @@
 
             movies.forEach(movie => {
                 const li = document.createElement("li");
-                li.innerHTML = `<strong>${movie.title}</strong>: ${movie.description}
-                    <a role="button" class="btn btn-sm btn-outline-success" href="/movies/stream?id=${movie.id}">Смотреть</a> 
-                    <a role="button" class="btn btn-sm btn-outline-success" href="/movies/update?id=${movie.id}">Редактировать</a> 
-                    <a role="button" class="btn btn-sm btn-outline-danger" onclick=Delete_movie_btn(${movie.id})>Удалить</a> 
+                li.innerHTML = `<strong>${movie.title}</strong> <span class="badge bg-success"> ${movie.price}</span> ${movie.description} 
+                    <a role="button" class="btn btn-sm btn-success" href="/movies/stream?id=${movie.id}">Смотреть</a> 
+                    <a role="button" class="btn btn-sm btn-primary" href="/movies/update?id=${movie.id}">Редактировать</a> 
+                    <a role="button" class="btn btn-sm btn-danger" onclick=Delete_movie_btn(${movie.id})>Удалить</a> 
                 `;
                 moviesList.appendChild(li);
             });
@@ -64,7 +64,7 @@
         
             const token = getAccessTokenFromCookie(); // Get auth token
             if (!token) {
-                alert("Ошибка: Требуется авторизация.");
+                showMessage("Вы не авторизованы", "warning")
                 return;
             }
         
@@ -78,12 +78,14 @@
                     throw new Error(await response.text());
                 }
         
-                alert("Фильм успешно удален.");
-                
+                showMessage("Фильм удален", "success")
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
                 
             } catch (error) {
                 console.log("error in deletion:", error.message)
-                alert("Ошибка при удалении фильма");
+                showMessage("Ошибка при удалении фильма", "warning")
             }
         }
 

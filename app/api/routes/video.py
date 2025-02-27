@@ -3,13 +3,14 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
 from app.infra.database.db import get_db
-from app.infra.database.models import MovieModel, MovieViewModel, MovieCommentModel, MovieLikeModel, MovieSubtitleModel
+from app.infra.database.models import MovieModel, MovieLikeModel, OrderModel
 from app.domain.security.auth_user import user_authorization
-from app.domain.dtos.movie import UpdateMovieRequest
 from fastapi.security import OAuth2PasswordBearer
 from app.infra.tasks.vid_tasks import process_video_hls, generate_thumbnail_task
-from app.domain.dtos.movie import MovieDTO
+from app.domain.dtos.movie import MovieDTO, UpdateMovieRequest
 from app.infra.kafka.kafka_producer import send_kafka_message
+from app.services.payment_service import PaymentService
+from typing import Optional
 import os, shutil, datetime
 from pathlib import Path
 from pydantic import BaseModel
@@ -23,9 +24,55 @@ router = APIRouter(
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
+@router.get("/generate_qr")
+def generate_qr(movie_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """ Generate a QR Code for payment (Simulated) """
+
+    user = user_authorization(token, db)
+    # qr = qrcode.make(f"pay://payment_link?movie={movie_id}")  # Simulated payment link
+    # qr_path = f"temp_qr_{movie_id}.png"
+    # qr.save(qr_path)
+    
+    order = db.query(OrderModel).filter(
+        OrderModel.user_id == user.id, 
+        OrderModel.movie_id == movie_id, 
+    ).first()
+    if not order:
+        order = OrderModel(user_id=user.id, movie_id=movie_id, status="PENDING")
+        db.add(order)
+        db.commit()
+    
+    order.status="COMPLETED"
+    db.commit()
+    
+    return {"qr_path": "media/movie_24.png", "price": 100}
+    # return FileResponse(qr_path)
+
+
+@router.post("/purchase/{movie_id}")
+def purchase_video(movie_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """Creates an order and simulates a payment processing"""
+    user = user_authorization(token, db)
+    movie_service = MovieService(db)
+    movie = movie_service.get_movie_by_id(movie_id)
+    
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    # Create order
+    order = OrderModel(user_id=user.id, movie_id=movie.id, status="PENDING")
+    db.add(order)
+    db.commit()
+    
+    # Simulate payment processing (later integrate with Stripe, PayPal)
+    pay_service = PaymentService(order, db)
+    pay_service.payment_success()
+    return {"message": "Purchase completed" if order.status == "completed" else "Payment failed"}
+
+
 @router.put("/{id}")
 async def update_movie(id: int, 
-                       request: UpdateMovieRequest = Depends(),  # ✅ Handle thumbnail separately
+                       request: UpdateMovieRequest = Depends(),
                        token: str = Depends(token_scheme), 
                        db: Session = Depends(get_db)):
     """
@@ -46,6 +93,7 @@ async def update_movie(id: int,
         raise HTTPException(status_code=403, detail="You are not authorized to edit this movie")
 
     thumbnail = request.thumbnail_path
+    
     if thumbnail:
         upload_dir = "media/movies/thumbs"
         os.makedirs(upload_dir, exist_ok=True)
@@ -56,16 +104,16 @@ async def update_movie(id: int,
             shutil.copyfileobj(thumbnail.file, buffer)        
         movie_service.update_movie_thumbnail(id, thumbnail_path)
 
-    # ✅ Build `update_data` dictionary for the other fields
     update_data = {}
-    if request.title is not None:
+    if request.title is not None and request.title != movie.title:
         update_data["title"] = request.title
-    if request.description is not None:
+    if request.description is not None and request.description != movie.description:
         update_data["description"] = request.description
-    if request.is_public is not None:
+    if request.price is not None and request.price != movie.price:
+        update_data["price"] = request.price
+    if request.is_public is not None and request.is_public != movie.is_public:
         update_data["is_public"] = request.is_public
-
-    # ✅ Update only the modified fields
+    
     if update_data:
         updated_movie = movie_service.update_movie(id, user.id, update_data)
     else:
@@ -127,7 +175,7 @@ def search_movies(query: str, db: Session = Depends(get_db)):
 @router.get("/{id}")
 def get_movie(id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """
-    Fetch public movies with pagination.
+    Fetch the movies.
     """
     try:
         user = user_authorization(token, db)
@@ -192,6 +240,7 @@ ALLOWED_VIDEO_FORMATS = {".mp4", ".mkv", ".avi", ".mov", ".webm"}
 async def upload_movie(
     token: str = Depends(token_scheme),
     title: str = Form(...),
+    price: int = Form(...),
     description: str = Form(...),
     is_public: bool = Form(True),
     file: UploadFile = File(...),
@@ -221,8 +270,7 @@ async def upload_movie(
     process_video_hls.delay(file_path, HLS_FOLDER) # Trigger HLS conversion via Celery
     
     mov_service = MovieService(db) # Create movie entry in the database
-    movie = mov_service.create_movie(title, description, file_path, is_public, owner_id=user.id)
-    print('movie path:', movie.file_path)
+    movie = mov_service.create_movie(title, description, price, file_path, is_public, owner_id=user.id)
     generate_thumbnail_task.delay(movie.id, str(file_path), f"movie_{movie.id}")
 
     return {"message": "Upload successful, processing started!", "movie_id": movie.id, "file_path": file_path}
@@ -248,6 +296,21 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     Serve the master `.m3u8` playlist for a given movie.
     """
     user=user_authorization(token, db)
+    
+    print('user:', user.id, user.username)
+    
+    order = db.query(OrderModel).filter(
+        OrderModel.user_id == user.id, 
+        OrderModel.movie_id == movie_id, 
+    ).first()
+
+    if not order:
+        raise HTTPException(status_code=403, detail="Вы не купили данный фильм")
+    if order.status == "PENDING" or order.status=="FAILED":
+        raise HTTPException(status_code=403, detail="Вы не завершили покупку фильма")
+    
+    print('fetch order:', order.user_id)
+    
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
     if not movie:
@@ -260,7 +323,12 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     if not master_playlist_path.exists():
         raise HTTPException(status_code=404, detail="HLS playlist not found")
 
-    return FileResponse(master_playlist_path, media_type="application/vnd.apple.mpegurl")
+    headers = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expries": "0,"
+    }
+    return FileResponse(master_playlist_path, media_type="application/vnd.apple.mpegurl", headers=headers)
 
 
 @router.get("/{movie_id}/{segment_filename}")

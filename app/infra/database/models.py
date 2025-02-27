@@ -14,6 +14,10 @@ class UserRole(str, Enum):
     MANAGER = "MANAGER"
     USER = "USER"
 
+class OrderStatusEnum(str, Enum):
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
     
 Base = declarative_base()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -38,7 +42,7 @@ class MovieModel(Base):
     likes = relationship("MovieLikeModel", back_populates="movie", cascade="all, delete-orphan")
     comments = relationship("MovieCommentModel", back_populates="movie", cascade="all, delete-orphan")
     subtitles = relationship("MovieSubtitleModel", back_populates="movie", cascade="all, delete-orphan")
-    orders = relationship("OrderModel", back_populates="video", cascade="all, delete-orphan")
+    orders = relationship("OrderModel", back_populates="movie", cascade="all, delete-orphan")
     
     search_vector = Column(
         TSVECTOR,
@@ -60,7 +64,7 @@ class OrderModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)
-    status = Column(ENUM("PENDING", "COMPLETED", "FAILED", name="order_status"), default="PENDING")
+    status = Column(ENUM(OrderStatusEnum, name="order_status"), default=OrderStatusEnum.PENDING, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
 
     user = relationship("UserModel", back_populates="orders")
@@ -166,7 +170,8 @@ class UserModel(Base):
     entity = relationship("EntityModel", back_populates="creator", uselist=False, cascade="all, delete-orphan")
     products = relationship("ProductModel", back_populates="owner", cascade="all, delete-orphan")
     favorite_products = relationship("ProductModel", secondary=favorites_table, back_populates="favorited_by")
-    movies = relationship("MovieModel", back_populates = "owner", cascade="all, delete-orphan"    )
+    movies = relationship("MovieModel", back_populates = "owner", cascade="all, delete-orphan")
+    orders = relationship("OrderModel", back_populates="user", cascade="all, delete-orphan")
     
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.hashed_password)

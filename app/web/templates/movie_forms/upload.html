@@ -4,20 +4,27 @@
 
 <div class="container pt-5 d-flex justify-content-center align-items-center">
     <div class="card shadow-lg p-4 border-0 rounded-4" style="max-width: 450px; width: 100%;">
-        <h4 class="text-center fw-bold mb-3">Upload Movie</h4>
-        <form id="uploadForm">
+        <h4 class="text-center fw-bold mb-3">Загрузить Фильм</h4>
+        <form id="uploadForm"> 
             <div class="mb-3">
-                <label for="title" class="form-label">Movie Title</label>
+                <label for="title" class="form-label">Название фильма</label>
                 <input type="text" id="title" class="form-control rounded-3" placeholder="Название" required>
             </div>
             <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
+                <label for="description" class="form-label">Описание</label>
                 <textarea id="description" class="form-control rounded-3" rows="3" placeholder="Описание"></textarea>
             </div>
             <div class="mb-3">
-                <label for="movieFile" class="form-label">Upload File</label>
+                <label for="description" class="form-label">Цена</label>
+                <input type="number" id="price" class="form-control rounded-3" placeholder="Цена в сомах"
+                min="0" step="1"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="movieFile" class="form-label">Выбрать файл</label>
                 <input type="file" id="movieFile" class="form-control" accept=".mp4, .mkv, .avi, .mov, .webm" required>
             </div>
+
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="isPublic" checked>
                 <label class="form-check-label" for="isPublic">Сделать общедоступным?</label>
@@ -44,6 +51,7 @@
         let formData = new FormData();
         formData.append("title", document.getElementById("title").value);
         formData.append("description", document.getElementById("description").value);
+        formData.append("price", document.getElementById("price").value);
         formData.append("file", document.getElementById("movieFile").files[0]);
         formData.append("is_public", document.getElementById("isPublic").checked);
 
@@ -59,14 +67,15 @@
             let result = await response.json();
     
             if (response.ok) {
-                alert(result.message);
+                showMessage("Фильм загружен и будет доступен через 5 мин.", "success")
                 document.getElementById("uploadForm").reset();
             } else {
-                alert("Upload failed: " + result.detail);
+                showMessage("Ошибки при загрузке!", "warning")
+                console.log(result.detail);
             }
         } catch (error) {
             console.error("Error uploading movie:", error);
-            alert("An error occurred while uploading the movie.");
+            showMessage("Ошибки при загрузке!", "warning")
         }
     });
     
