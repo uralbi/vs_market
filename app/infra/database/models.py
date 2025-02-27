@@ -29,8 +29,8 @@ class MovieModel(Base):
     thumbnail_path = Column(String(500), nullable=True)  # Thumbnail image
     duration = Column(Float, nullable=True)  # Duration in seconds
     is_public = Column(Boolean, default=True, nullable=False)  # Whether movie is public
-    created_at = Column(DateTime, default=datetime.utcnow)
-
+    created_at = Column(DateTime, default=datetime.now)
+    price = Column(Float, nullable=False, default=100)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("UserModel", back_populates="movies")
 
@@ -38,7 +38,8 @@ class MovieModel(Base):
     likes = relationship("MovieLikeModel", back_populates="movie", cascade="all, delete-orphan")
     comments = relationship("MovieCommentModel", back_populates="movie", cascade="all, delete-orphan")
     subtitles = relationship("MovieSubtitleModel", back_populates="movie", cascade="all, delete-orphan")
-
+    orders = relationship("OrderModel", back_populates="video", cascade="all, delete-orphan")
+    
     search_vector = Column(
         TSVECTOR,
         Computed(
@@ -52,7 +53,20 @@ class MovieModel(Base):
         Index("idx_movies_search", search_vector, postgresql_using="gin"),  # GIN index for fast searching
     )
     
-    
+
+class OrderModel(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)
+    status = Column(ENUM("PENDING", "COMPLETED", "FAILED", name="order_status"), default="PENDING")
+    created_at = Column(DateTime, default=datetime.now)
+
+    user = relationship("UserModel", back_populates="orders")
+    movie = relationship("MovieModel", back_populates="orders")
+
+
 class MovieViewModel(Base):
     __tablename__ = "movie_views"
 
