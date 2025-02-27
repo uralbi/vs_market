@@ -654,25 +654,24 @@ background-color: #f6f9ff;
 }
 
 .thumbnail-container {
-    padding-right: 20px;
     margin-bottom: 10px;
-    display: flex;
-    justify-content: flex-start;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     height: 106px;
-    overflow-x: scroll;
-    overflow-y: hidden;
-}
-
-.thumbnail {
-    
-    margin: 4px;
-    width: 80px;
-    height: 80px;
+    overflow: hidden;
+    gap: 4px;
+  }
+  
+  .thumbnail {
+    width: 100%;
+    max-width: 140px;
+    height: auto;
+    max-height: 106px;
     object-fit: cover;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: 0.3s;
-}
+    border-radius: 4px;
+  }
+  
 
 .thumbnail:hover, .thumbnail.active {
     border: 3px solid #007bff;
