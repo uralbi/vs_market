@@ -107,37 +107,27 @@ document.getElementById("sendMessageBtn").addEventListener("click", sendMessage)
 // Keep displayMessage function globally accessible
 function displayMessage(sender, message, type, timestamp = new Date().toISOString()) {
     const chatBox = document.getElementById("chatBox");
-
-    // Convert timestamp to 'Month-Day, HH:MM' format
-    const dateObj = new Date(timestamp);
-    const options = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
-    const formattedTime = dateObj.toLocaleString("en-US", options).replace(",", "");
-
-    // Create the message container div
+    const formattedTime = formatTimestamp(timestamp);
     const msgElement = document.createElement("div");
     msgElement.classList.add("chat-message", type);
-
-    // Create a paragraph element to hold the sender and message
     const msgText = document.createElement("p");
     msgText.textContent = type === "msg_sent" ? "" : `${sender}`;
-
-    // Create a span for the message content
     const msgSpan = document.createElement("span");
     msgSpan.textContent = `${message}`;
-
-    // Create a small element for the timestamp
     const timeElement = document.createElement("small");
     timeElement.textContent = formattedTime;
     timeElement.classList.add("timestamp");
-
-    // Append message and timestamp
     msgText.appendChild(msgSpan);
     msgElement.appendChild(msgText);
-    msgElement.appendChild(timeElement); // Add timestamp below message
+    msgElement.appendChild(timeElement);
     chatBox.appendChild(msgElement);
-
-    // Auto-scroll to latest message
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function formatTimestamp(timestamp = new Date().toISOString()) {
+    const dateObj = new Date(timestamp);
+    const options = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
+    return dateObj.toLocaleString("en-US", options).replace(",", "");
 }
 
 async function getOtherUser(roomId) {

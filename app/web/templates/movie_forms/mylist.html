@@ -1,18 +1,15 @@
 
 <h2>My Movies</h2>
-    <p id="loading">Loading...</p>
-    <ol id="movies-list">  </ol>
-    <p id="error-message" class="error" style="display: none;"></p>
+    
+    
+    <div id="movies-list" class="">  </div>
 
     <script>
 
         async function fetchMyMovies() {
             const token = getAccessTokenFromCookie();
 
-            if (!token) {
-                document.getElementById("error-message").textContent = "Authentication required. Please log in.";
-                document.getElementById("error-message").style.display = "block";
-                document.getElementById("loading").style.display = "none";
+            if (!token) {                
                 return;
             }
 
@@ -29,33 +26,44 @@
                 const movies = await response.json();
                 displayMovies(movies);
             } catch (error) {
-                document.getElementById("error-message").textContent = "No movies yet"
-                document.getElementById("error-message").style.display = "block";
-            } finally {
-                document.getElementById("loading").style.display = "none";
-            }
+                document.getElementById("movies-list").textContent = "No movies yet"
+            } 
         }
 
         function displayMovies(movies) {
             const moviesList = document.getElementById("movies-list");
             moviesList.innerHTML = ""; // Clear existing list
-
+        
             if (movies.length === 0) {
-                document.getElementById("error-message").textContent = "No movies found.";
-                document.getElementById("error-message").style.display = "block";
+                moviesList.textContent = "No movies found.";
                 return;
-            }
+                }
 
             movies.forEach(movie => {
-                const li = document.createElement("li");
-                li.innerHTML = `<strong>${movie.title}</strong> <span class="badge bg-success"> ${movie.price}</span> ${movie.description} 
-                    <a role="button" class="btn btn-sm btn-success" href="/movies/stream?id=${movie.id}">Смотреть</a> 
-                    <a role="button" class="btn btn-sm btn-primary" href="/movies/update?id=${movie.id}">Редактировать</a> 
-                    <a role="button" class="btn btn-sm btn-danger" onclick=Delete_movie_btn(${movie.id})>Удалить</a> 
+                const movieCard = document.createElement("div");
+                movieCard.classList.add("card", "shadow-sm", "mb-3", "p-3", "border-0");
+        
+                movieCard.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-1">${movie.title}</h6>
+                            <small class="text">${movie.description}.</small>
+                            <small class="text-muted"> Создан: ${formatTimestamp(movie.created_at)} </small>
+                        </div>
+                        <span class="badge bg-success p-2">${movie.price} сом</span>
+                    </div>
+        
+                    <div class="btn-group mt-3 d-flex justify-content-end">
+                        <a class="btn btn-outline-success btn-sm" href="/movies/stream?id=${movie.id}"><i class="bi bi-play-btn"></i> Смотреть</a>
+                        <a class="btn btn-outline-primary btn-sm" href="/movies/update?id=${movie.id}"><i class="bi bi-pencil-square"></i> Редактировать</a>
+                        <button class="btn btn-outline-danger btn-sm" onclick="Delete_movie_btn(${movie.id})"><i class="bi bi-file-x"></i> Удалить</button>
+                    </div>
                 `;
-                moviesList.appendChild(li);
+        
+                moviesList.appendChild(movieCard);
             });
         }
+        
 
         async function Delete_movie_btn(movieId, button) {
             if (!confirm("Вы уверены, что хотите удалить этот фильм?")) {

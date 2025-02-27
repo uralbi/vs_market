@@ -84,7 +84,6 @@ async function confirmPayment() {
 </script>
 
 
-
 <div class="text-start float-end w-25 mb-3">
     <label for="qualitySelector" class="">Выбрать качество:</label>
     <select id="qualitySelector" class="form-select " onchange="changeQuality()">
@@ -257,7 +256,6 @@ async function confirmPayment() {
             displayMovieCard(movie);
         } catch (error) {
             console.error("Error fetching movie:", error);
-            document.getElementById("movie-container").innerHTML = "<p>Movie not found</p>";
         }
     }
     

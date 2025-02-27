@@ -61,3 +61,9 @@ function showMessage(message, type = "primary") {
     // Store timeout ID to reset if a new message appears
     msg_field.dataset.timeoutId = timeoutId;
 }
+
+function formatTimestamp(timestamp = new Date().toISOString()) {
+    const dateObj = new Date(timestamp);
+    const options = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
+    return dateObj.toLocaleString("en-US", options).replace(",", "");
+}
