@@ -13,6 +13,7 @@ class UserRole(str, Enum):
     ADMIN = "ADMIN"
     MANAGER = "MANAGER"
     USER = "USER"
+    CREATOR = "CREATOR"
 
 class OrderStatusEnum(str, Enum):
     PENDING = "PENDING"
@@ -29,10 +30,10 @@ class MovieModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False, index=True, unique=True)
     description = Column(Text, nullable=True)
-    file_path = Column(String(500), nullable=False)  # Path to the actual video file
-    thumbnail_path = Column(String(500), nullable=True)  # Thumbnail image
-    duration = Column(Float, nullable=True)  # Duration in seconds
-    is_public = Column(Boolean, default=True, nullable=False)  # Whether movie is public
+    file_path = Column(String(500), nullable=False)             # Path to the actual video file
+    thumbnail_path = Column(String(500), nullable=True)         # Thumbnail image
+    duration = Column(Float, nullable=True)                     # Duration in seconds
+    is_public = Column(Boolean, default=True, nullable=False)   
     created_at = Column(DateTime, default=datetime.now)
     price = Column(Float, nullable=False, default=100)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)

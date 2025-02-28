@@ -26,7 +26,15 @@
                 const movies = await response.json();
                 displayMovies(movies);
             } catch (error) {
-                document.getElementById("movies-list").textContent = "No movies yet"
+                document.getElementById("movies-list").innerHTML = `
+                <div class="card p-3 mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-1">У вас нет загруженных фильмов</h6>
+                        </div>
+                    </div>
+                </div>
+                `
             } 
         }
 

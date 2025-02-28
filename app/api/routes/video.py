@@ -1,15 +1,17 @@
-from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query, BackgroundTasks
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
 from app.infra.database.db import get_db
 from app.infra.database.models import MovieModel, MovieLikeModel, OrderModel
-from app.domain.security.auth_user import user_authorization
+from app.domain.security.auth_user import user_authorization, user_creator_auth, user_admin_auth
 from fastapi.security import OAuth2PasswordBearer
 from app.infra.tasks.vid_tasks import process_video_hls, generate_thumbnail_task
 from app.domain.dtos.movie import MovieDTO, UpdateMovieRequest
 from app.infra.kafka.kafka_producer import send_kafka_message
 from app.services.payment_service import PaymentService
+from app.services.order_service import OrderService
+from app.utils.preview_video import filter_m3u8
 from typing import Optional
 import os, shutil, datetime
 from pathlib import Path
@@ -70,6 +72,23 @@ def purchase_video(movie_id: int, token: str = Depends(token_scheme), db: Sessio
     return {"message": "Purchase completed" if order.status == "completed" else "Payment failed"}
 
 
+@router.get("/preview/{movie_id}/hls")
+async def get_preview_m3u8(movie_id: str, db: Session = Depends(get_db)):
+    """
+    Generates and serves Preview_480p.m3u8 by filtering the existing 480p.m3u8.
+    """
+    
+    movie_service = MovieService(db)
+    movie = movie_service.get_movie_by_id(movie_id)
+    
+    seconds =[20, 135, 155, 348]
+    preview_m3u8 = filter_m3u8(movie, seconds)
+    if not preview_m3u8.exists():
+        raise HTTPException(status_code=403, detail="Not Found")
+
+    return FileResponse(preview_m3u8, media_type="application/vnd.apple.mpegurl")
+
+
 @router.put("/{id}")
 async def update_movie(id: int, 
                        request: UpdateMovieRequest = Depends(),
@@ -78,19 +97,17 @@ async def update_movie(id: int,
     """
     Update a movie's title, description, visibility, or thumbnail.
     """
-    user = user_authorization(token, db)  # Extract user from token
-    
-    if user.role != "ADMIN":
-        HTTPException(status_code=401, detail="Unauthorized")
+    user = user_authorization(token, db)
+    user_creator_auth(user)
     
     movie_service = MovieService(db)
-
     movie = movie_service.get_movie_by_id(id, user)
+    
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
 
     if movie.owner_id != user.id:
-        raise HTTPException(status_code=403, detail="You are not authorized to edit this movie")
+        raise HTTPException(status_code=403, detail="Unauthorized")
 
     thumbnail = request.thumbnail_path
     
@@ -143,10 +160,7 @@ def delete_movie(id: int, token: str = Depends(token_scheme), db: Session = Depe
     Delete a movie by ID.
     """
     user = user_authorization(token, db)
-    
-    if user.role != "ADMIN":
-        HTTPException(status_code=401, detail="Unauthorized")
-        
+    user_creator_auth(user)
     movie_service = MovieService(db)
     deleted = movie_service.delete_movie(id, user.id)
 
@@ -248,10 +262,11 @@ async def upload_movie(
     ):
 
     user = user_authorization(token, db)
+    user_creator_auth(user)
     
-    if user.role != "ADMIN":
-        HTTPException(status_code=401, detail="Unauthorized")
-        
+    mov_service = MovieService(db) # Create movie entry in the database
+    movie = mov_service.create_movie(title, description, price, file_path, is_public, owner_id=user.id)
+    
     file_extension = os.path.splitext(file.filename)[1].lower()
     filename = os.path.basename(file.filename).rsplit(".", 1)[0]  # Extract filename without extension
     
@@ -269,8 +284,7 @@ async def upload_movie(
 
     process_video_hls.delay(file_path, HLS_FOLDER) # Trigger HLS conversion via Celery
     
-    mov_service = MovieService(db) # Create movie entry in the database
-    movie = mov_service.create_movie(title, description, price, file_path, is_public, owner_id=user.id)
+    
     generate_thumbnail_task.delay(movie.id, str(file_path), f"movie_{movie.id}")
 
     return {"message": "Upload successful, processing started!", "movie_id": movie.id, "file_path": file_path}
@@ -297,25 +311,15 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     """
     user=user_authorization(token, db)
     
-    print('user:', user.id, user.username)
-    
-    order = db.query(OrderModel).filter(
-        OrderModel.user_id == user.id, 
-        OrderModel.movie_id == movie_id, 
-    ).first()
-
-    if not order:
-        raise HTTPException(status_code=403, detail="Вы не купили данный фильм")
-    if order.status == "PENDING" or order.status=="FAILED":
-        raise HTTPException(status_code=403, detail="Вы не завершили покупку фильма")
-    
-    print('fetch order:', order.user_id)
-    
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
-
+         
+    if not user_admin_auth(user) and movie.owner_id != user.id:
+        order_service = OrderService(db)
+        order_service.check_order_status(user.id, movie_id)
+    
     base_filename = Path(movie.file_path).stem  # Extract filename without extension
     hls_directory = Path(movie.file_path).parent / "hls"
     master_playlist_path = hls_directory / f"{base_filename}_master.m3u8"
@@ -331,6 +335,36 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     return FileResponse(master_playlist_path, media_type="application/vnd.apple.mpegurl", headers=headers)
 
 
+@router.get("/preview/{movie_id}/{segment_filename}")
+async def serve_hls_segment(movie_id: str, segment_filename: str,  db: Session = Depends(get_db)):
+    """
+    Serve individual .ts segments for HLS playback.
+    """
+    movie = db.query(MovieModel).filter(MovieModel.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    hls_directory = Path(movie.file_path).parent / "hls"
+
+    # Dynamically find the correct resolution folder
+    possible_paths = [
+        hls_directory / segment_filename,                                       # Direct in /hls/
+        hls_directory / f"{Path(movie.file_path).stem}_4K_{segment_filename}",  # 4K
+        hls_directory / f"{Path(movie.file_path).stem}_2K_{segment_filename}",  # 2K
+        hls_directory / f"{Path(movie.file_path).stem}_1080p_{segment_filename}",  # 1080p
+        hls_directory / f"{Path(movie.file_path).stem}_720p_{segment_filename}",  # 720p
+        hls_directory / f"{Path(movie.file_path).stem}_480p_{segment_filename}",  # 480p
+    ]
+
+    # Find the correct file
+    segment_path = next((path for path in possible_paths if path.exists()), None)
+
+    if not segment_path:
+        raise HTTPException(status_code=404, detail="Segment file not found")
+
+    return FileResponse(segment_path, media_type="video/mp2t")  # MPEG-TS format
+
+
 @router.get("/{movie_id}/{segment_filename}")
 async def serve_hls_segment(movie_id: int, segment_filename: str, db: Session = Depends(get_db)):
     """
@@ -344,7 +378,7 @@ async def serve_hls_segment(movie_id: int, segment_filename: str, db: Session = 
 
     # Dynamically find the correct resolution folder
     possible_paths = [
-        hls_directory / segment_filename,                      # Direct in /hls/
+        hls_directory / segment_filename,                                       # Direct in /hls/
         hls_directory / f"{Path(movie.file_path).stem}_4K_{segment_filename}",  # 4K
         hls_directory / f"{Path(movie.file_path).stem}_2K_{segment_filename}",  # 2K
         hls_directory / f"{Path(movie.file_path).stem}_1080p_{segment_filename}",  # 1080p

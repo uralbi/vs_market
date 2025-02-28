@@ -1,6 +1,7 @@
 from app.domain.security.auth_token import decode_access_token
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
+from app.infra.database.models import UserModel
 from app.services.user_service import UserService
 from app.core.config import settings
 import logging
@@ -29,3 +30,30 @@ def user_authorization(token:str, db: Session):
         user = None
         logger.error(f"User auth error: {e}") 
         raise HTTPException(status_code=401, detail="Неверный Токен")
+
+
+def user_creator_auth(user: UserModel) -> bool:
+    """
+    Authorization for ADMIN, CREATOR.
+    """
+    if user.role not in ["ADMIN", "CREATOR"]:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return True
+
+def user_manager_auth(user: UserModel) -> bool:
+    """
+    Authorization for ADMIN, MANAGER.
+    """
+    if user.role not in ["ADMIN", "MANAGER"]:
+        return False
+        # raise HTTPException(status_code=401, detail="Unauthorized")
+    return True
+
+def user_admin_auth(user: UserModel) -> bool:
+    """
+    Authorization for ADMIN.
+    """
+    if user.role != "ADMIN":
+        return False
+        # raise HTTPException(status_code=401, detail="Unauthorized")
+    return True

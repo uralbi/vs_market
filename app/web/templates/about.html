@@ -4,7 +4,7 @@
 
 <div class="container">
 
-<h1> Добро пожаловать {{current_user.username}} !</h1>
+<h1> Добро пожаловать {{current_user.username}} ! <small class="text text-secondary">{{current_user.role}}</small></h1>
 
     <div class="card shadow-sm border-0 rounded-3 w-50 mb-4">
         <div class="profile_note"></div>
@@ -40,7 +40,7 @@
         <ul class="list-group" id="chatRoomsList"></ul>
 <hr>
 
-{% if current_user.role == "ADMIN" %}
+{% if current_user.role in ["ADMIN", "CREATOR"] %}
     {% include "movie_forms/mylist.html" %}
 {% endif %}
 

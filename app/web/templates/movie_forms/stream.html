@@ -26,63 +26,62 @@
 </div> 
 
 <script>
-async function openPurchaseModal() {
-    let token = getAccessTokenFromCookie();
-    if (!token) {
-        showMessage("Войдите в свой аккаунт!", "warning")
-        return
+    async function openPurchaseModal() {
+        let token = getAccessTokenFromCookie();
+        if (!token) {
+            showMessage("Войдите в свой аккаунт!", "warning")
+            return
+        }
+        movieId = new URLSearchParams(window.location.search).get("id");
+        try {
+            let response = await fetch(`/api/movies/generate_qr?movie_id=${movieId}`, {  // Use query param
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                throw new Error("Ошибка при генерации QR-кода");
+            }
+
+            let data = await response.text();
+            let resp = JSON.parse(data)
+            qrImageUrl = resp.qr_path.replace(/^"|"$/g, '');
+            document.getElementById("qrCode").src = `/${qrImageUrl}`;
+            document.getElementById("movie_price").innerHTML=`Цена: ${resp.price} сом.`
+            let modal = new bootstrap.Modal(document.getElementById("paymentModal"));
+            modal.show();
+
+        } catch (error) {
+            console.error("Ошибка:", error);
+            alert("Ошибка при получении QR-кода.");
+        }
     }
-    movieId = new URLSearchParams(window.location.search).get("id");
-    try {
-        let response = await fetch(`/api/movies/generate_qr?movie_id=${movieId}`, {  // Use query param
-            method: "GET",
+
+    function closePaymentModal() {
+        let modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
+        modal.hide();
+        location.reload();  // ✅ Reload after modal closes
+    }
+
+    async function confirmPayment() {
+        let token = getAccessTokenFromCookie();
+        let movieId = new URLSearchParams(window.location.search).get("id");
+
+        let response = await fetch(`/api/movies/purchase?movie_id=${movieId}`, {
+            method: "POST",
             headers: { "Authorization": `Bearer ${token}` }
         });
 
-        if (!response.ok) {
-            throw new Error("Ошибка при генерации QR-кода");
+        let result = await response.json();
+        showMessage(result.message, "info");
+
+        if (response.ok) {
+            let modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
+            modal.hide();
+            location.reload();
         }
-
-        let data = await response.text();
-        let resp = JSON.parse(data)
-        qrImageUrl = resp.qr_path.replace(/^"|"$/g, '');
-        document.getElementById("qrCode").src = `/${qrImageUrl}`;
-        document.getElementById("movie_price").innerHTML=`Цена: ${resp.price} сом.`
-        let modal = new bootstrap.Modal(document.getElementById("paymentModal"));
-        modal.show();
-
-    } catch (error) {
-        console.error("Ошибка:", error);
-        alert("Ошибка при получении QR-кода.");
     }
-}
-
-function closePaymentModal() {
-    let modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
-    modal.hide();
-    location.reload();  // ✅ Reload after modal closes
-}
-
-async function confirmPayment() {
-    let token = getAccessTokenFromCookie();
-    let movieId = new URLSearchParams(window.location.search).get("id");
-
-    let response = await fetch(`/api/movies/purchase?movie_id=${movieId}`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-    });
-
-    let result = await response.json();
-    showMessage(result.message, "info");
-
-    if (response.ok) {
-        let modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
-        modal.hide();
-        location.reload();
-    }
-}
 </script>
-
 
 <div class="text-start float-end w-25 mb-3">
     <label for="qualitySelector" class="">Выбрать качество:</label>
@@ -98,6 +97,9 @@ async function confirmPayment() {
 </div>
 
 <div id="movie-details"></div>
+
+{% include "movie_forms/preview.html" %}
+
 
 <script>
 

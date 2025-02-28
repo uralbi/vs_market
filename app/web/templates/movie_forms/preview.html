@@ -1,0 +1,60 @@
+    
+
+<h2>Movie Preview</h2>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+
+    <video id="previewVideo" controls width="640" height="360"></video>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const video = document.getElementById("previewVideo");
+            const movieId = new URLSearchParams(window.location.search).get("id");
+            if (movieId) {
+                video.setAttribute("data-movie-id", movieId);
+                loadVideo2(movieId);
+            }
+        });
+
+        function loadVideo2(movieId) {
+
+            const video = document.getElementById("previewVideo");
+            const hlsUrl = `/api/movies/preview/${movieId}/hls`;
+            
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(hlsUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    
+                    video.play();   
+                    populateQualitySelector();
+                });
+    
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        // console.error("HLS Network Error:", data);
+                        msg = JSON.parse(data.networkDetails.response)
+                        if (data.response && data.response.code === 403) {
+                            buyBtn.style.display='block'
+                            showMessage(`${msg.detail}`, "warning");
+                        } else {
+                            showMessage("Ошибка загрузки HLS-потока. Проверьте сеть.", "warning");
+                        }
+                    }
+                });
+    
+            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+                video.src = hlsUrl;
+                video.addEventListener("loadedmetadata", function () {
+                    video.play();
+                });
+            } else {
+                showMessage("Ваш Браузер не поддреживает HLS streaming", "warning")
+            }
+        }
+    </script>
+
+   
+
+    
