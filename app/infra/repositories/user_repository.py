@@ -75,3 +75,9 @@ class UserRepository(IUserRepository):
             user.favorite_products.remove(product)
             self.db.commit()
             self.db.refresh(user)
+    
+    def update_user_role(self, user_id: int, user_role):
+        user = self.get_user_by_id(user_id)
+        user.role = user_role
+        self.db.commit()
+        self.db.refresh(user)

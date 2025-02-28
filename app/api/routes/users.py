@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response
 from app.services.user_service import UserService
 from app.infra.database.db import get_db
 from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO
+from app.infra.database.models import UserRole
 from sqlalchemy.orm import Session
 from app.domain.security.auth_token import decode_access_token, create_access_token, \
     create_refresh_token, verify_refresh_token
 from fastapi.security import OAuth2PasswordBearer
 from app.services.product_service import ProductService
-from app.domain.security.auth_user import user_authorization
+from app.domain.security.auth_user import user_authorization, user_admin_auth
 from pydantic import BaseModel
 from typing import Optional
 
@@ -219,3 +220,25 @@ async def activate_user(user_id: int, token: str = Security(token_scheme), db: S
     user_service = UserService(db)
     act_user = user_service.activate_user(user_id)
     return {"message": f"User [ {act_user.id} {act_user.email} ] is activated"}
+
+
+class RoleDataRequest(BaseModel):
+    user_id: int
+    user_role: str
+    
+@router.put("/update-role")
+def update_email(
+    data: RoleDataRequest, token: str = Depends(token_scheme), db: Session = Depends(get_db)
+        ):
+    """
+    API Endpoint: Allows authenticated users to update their email.
+    """
+    user = user_authorization(token, db)
+    if not user_admin_auth(user):
+        HTTPException(status_code=401, detail="Unauthorized")
+    
+    user_service = UserService(db)
+    user_id = data.user_id
+    new_role = UserRole(data.user_role)
+    return user_service.update_user_role(user_id, new_role)
+    

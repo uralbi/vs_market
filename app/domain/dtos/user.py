@@ -11,8 +11,13 @@ class UserRegistrationDTO(BaseModel):
 class UserLoginDTO(BaseModel):
     email: EmailStr
     password: str
-    
 
+
+class UserRoleDTO(BaseModel):
+    user_id: int
+    user_role: str
+    
+    
 class ChangePasswordDTO(BaseModel):
     old_password: str = Field(..., min_length=6)
     new_password: str = Field(..., min_length=6)

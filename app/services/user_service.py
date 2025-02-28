@@ -8,6 +8,7 @@ from app.domain.security.auth_token import create_access_token
 from app.domain.security.get_hash import get_password_hash
 from app.infra.repositories.user_repository import UserRepository
 from app.domain.dtos.product import ProductDTO
+from app.infra.database.models import UserRole
 from fastapi import HTTPException
 from typing import List, Optional
 from app.core.config import settings
@@ -133,3 +134,7 @@ class UserService:
     
     def remove_from_favorites(self, product, user):
         return self.repo.remove_from_favorites(product, user)
+    
+    def update_user_role(self, user_id: int, user_role: UserRole):
+        return self.repo.update_user_role(user_id, user_role)
+        
