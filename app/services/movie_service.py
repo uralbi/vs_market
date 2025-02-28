@@ -111,3 +111,7 @@ class MovieService:
             return "forbidden"  # User is not authorized
 
         return self.repo.update_movie(movie_id, update_data)
+
+    def update_movie_duration(self, movie_id: int, duration: float):
+        update_data = {'duration': duration}
+        return self.repo.update_movie(movie_id, update_data)

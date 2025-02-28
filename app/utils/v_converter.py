@@ -1,6 +1,10 @@
-import os, json
-import subprocess
+import os, json, subprocess, logging
 from pathlib import Path
+import logging.config
+from app.core.config import settings
+
+logging.config.dictConfig(settings.LOGGING)
+logger = logging.getLogger(__name__)
 
 
 def get_video_resolution(input_video_path: str):
@@ -65,7 +69,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
             variants.append({"name": "480p", "resolution": "854x480", "bitrate": "1200k"})
 
     variant_playlists = []
-    print(variants)
+
     for variant in variants:
         variant_output_m3u8 = os.path.join(output_dir, f"{filename}_{variant['name']}.m3u8")
         variant_ts_files = os.path.join(output_dir, f"{filename}_{variant['name']}_%03d.ts")
@@ -128,3 +132,26 @@ def generate_thumbnail(video_path: str, filename: str, time: int = 20) -> str:
         return thumbnail_path
     except subprocess.CalledProcessError:
         return None
+
+
+def get_video_duration(video_path: str) -> float:
+    """
+    Get the duration of the video in seconds using FFmpeg.
+    """
+    try:
+        cmd = [
+            "ffprobe", 
+            "-v", "error", 
+            "-select_streams", "v:0", 
+            "-show_entries", "format=duration", 
+            "-of", "json", 
+            video_path
+        ]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        data = json.loads(result.stdout)
+        return float(data["format"]["duration"])
+    
+    except Exception as e:
+        logger.error(f"Error getting video duration: {e}")
+        return -1
+    

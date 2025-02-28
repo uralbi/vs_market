@@ -80,9 +80,7 @@ async def get_preview_m3u8(movie_id: str, db: Session = Depends(get_db)):
     
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
-    
-    seconds =[20, 135, 155, 348]
-    preview_m3u8 = filter_m3u8(movie, seconds)
+    preview_m3u8 = filter_m3u8(movie)
     if not preview_m3u8.exists():
         raise HTTPException(status_code=403, detail="Not Found")
 
@@ -264,9 +262,6 @@ async def upload_movie(
     user = user_authorization(token, db)
     user_creator_auth(user)
     
-    mov_service = MovieService(db) # Create movie entry in the database
-    movie = mov_service.create_movie(title, description, price, file_path, is_public, owner_id=user.id)
-    
     file_extension = os.path.splitext(file.filename)[1].lower()
     filename = os.path.basename(file.filename).rsplit(".", 1)[0]  # Extract filename without extension
     
@@ -282,8 +277,10 @@ async def upload_movie(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    process_video_hls.delay(file_path, HLS_FOLDER) # Trigger HLS conversion via Celery
+    mov_service = MovieService(db) # Create movie entry in the database
+    movie = mov_service.create_movie(title, description, price, file_path, is_public, owner_id=user.id)
     
+    process_video_hls.delay(file_path, HLS_FOLDER, movie.id) # Trigger HLS conversion via Celery
     
     generate_thumbnail_task.delay(movie.id, str(file_path), f"movie_{movie.id}")
 
@@ -310,7 +307,7 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     Serve the master `.m3u8` playlist for a given movie.
     """
     user=user_authorization(token, db)
-    
+
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
     if not movie:

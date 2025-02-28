@@ -5,18 +5,24 @@ from app.infra.database.models import MovieModel
 from pathlib import Path
 
 
-def filter_m3u8(movie, target_seconds):
+def filter_m3u8(movie):
     """
     Reads the existing 480p.m3u8, removes unneeded TS files, and creates a Preview_480p.m3u8.
     """
-    print('filtering... ')
     movie_file_path = movie.file_path  # Example: media/movies/Python/Python.mp4
+    
+    target_seconds = []
+    
+    step = int(movie.duration / 6)
+    for i in range(1, 6):
+        target_seconds.append(i*step)
+    
     ts_folder = Path(os.path.dirname(movie_file_path)) / "hls"
     
     org_m3u8_path = find_480p_m3u8(movie_folder=str(ts_folder))
     preview_m3u8_path = ts_folder / "480p_preview.m3u8"
     
-    if preview_m3u8_path:
+    if os.path.exists(preview_m3u8_path):
         return preview_m3u8_path
     
     if not org_m3u8_path:
@@ -32,7 +38,6 @@ def filter_m3u8(movie, target_seconds):
 
     current_time = 0  
     ids = 0
-    last_line = ''
     for i in range(len(lines)):
         if ids >= len(target_seconds):
             break
@@ -40,7 +45,6 @@ def filter_m3u8(movie, target_seconds):
         if line.startswith("#EXTINF:"):
             duration = float(line.split(":")[1].split(",")[0])  
             current_time += duration
-            print('c_time', round(current_time,2), target_seconds[ids])
             if target_seconds[ids] < current_time: 
                 new_lines.append(line)  
                 new_lines.append(lines[i + 1])

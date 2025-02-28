@@ -26,6 +26,7 @@ class MovieRepository:
         return (
             self.db.query(MovieModel)
             .filter(MovieModel.is_public == True)
+            .filter(MovieModel.duration > 0)
             .order_by(MovieModel.created_at.desc())
             .offset(offset)
             .limit(limit)
@@ -51,6 +52,7 @@ class MovieRepository:
         movies = (
             self.db.query(MovieModel)
             .filter(MovieModel.is_public == True)
+            .filter(MovieModel.duration > 0)
             .filter(
                 (MovieModel.search_vector.op("@@")(search_query) | MovieModel.search_vector.op("@@")(search_query_rus)) |  # Full-text search
                 (MovieModel.title.ilike(f"%{query}%")) |  # Substring match in title

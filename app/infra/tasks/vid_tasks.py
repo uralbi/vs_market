@@ -9,23 +9,20 @@ from app.infra.database.db import SessionLocal
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
-from app.utils.v_converter import generate_thumbnail
+from app.utils.v_converter import generate_thumbnail, get_video_duration
 
 logging.config.dictConfig(settings.LOGGING)
 logger = logging.getLogger(__name__)
 
 
 @celery_app.task(bind=True)
-def process_video_hls(self, video_path: str, output_dir: str):
+def process_video_hls(self, video_path: str, output_dir: str, movie_id: int):
     """
     Celery task to convert an uploaded video to HLS format asynchronously.
+    After creating hls file, it updates video duration.
     """
     try:
         logger.info(f"Processing video: {video_path}")
-
-        # Ensure output directory exists
-        # filename = os.path.splitext(os.path.basename(video_path))[0]
-        # output_dir = f"{output_dir}/{filename}"
         
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
@@ -33,6 +30,13 @@ def process_video_hls(self, video_path: str, output_dir: str):
 
         if hls_path:
             logger.info(f"Conversion successful: {hls_path}")
+            
+            db: Session = SessionLocal()  
+            movie_service = MovieService(db)
+            duration = get_video_duration(video_path)
+            if duration != -1:
+                movie_service.update_movie_duration(movie_id, duration)
+            
             return {"status": "success", "hls_path": hls_path}
         else:
             logger.error("Conversion failed")
@@ -53,11 +57,9 @@ def generate_thumbnail_task(movie_id: int, video_path: str, filename: str, time:
 
     db: Session = SessionLocal()
     try:
-        thumbnail_path = generate_thumbnail(video_path, filename, 5)
-        # thumbnail_path = thumbnail_path.replace("media/movies/thumbs", "/media") move this logic to service
+        thumbnail_path = generate_thumbnail(video_path, filename, 5)        
         movie_service = MovieService(db)
         movie_service.update_movie_thumbnail(movie_id, thumbnail_path)
-        db.commit()
         return {"message": f"Thumbnail is updated for movie {movie_id}",}
     except Exception as e:
         db.rollback()
