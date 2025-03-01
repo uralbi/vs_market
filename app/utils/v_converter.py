@@ -1,5 +1,6 @@
 import os, json, subprocess, logging
 from pathlib import Path
+from app.domain.security.signed_url import generate_signed_url
 import logging.config
 from app.core.config import settings
 
@@ -35,7 +36,7 @@ def get_video_resolution(input_video_path: str):
         return None, None  # Default to skipping 2K & 4K if detection fails
 
 
-def convert_to_hls(input_video_path: str, output_dir: str):
+def convert_to_hls(input_video_path: str, output_dir: str, movie_id: int):
     """
     Convert a video to HLS format with multiple quality options (4K, 2K, 1080p, 720p, 480p).
     
@@ -98,6 +99,9 @@ def convert_to_hls(input_video_path: str, output_dir: str):
         try:
             subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(f"Created HLS variant: {variant['name']} ({variant['resolution']})")
+            
+            update_m3u8_with_signed_urls(variant_output_m3u8, movie_id)
+            
             variant_playlists.append((variant_output_m3u8, variant["bitrate"], variant["resolution"]))
         except subprocess.CalledProcessError as e:
             print(f"Error converting video {variant['name']}: {e}")
@@ -114,6 +118,26 @@ def convert_to_hls(input_video_path: str, output_dir: str):
     return master_playlist_path
 
 
+def update_m3u8_with_signed_urls(m3u8_path: str, movie_id: int):
+    """
+    Reads the .m3u8 file, replaces .ts filenames with signed URLs.
+    """
+    with open(m3u8_path, "r") as file:
+        lines = file.readlines()
+
+    new_lines = []
+    for line in lines:
+        if line.strip().endswith(".ts"):  # Replace .ts references with signed URLs
+            segment_filename = line.strip()
+            signed_url = generate_signed_url(movie_id, segment_filename)
+            new_lines.append(signed_url + "\n")
+        else:
+            new_lines.append(line)
+
+    with open(m3u8_path, "w") as file:
+        file.writelines(new_lines)
+        
+        
 def generate_thumbnail(video_path: str, filename: str, time: int = 20) -> str:
     """
     Generate a thumbnail from the video using FFmpeg at the given time (default: 5 seconds).

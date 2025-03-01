@@ -2,6 +2,7 @@ import subprocess, os, tempfile
 from fastapi import FastAPI, HTTPException
 from app.services.movie_service import MovieService
 from app.infra.database.models import MovieModel
+from app.domain.security.signed_url import generate_signed_url
 from pathlib import Path
 
 
@@ -47,7 +48,9 @@ def filter_m3u8(movie):
             current_time += duration
             if target_seconds[ids] < current_time: 
                 new_lines.append(line)  
-                new_lines.append(lines[i + 1])
+                # new_lines.append(lines[i + 1])
+                signed_url = generate_signed_url(movie.id, lines[i + 1])
+                new_lines.append(signed_url)
                 ids += 1
                 i+=1
             else:

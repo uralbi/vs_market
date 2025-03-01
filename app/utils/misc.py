@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import secrets, string
+
 
 def time_ago(timestamp):
     if not timestamp:
@@ -33,3 +35,9 @@ def time_ago(timestamp):
             return f"{diff.days // 365} года назад"
         else:
             return f"{diff.days // 365} лет назад"
+        
+
+def generate_secret_key(length: int = 32) -> str:
+    """Generate a secure secret key with uppercase letters."""
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(secrets.choice(alphabet) for _ in range(length))

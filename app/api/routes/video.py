@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query, BackgroundTasks
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
 from app.infra.database.db import get_db
@@ -12,8 +12,8 @@ from app.infra.kafka.kafka_producer import send_kafka_message
 from app.services.payment_service import PaymentService
 from app.services.order_service import OrderService
 from app.utils.preview_video import filter_m3u8
-from typing import Optional
-import os, shutil, datetime
+from app.domain.security.signed_url import verify_signed_url
+import os, shutil
 from pathlib import Path
 from pydantic import BaseModel
 
@@ -333,13 +333,17 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
 
 
 @router.get("/preview/{movie_id}/{segment_filename}")
-async def serve_hls_segment(movie_id: str, segment_filename: str,  db: Session = Depends(get_db)):
+async def serve_hls_segment(movie_id: str, segment_filename: str,
+                            exp: str, sig: str, db: Session = Depends(get_db)):
     """
     Serve individual .ts segments for HLS playback.
     """
-    movie = db.query(MovieModel).filter(MovieModel.id == movie_id).first()
-    if not movie:
-        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    if not verify_signed_url(movie_id, segment_filename, exp, sig):
+        raise HTTPException(status_code=403, detail="Unauthorized or expired link")
+    
+    movie_service = MovieService(db)
+    movie = movie_service.get_movie_by_id(movie_id)
 
     hls_directory = Path(movie.file_path).parent / "hls"
 
@@ -353,7 +357,6 @@ async def serve_hls_segment(movie_id: str, segment_filename: str,  db: Session =
         hls_directory / f"{Path(movie.file_path).stem}_480p_{segment_filename}",  # 480p
     ]
 
-    # Find the correct file
     segment_path = next((path for path in possible_paths if path.exists()), None)
 
     if not segment_path:
