@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query, BackgroundTasks
+from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
@@ -12,7 +12,8 @@ from app.infra.kafka.kafka_producer import send_kafka_message
 from app.services.payment_service import PaymentService
 from app.services.order_service import OrderService
 from app.utils.preview_video import filter_m3u8
-from app.domain.security.signed_url import verify_signed_url
+from app.domain.security.signed_url import generate_signed_m3u8
+from app.domain.security.signed_url import verify_signed_url, update_variant_playlists_with_signed_urls, update_m3u8_with_signed_urls
 import os, shutil
 from pathlib import Path
 from pydantic import BaseModel
@@ -81,6 +82,7 @@ async def get_preview_m3u8(movie_id: str, db: Session = Depends(get_db)):
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
     preview_m3u8 = filter_m3u8(movie)
+    update_m3u8_with_signed_urls(preview_m3u8, movie_id)
     if not preview_m3u8.exists():
         raise HTTPException(status_code=403, detail="Not Found")
 
@@ -324,16 +326,21 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     if not master_playlist_path.exists():
         raise HTTPException(status_code=404, detail="HLS playlist not found")
 
+    update_variant_playlists_with_signed_urls(hls_directory, movie_id)
+    
+    updated_playlist = generate_signed_m3u8(master_playlist_path, movie_id) # generate signed master file
     headers = {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "Pragma": "no-cache",
-        "Expries": "0,"
+        "Expires": "0,"
     }
-    return FileResponse(master_playlist_path, media_type="application/vnd.apple.mpegurl", headers=headers)
+
+    return Response(content=updated_playlist, media_type="application/vnd.apple.mpegurl", headers=headers)
+
 
 
 @router.get("/preview/{movie_id}/{segment_filename}")
-async def serve_hls_segment(movie_id: str, segment_filename: str,
+async def serve_hls_segment(movie_id: int, segment_filename: str,
                             exp: str, sig: str, db: Session = Depends(get_db)):
     """
     Serve individual .ts segments for HLS playback.
@@ -362,14 +369,23 @@ async def serve_hls_segment(movie_id: str, segment_filename: str,
     if not segment_path:
         raise HTTPException(status_code=404, detail="Segment file not found")
 
-    return FileResponse(segment_path, media_type="video/mp2t")  # MPEG-TS format
+    headers = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expries": "0,"
+    }
+    return FileResponse(segment_path, media_type="application/vnd.apple.mpegurl", headers=headers)
 
 
 @router.get("/{movie_id}/{segment_filename}")
-async def serve_hls_segment(movie_id: int, segment_filename: str, db: Session = Depends(get_db)):
+async def serve_hls_segment(movie_id: int, segment_filename: str, 
+                            exp: str, sig: str, db: Session = Depends(get_db)):
     """
     Serve individual .ts segments for HLS playback.
     """
+    if not verify_signed_url(movie_id, segment_filename, exp, sig):
+        raise HTTPException(status_code=403, detail="Unauthorized or expired link")
+    
     movie = db.query(MovieModel).filter(MovieModel.id == movie_id).first()
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
@@ -392,7 +408,12 @@ async def serve_hls_segment(movie_id: int, segment_filename: str, db: Session = 
     if not segment_path:
         raise HTTPException(status_code=404, detail="Segment file not found")
 
-    return FileResponse(segment_path, media_type="video/mp2t")  # MPEG-TS format
+    headers = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0,"
+    }
+    return FileResponse(segment_path, media_type="application/vnd.apple.mpegurl", headers=headers)
 
 
 @router.get("/search", response_model=list[MovieDTO])

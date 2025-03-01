@@ -26,7 +26,7 @@ def process_video_hls(self, video_path: str, output_dir: str, movie_id: int):
         
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        hls_path = convert_to_hls(video_path, output_dir, movie_id)
+        hls_path = convert_to_hls(video_path, output_dir)
 
         if hls_path:
             logger.info(f"Conversion successful: {hls_path}")

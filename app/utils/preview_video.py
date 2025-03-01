@@ -23,9 +23,6 @@ def filter_m3u8(movie):
     org_m3u8_path = find_480p_m3u8(movie_folder=str(ts_folder))
     preview_m3u8_path = ts_folder / "480p_preview.m3u8"
     
-    if os.path.exists(preview_m3u8_path):
-        return preview_m3u8_path
-    
     if not org_m3u8_path:
         raise HTTPException(status_code=404, detail="Original HLS playlist not found")
     
@@ -48,15 +45,12 @@ def filter_m3u8(movie):
             current_time += duration
             if target_seconds[ids] < current_time: 
                 new_lines.append(line)  
-                # new_lines.append(lines[i + 1])
-                signed_url = generate_signed_url(movie.id, lines[i + 1])
-                new_lines.append(signed_url)
+                new_lines.append(lines[i + 1])
                 ids += 1
                 i+=1
             else:
                 i+=1
     new_lines.append("#EXT-X-ENDLIST")
-    
     preview_m3u8_path.write_text("\n".join(new_lines))
     return preview_m3u8_path
 
