@@ -1,30 +1,47 @@
 from fastapi import APIRouter, UploadFile, Form, Depends, Security, HTTPException, File, Query, Response
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
 from app.infra.database.db import get_db
 from app.infra.database.models import MovieModel, MovieLikeModel, OrderModel
 from app.domain.security.auth_user import user_authorization, user_creator_auth, user_admin_auth
-from fastapi.security import OAuth2PasswordBearer
 from app.infra.tasks.vid_tasks import process_video_hls, generate_thumbnail_task
 from app.domain.dtos.movie import MovieDTO, UpdateMovieRequest
 from app.infra.kafka.kafka_producer import send_kafka_message
 from app.services.payment_service import PaymentService
 from app.services.order_service import OrderService
 from app.utils.preview_video import filter_m3u8
-from app.domain.security.signed_url import generate_signed_m3u8
-from app.domain.security.signed_url import verify_signed_url, update_variant_playlists_with_signed_urls, update_m3u8_with_signed_urls
-import os, shutil
+from app.domain.security.signed_url import generate_signed_url, generate_signed_key_url, verify_signed_enc_url
+from app.domain.security.signed_url import verify_signed_url, \
+        update_variant_playlists_with_signed_urls, \
+        update_m3u8_with_signed_urls, generate_signature
+import os, shutil, time, io
+from dotenv import load_dotenv
 from pathlib import Path
 from pydantic import BaseModel
 
- 
+load_dotenv()
+
 router = APIRouter(
     prefix="/api/movies",
     tags=["API_Movies"]
 )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+
+@router.get("/encryption_key")
+async def get_encryption_key(exp: str, sig: str):
+    """
+    Serve the AES encryption key only to authorized users with a valid signed URL.
+    """
+
+    if not verify_signed_enc_url(exp, sig):  # Validate the request
+        raise HTTPException(status_code=403, detail="Unauthorized or expired key request")
+
+    key_path = "app/domain/security/encryption.key"
+    return FileResponse(key_path, media_type="application/octet-stream")
 
 
 @router.get("/generate_qr")
@@ -71,22 +88,6 @@ def purchase_video(movie_id: int, token: str = Depends(token_scheme), db: Sessio
     pay_service = PaymentService(order, db)
     pay_service.payment_success()
     return {"message": "Purchase completed" if order.status == "completed" else "Payment failed"}
-
-
-@router.get("/preview/{movie_id}/hls")
-async def get_preview_m3u8(movie_id: str, db: Session = Depends(get_db)):
-    """
-    Generates and serves Preview_480p.m3u8 by filtering the existing 480p.m3u8.
-    """
-    
-    movie_service = MovieService(db)
-    movie = movie_service.get_movie_by_id(movie_id)
-    preview_m3u8 = filter_m3u8(movie)
-    update_m3u8_with_signed_urls(preview_m3u8, movie_id)
-    if not preview_m3u8.exists():
-        raise HTTPException(status_code=403, detail="Not Found")
-
-    return FileResponse(preview_m3u8, media_type="application/vnd.apple.mpegurl")
 
 
 @router.put("/{id}")
@@ -228,6 +229,7 @@ def get_movie_progress(movie_id: int, payload: AccessTokenRequest, db: Session =
 
     return {"progress": view.progress if view else 0}
 
+
 class ProgressRequest(BaseModel):
     access_token: str
     progress: int
@@ -303,40 +305,46 @@ def like_movie(movie_id: int, token, db: Session = Depends(get_db)):
     return {"message": "Liked successfully"}
 
 
-@router.get("/{movie_id}/hls")
-async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Session = Depends(get_db)):
+@router.get("/preview/{movie_id}/hls")
+async def get_preview_m3u8(movie_id: str, db: Session = Depends(get_db)):
     """
-    Serve the master `.m3u8` playlist for a given movie.
+    Generates and serves Preview_480p.m3u8 by filtering the existing 480p.m3u8.
     """
-    user=user_authorization(token, db)
-
+    
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
-    if not movie:
-        raise HTTPException(status_code=404, detail="Movie not found")
-         
-    if not user_admin_auth(user) and movie.owner_id != user.id:
-        order_service = OrderService(db)
-        order_service.check_order_status(user.id, movie_id)
-    
-    base_filename = Path(movie.file_path).stem  # Extract filename without extension
-    hls_directory = Path(movie.file_path).parent / "hls"
-    master_playlist_path = hls_directory / f"{base_filename}_master.m3u8"
-    
-    if not master_playlist_path.exists():
-        raise HTTPException(status_code=404, detail="HLS playlist not found")
+    preview_m3u8 = filter_m3u8(movie)
+    # update_m3u8_with_signed_urls(preview_m3u8, movie_id)
+    if not preview_m3u8.exists():
+        raise HTTPException(status_code=403, detail="Not Found")
 
-    update_variant_playlists_with_signed_urls(hls_directory, movie_id)
-    
-    updated_playlist = generate_signed_m3u8(master_playlist_path, movie_id) # generate signed master file
+    signed_key_url = generate_signed_key_url(movie_id)
+
+    with open(preview_m3u8, "r") as file:
+        lines = file.readlines()
+
+    updated_lines = []
+    for line in lines:
+        line = line.strip()
+
+        if "EXT-X-KEY" in line:
+            updated_lines.append(f'#EXT-X-KEY:METHOD=AES-128,URI="{signed_key_url}"\n')
+
+        elif line.endswith(".ts"):
+            signed_segment_url = generate_signed_url(movie_id, line)
+            updated_lines.append(signed_segment_url + "\n")
+        else:
+            updated_lines.append(line + "\n")
+
+    updated_playlist = "".join(updated_lines)
+
     headers = {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "Pragma": "no-cache",
-        "Expires": "0,"
+        "Expires": "0"
     }
 
     return Response(content=updated_playlist, media_type="application/vnd.apple.mpegurl", headers=headers)
-
 
 
 @router.get("/preview/{movie_id}/{segment_filename}")
@@ -368,50 +376,123 @@ async def serve_hls_segment(movie_id: int, segment_filename: str,
 
     if not segment_path:
         raise HTTPException(status_code=404, detail="Segment file not found")
-
+    
     headers = {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "Pragma": "no-cache",
-        "Expries": "0,"
+        "Expires": "0",
+        "Content-Disposition": "inline",            # Prevents browsers from forcing downloads
+        "X-Content-Type-Options": "nosniff",        # Blocks MIME-type sniffing
+        "Referrer-Policy": "no-referrer",           # Prevents URL tracking
+        "Permissions-Policy": "interest-cohort=()", # Blocks tracking
     }
+    
     return FileResponse(segment_path, media_type="application/vnd.apple.mpegurl", headers=headers)
 
 
-@router.get("/{movie_id}/{segment_filename}")
-async def serve_hls_segment(movie_id: int, segment_filename: str, 
-                            exp: str, sig: str, db: Session = Depends(get_db)):
+@router.get("/{movie_id}/hls")
+async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Session = Depends(get_db)):
     """
-    Serve individual .ts segments for HLS playback.
+    Serve the master `.m3u8` playlist with signed URLs for variant `.m3u8` files and encryption keys.
     """
-    if not verify_signed_url(movie_id, segment_filename, exp, sig):
-        raise HTTPException(status_code=403, detail="Unauthorized or expired link")
-    
-    movie = db.query(MovieModel).filter(MovieModel.id == movie_id).first()
+    user = user_authorization(token, db)
+    movie_service = MovieService(db)
+    movie = movie_service.get_movie_by_id(movie_id)
+
     if not movie:
-        raise HTTPException(status_code=404, detail="Movie not found")
+        return JSONResponse({"detail": "Movie not found"}, status_code=404)
 
-    hls_directory = Path(movie.file_path).parent / "hls"
+    base_filename = Path(movie.file_path).stem
+    # hls_directory = Path(movie.file_path).parent / "hls"
+    
+    master_playlist_path = f"{base_filename}_master.m3u8" # disk path
 
-    # Dynamically find the correct resolution folder
-    possible_paths = [
-        hls_directory / segment_filename,                                       # Direct in /hls/
-        hls_directory / f"{Path(movie.file_path).stem}_4K_{segment_filename}",  # 4K
-        hls_directory / f"{Path(movie.file_path).stem}_2K_{segment_filename}",  # 2K
-        hls_directory / f"{Path(movie.file_path).stem}_1080p_{segment_filename}",  # 1080p
-        hls_directory / f"{Path(movie.file_path).stem}_720p_{segment_filename}",  # 720p
-        hls_directory / f"{Path(movie.file_path).stem}_480p_{segment_filename}",  # 480p
-    ]
+    base_url = f"http://127.0.0.1:8000/api/movies/master/{movie_id}"
+    signed_master_url = f"{base_url}/{master_playlist_path}?exp={int(time.time()) + 600}&sig={generate_signature(movie_id, master_playlist_path)}"
+    return JSONResponse({"hls_url": signed_master_url})
 
-    # Find the correct file
-    segment_path = next((path for path in possible_paths if path.exists()), None)
 
-    if not segment_path:
+@router.get("/master/{movie_id}/{master_playlist_path}")
+async def get_master_file(movie_id: int, master_playlist_path: str, exp: str, sig: str,):
+    
+    if not verify_signed_url(movie_id, master_playlist_path, exp, sig):
+        raise HTTPException(status_code=401, detail="Unauthorized or expired link")
+    
+    base_idx = master_playlist_path.find("_master")
+    base_dirname = master_playlist_path[:base_idx]    
+    hls_directory = Path(f"media/movies/{base_dirname}/hls")    
+    master_playlist_path = hls_directory / f"{base_dirname}_master.m3u8" # disk path
+    
+    if not master_playlist_path.exists():
+        return JSONResponse({"detail": "HLS playlist not found"}, status_code=404)
+    
+    signed_playlist = io.StringIO()
+    with open(master_playlist_path, "r") as file:
+        for line in file:
+            line = line.strip()
+
+            if "EXT-X-KEY" in line:
+                signed_key_url = generate_signed_key_url(movie_id)
+                signed_playlist.write(f'#EXT-X-KEY:METHOD=AES-128,URI="{signed_key_url}"\n')
+
+            elif line.endswith(".m3u8"):  # ✅ Sign variant playlists (.m3u8)
+                signed_variant_url = f"/api/movies/segment/{movie_id}/{line}?exp={int(time.time()) + 600}&sig={generate_signature(movie_id, line)}&fld={hls_directory}"
+                signed_playlist.write(signed_variant_url + "\n")
+
+            else:
+                signed_playlist.write(line + "\n")
+    
+    return Response(content=signed_playlist.getvalue(), media_type="application/vnd.apple.mpegurl")
+ 
+    
+@router.get("/segment/{movie_id}/{segment_filename}")
+async def serve_hls_segment(movie_id: int, segment_filename: str, 
+                            exp: str, sig: str, fld: str):
+    """
+    Serve individual `.m3u8` and `.ts` segments for HLS playback.
+    """
+    
+    segment_path = Path(f"{fld}/{segment_filename}")
+    if not segment_path.exists():
         raise HTTPException(status_code=404, detail="Segment file not found")
+    updated_playlist = io.StringIO()
+
+    if segment_filename.endswith(".m3u8"):
+        
+        with open(segment_path, "r") as file:
+            for line in file:
+                line = line.strip()
+
+                if "EXT-X-KEY" in line:
+                    # ✅ Replace encryption key with signed key URL
+                    signed_key_url = generate_signed_key_url(movie_id)
+                    updated_playlist.write(f'#EXT-X-KEY:METHOD=AES-128,URI="{signed_key_url}"\n')
+
+                elif line.endswith(".ts"):  # ✅ Sign `.ts` segment files
+                    signed_ts_url = (
+                        f"http://127.0.0.1:8000/api/movies/segment/{movie_id}/{line}"
+                        f"?exp={int(time.time()) + 600}&sig={generate_signature(movie_id, line)}&fld={fld}"
+                    )
+                    updated_playlist.write(signed_ts_url + "\n")
+
+                else:
+                    updated_playlist.write(line + "\n")
+
+        return Response(content=updated_playlist.getvalue(), media_type="application/vnd.apple.mpegurl")
+
+    segment_path = Path(f"{fld}/{segment_filename}")
+    
+    if not verify_signed_url(movie_id, segment_filename, exp, sig):
+        raise HTTPException(status_code=401, detail="Unauthorized or expired link")
 
     headers = {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "Pragma": "no-cache",
-        "Expires": "0,"
+        "Expires": "0",
+        "Content-Disposition": "inline",           
+        "X-Content-Type-Options": "nosniff",        
+        "Referrer-Policy": "no-referrer",           
+        "Permissions-Policy": "interest-cohort=()", 
     }
     return FileResponse(segment_path, media_type="application/vnd.apple.mpegurl", headers=headers)
 
@@ -429,3 +510,4 @@ async def search_movies(
     movie_service = MovieService(db)
     movies = movie_service.search_movies(query, limit, offset)
     return movies
+

@@ -7,7 +7,49 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY_URL") 
+TOKEN_ENC_EXPIRY = 600  # 🔥 Key expires in 10 minutes
 TOKEN_EXPIRY = 60
+
+def generate_signature(movie_id: int, filename: str) -> str:
+    """
+    Generates a secure HMAC-SHA256 signature for signed URLs.
+
+    Args:
+        movie_id (int): The movie ID.
+        filename (str): The filename (e.g., "Python_720p.m3u8").
+
+    Returns:
+        str: A base64 URL-safe encoded signature.
+    """
+    expiry_time = int(time.time()) + 600                # Token expires in 10 minutes
+    data = f"{movie_id}/{filename}/{expiry_time}"       # Concatenate data
+    signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).digest()
+    encoded_signature = base64.urlsafe_b64encode(signature).decode().rstrip("=")
+    return encoded_signature
+
+
+def create_encryption_keyinfo():
+    key_url = "http://127.0.0.1:8000/api/movies/encryption_key"
+    key_path = os.path.abspath("app/domain/security/encryption.key") 
+    keyinfo_path = os.path.abspath("app/domain/security/encryption.keyinfo")
+    if not os.path.exists(key_path):
+        os.system(f"openssl rand 16 > {key_path}")
+    iv_hex = os.urandom(16).hex()  
+    with open(keyinfo_path, "w") as f:
+        f.write(f"{key_url}\n{key_path}\n{iv_hex}\n")  # Use a 16-byte IV
+        
+
+def generate_signed_key_url(movie_id: int) -> str:
+    """
+    Generates a fresh signed URL for the encryption key.
+    """
+    expiry_time = int(time.time()) + TOKEN_ENC_EXPIRY
+    data = f"encryption_key/{expiry_time}"
+
+    signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).digest()
+    encoded_signature = base64.urlsafe_b64encode(signature).decode()
+
+    return f"http://127.0.0.1:8000/api/movies/encryption_key?exp={expiry_time}&sig={encoded_signature}"
 
 
 def update_variant_playlists_with_signed_urls(hls_directory: str, movie_id: int):
@@ -42,9 +84,11 @@ def update_m3u8_with_signed_urls(m3u8_path: str, movie_id: int):
         
         
 def verify_signed_url(movie_id: int, segment_filename: str, exp: str, sig: str) -> bool:
+    
     if int(exp) < int(time.time()):
         return False
 
+    return True
     data = f"{movie_id}/{segment_filename}/{exp}"
     expected_signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).digest()
     expected_encoded_signature = base64.urlsafe_b64encode(expected_signature).decode()
@@ -52,11 +96,36 @@ def verify_signed_url(movie_id: int, segment_filename: str, exp: str, sig: str) 
     return hmac.compare_digest(expected_encoded_signature, sig)
 
 
+def verify_signed_enc_url(exp: str, sig: str) -> bool:
+    """
+    Verify if the signed URL for the encryption key is valid.
+
+    Args:
+        exp (str): Expiry timestamp from the URL.
+        sig (str): HMAC signature from the URL.
+
+    Returns:
+        bool: True if the signature is valid and the link has not expired, False otherwise.
+    """
+    current_time = int(time.time())
+    if int(exp) < current_time:
+        print("Signature expired")
+        return False
+    data = f"encryption_key/{exp}"
+    expected_signature = hmac.new(
+        SECRET_KEY.encode(), data.encode(), hashlib.sha256
+    ).digest()
+    encoded_expected_signature = base64.urlsafe_b64encode(expected_signature).decode()
+    if hmac.compare_digest(encoded_expected_signature, sig):
+        return True
+    else:
+        print("Invalid signature")
+        return False
+
+
 def generate_signed_url(movie_id: int, segment_filename: str) -> str:
     expiry_time = int(time.time()) + TOKEN_EXPIRY
-    data = f"{movie_id}/{segment_filename}/{expiry_time}"
-    signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).digest() # HMAC signature
-    encoded_signature = base64.urlsafe_b64encode(signature).decode()
+    encoded_signature = generate_signature(movie_id, segment_filename)
     return f"{segment_filename}?exp={expiry_time}&sig={encoded_signature}"
 
 

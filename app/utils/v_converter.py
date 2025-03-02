@@ -47,7 +47,8 @@ def convert_to_hls(input_video_path: str, output_dir: str):
     Returns:
         str: Path to the master `.m3u8` playlist.
     """
-
+    keyinfo_path = "app/domain/security/encryption.keyinfo"
+    key_url = "http://127.0.0.1:8000/api/movies/encryption_key"
     Path(output_dir).mkdir(parents=True, exist_ok=True)  # Ensure output directory exists
     filename = Path(input_video_path).stem  # Extract filename without extension
     width, height = get_video_resolution(input_video_path)
@@ -91,6 +92,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
             "-f", "hls",
             "-hls_time", "10",
             "-hls_playlist_type", "vod",
+            "-hls_key_info_file", keyinfo_path, # Use AES-128 encryption
             "-hls_segment_filename", variant_ts_files,
             variant_output_m3u8
         ]
@@ -108,6 +110,8 @@ def convert_to_hls(input_video_path: str, output_dir: str):
     with open(master_playlist_path, "w") as master_playlist:
         master_playlist.write("#EXTM3U\n")
         master_playlist.write("#EXT-X-VERSION:3\n")
+        master_playlist.write(f'#EXT-X-KEY:METHOD=AES-128,URI="{key_url}"\n')
+
         for playlist, bitrate, resolution in variant_playlists:
             master_playlist.write(f"#EXT-X-STREAM-INF:BANDWIDTH={bitrate.replace('k', '000')},RESOLUTION={resolution}\n")
             master_playlist.write(f"{os.path.basename(playlist)}\n")

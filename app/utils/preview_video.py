@@ -23,17 +23,24 @@ def filter_m3u8(movie):
     org_m3u8_path = find_480p_m3u8(movie_folder=str(ts_folder))
     preview_m3u8_path = ts_folder / "480p_preview.m3u8"
     
+    if os.path.exists(preview_m3u8_path):
+        return preview_m3u8_path
+    
     if not org_m3u8_path:
         raise HTTPException(status_code=404, detail="Original HLS playlist not found")
     
     org_m3u8_path = Path(org_m3u8_path)
 
     lines = org_m3u8_path.read_text().splitlines()
+    
     new_lines = [
         "#EXTM3U", "#EXT-X-VERSION:3", "#EXT-X-TARGETDURATION:19",
         "#EXT-X-MEDIA-SEQUENCE:0", "#EXT-X-PLAYLIST-TYPE:VOD",
         ]
 
+    key_url = "http://127.0.0.1:8000/api/movies/encryption_key"
+    new_lines.append(f'#EXT-X-KEY:METHOD=AES-128,URI="{key_url}"')
+    
     current_time = 0  
     ids = 0
     for i in range(len(lines)):
@@ -50,10 +57,10 @@ def filter_m3u8(movie):
                 i+=1
             else:
                 i+=1
+                
     new_lines.append("#EXT-X-ENDLIST")
     preview_m3u8_path.write_text("\n".join(new_lines))
     return preview_m3u8_path
-
 
 
 def find_480p_m3u8(movie_folder: str) -> str:

@@ -98,12 +98,11 @@
 
 <div id="movie-details"></div>
 
-{% include "movie_forms/preview.html" %}
-
 
 <script>
 
-    let hls;
+
+
     document.addEventListener("DOMContentLoaded", function () {
         const video = document.getElementById("videoPlayer");
         const movieId = new URLSearchParams(window.location.search).get("id");
@@ -169,63 +168,105 @@
         });
     });
 
-    function loadVideo(movieId) {
+    async function fetchSignedHlsUrl(movieId, access_token) {
+        try {
+            const response = await fetch(`/api/movies/${movieId}/hls`, {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${access_token}` }
+            });
+    
+            if (!response.ok) {
+                throw new Error("Ошибка при получении HLS URL");
+            }
+    
+            const data = await response.json();           // ✅ Parse JSON, not text
+            return data.hls_url;                          // ✅ Correctly return the URL
+        } catch (error) {
+            console.error("Ошибка загрузки подписанного URL:", error);
+            return null;
+        }
+    }
+    
+    
+    let hls;
 
+    async function loadVideo(movieId) {
         const access_token = getAccessTokenFromCookie();
         const buyBtn = document.getElementById("buy_btn");
-        buyBtn.style.display='none'
-        if (!access_token){
-            buyBtn.style.display='block'
-            return}
+        buyBtn.style.display = "none";
+
+        if (!access_token) {
+            buyBtn.style.display = "block";
+            return;
+        }
+
         const video = document.getElementById("videoPlayer");
-        const hlsUrl = `/api/movies/${movieId}/hls`;
+        const signedHlsUrl = await fetchSignedHlsUrl(movieId, access_token);
         
+        if (!signedHlsUrl) {
+            buyBtn.style.display = "block";
+            showMessage("Ошибка при получении потока. Купите доступ.", "warning");
+            return;
+        }
+
         if (Hls.isSupported()) {
-            hls = new Hls({
+            hls = new Hls({ 
                 xhrSetup: function(xhr) {
                     xhr.setRequestHeader("Authorization", `Bearer ${access_token}`);
                 }
             });
-            hls.loadSource(hlsUrl);
+
+            hls.loadSource(signedHlsUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                
-                video.play();   
-                populateQualitySelector();
+                video.play();
+                populateQualitySelector(); 
             });
 
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                    msg = JSON.parse(data.networkDetails.response)
-                    if (data.response && data.response.code === 403) {
-                        buyBtn.style.display='block'
-                        showMessage(`${msg.detail}`, "warning");
-                    } else {
-                        showMessage("Ошибка загрузки HLS-потока. Проверьте сеть.", "warning");
+                    try {
+                        const msg = data.networkDetails.response;
+                        if (data.response && data.response.code === 403) {
+                            buyBtn.style.display = "block";
+                            showMessage(`${msg.detail}`, "warning");
+                        } else {
+                            showMessage("Ошибка загрузки HLS-потока. Проверьте сеть.", "warning");
+                        }
+                    } catch (e) {
+                        showMessage(e, "warning");
                     }
                 }
             });
 
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = hlsUrl;
+            video.src = signedHlsUrl;
             video.addEventListener("loadedmetadata", function () {
                 video.play();
             });
         } else {
-            showMessage("Ваш Браузер не поддреживает HLS streaming", "warning")
+            showMessage("Ваш браузер не поддерживает HLS streaming", "warning");
         }
     }
-
+    
     function populateQualitySelector() {
         const qualitySelector = document.getElementById("qualitySelector");
-        qualitySelector.innerHTML = `<option value="auto">Auto</option>`; // Reset options
-
+        qualitySelector.innerHTML = `<option value="-1">Auto</option>`; // Reset options
+    
+        if (!hls || !hls.levels || hls.levels.length === 0) {
+            console.warn("⚠️ No quality levels detected in HLS.");
+            return;  // Prevent errors if levels are not ready
+        }
+    
         hls.levels.forEach((level, index) => {
             let resolution = `${level.height}p`;
             let option = `<option value="${index}">${resolution}</option>`;
             qualitySelector.innerHTML += option;
         });
+    
+        qualitySelector.addEventListener("change", changeQuality); // Ensure event listener is added
     }
+    
 
     function changeQuality() {
         const qualitySelector = document.getElementById("qualitySelector");

@@ -17,7 +17,7 @@
         });
 
         function loadVideo2(movieId) {
-
+            
             const video = document.getElementById("previewVideo");
             const hlsUrl = `/api/movies/preview/${movieId}/hls`;
             
@@ -26,7 +26,6 @@
                 hls.loadSource(hlsUrl);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    
                     video.play();   
                     populateQualitySelector();
                 });
