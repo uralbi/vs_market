@@ -34,11 +34,11 @@
                       -->
                       <div>
                         <i class="bi bi-person-circle"></i>
-                        <h4>   {{room[1]|title}} </h4>
+                        <h4>   {{room[1]|title}}  <span> {{room[3]|time_ago}} </span> </h4>
                         {% for msg in room[2] %}
-                          <p>{{msg}}</p>
+                          <p> - {{msg}}</p>
                         {% endfor %}
-                          <small> {{room[3]|time_ago}} </small>
+                         
                       </div>
                     </a>
                   </li>
@@ -64,12 +64,11 @@
         <li> <a class="dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Войти </a> </li>
         <li> <a class="dropdown-item" href="/register"><i class="bi bi-pencil-square"></i> Регистрация</a> </li>
         {% else %}
-        <a class = "nav-link" href="/about"> 
-          <i class="bi bi-person-circle"></i>  {{current_user.username|title}} 
-        </a> 
+        <li><a class = "nav-link dropdown-item" href="/about"> 
+          <i class="bi bi-person-circle"></i> {{current_user.username|title}} | Профайл </a>
+        </li>  
         <div class="dropdown-divider"></div>
         <li> <a class="nav-link dropdown-item" href="/create-product"><i class="bi bi-file-earmark-richtext"></i> Создать обьявление</a>  </li>
-        
         
         {% if current_user.role == "ADMIN" %}
         <li> <a class ="nav-link dropdown-item" href="/movies/upload"><i class="bi bi-cloud-arrow-up"></i> Загрузить Видео</a> </li>

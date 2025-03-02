@@ -178,7 +178,7 @@
                     <a href="/messages?room_id=${room.chat_room_id}" class="text-decoration-none">
                     
                         Chat with ${room.other_username}  <span class="my_badge_unread"> 
-                        ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-warning"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
+                        ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-danger"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
                     </a>
                     <button class="btn btn-outline-danger btn-sm float-end" onclick="deleteChatRoom(${room.chat_room_id})">
                         <i class="bi bi-trash3"></i> 
