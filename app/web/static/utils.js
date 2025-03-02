@@ -67,3 +67,30 @@ function formatTimestamp(timestamp = new Date().toISOString()) {
     const options = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
     return dateObj.toLocaleString("en-US", options).replace(",", "");
 }
+
+function displayMovies(movies, div_id) {
+    const container = document.getElementById(div_id);
+    container.innerHTML = ""; // Clear previous content
+
+    if (movies.length === 0) {
+        container.innerHTML = "<p class='text-center'>No movies found.</p>";
+        return;
+    }
+
+    movies.forEach(movie => {
+        const movieCard = document.createElement("div");
+        
+        movieCard.innerHTML = `
+            <div class="card shadow-sm">
+                <img src="${movie.thumbnail_path || '/media/no_image.webp'}" class="card-img-top" alt="Movie Thumbnail">
+                <div class="card-body">
+                    <h5 class="card-title">${movie.title}</h5>
+                    <p class="card-text">${movie.description.substring(0, 100)}...</p>
+                    <a href="/movies/stream/?id=${movie.id}" class="btn btn-primary btn-sm">Смотреть</a>
+                    <a href="/movies/preview/?id=${movie.id}" class="btn btn-success btn-sm">Предпосмотр</a>
+                </div>
+            </div>
+        `;
+        container.appendChild(movieCard);
+    });
+}

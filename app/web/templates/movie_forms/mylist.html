@@ -2,7 +2,7 @@
 <h2>My Movies</h2>
     
     
-    <div id="movies-list" class="">  </div>
+    <div id="movies-list" class=""></div>
 
     <script>
 
@@ -24,8 +24,9 @@
                 }
 
                 const movies = await response.json();
-                displayMovies(movies);
+                displayListMovies(movies);
             } catch (error) {
+                console.log(error)
                 document.getElementById("movies-list").innerHTML = `
                 <div class="card p-3 mb-3">
                 <div class="d-flex align-items-center justify-content-between">
@@ -38,7 +39,7 @@
             } 
         }
 
-        function displayMovies(movies) {
+        function displayListMovies(movies) {
             const moviesList = document.getElementById("movies-list");
             moviesList.innerHTML = ""; // Clear existing list
         

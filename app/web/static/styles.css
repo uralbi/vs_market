@@ -688,3 +688,7 @@ background-color: #f6f9ff;
     padding: 10px;
     margin: 10px 0;
 }
+
+.video-container video {
+    /* border: solid 10px gray; */
+}

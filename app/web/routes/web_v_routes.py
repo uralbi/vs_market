@@ -24,6 +24,11 @@ def stream_movie_page(request: Request, context: dict = Depends(global_context))
 
     return templates.TemplateResponse("movie_forms/search.html", {**context, })
 
+@router.get("/preview")
+def stream_movie_page(request: Request, context: dict = Depends(global_context)):
+    """ Movie View page """
+
+    return templates.TemplateResponse("movie_forms/preview.html", {**context, })
 
 @router.get("/stream")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):

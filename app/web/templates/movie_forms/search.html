@@ -28,7 +28,7 @@
     async function searchMovies() {
         let query = document.getElementById("searchQuery").value.trim();
         if (!query) {
-            alert("Please enter a search term.");
+            showMessage("Введите слова для поиска", "warning")
             return;
         }
 
