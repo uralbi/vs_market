@@ -8,10 +8,10 @@ class ChatService:
     def __init__(self, db: Session):
         self.repo = ChatRepository(db)
 
-    def get_or_create_chat_room(self, user1_id: int, user2_id: int):
+    def get_or_create_chat_room(self, user1_id: int, user2_id: int, subject: str):
         if user1_id == user2_id:
             raise HTTPException(status_code=403, detail="No counterport")
-        return self.repo.get_or_create_chat_room(user1_id, user2_id)
+        return self.repo.get_or_create_chat_room(user1_id, user2_id, subject)
 
     def get_unread_chat_rooms(self, user_id: int):
         return self.repo.get_unread_chat_rooms(user_id)

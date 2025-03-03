@@ -46,7 +46,7 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
     prod = product_service.get_product_by_id(product_id, None)
     
     chat_service = ChatService(db)
-    room = chat_service.get_or_create_chat_room(user_id, receiver_id)
+    room = chat_service.get_or_create_chat_room(user_id, receiver_id, prod.name)
     
     return templates.TemplateResponse("chat.html", {**context, "other_id": receiver_id, "room_id": room.id, 'product': prod.name })
 

@@ -10,7 +10,8 @@ from typing import Dict
 class ChatConsumer:
     active_connections: Dict[int, WebSocket] = {}
     user_map: Dict[int, str] = {}
-    async def connect(self, websocket: WebSocket, user_id: int, receiverid: int, db: Session):
+    
+    async def connect(self, websocket: WebSocket, user_id: int, db: Session):
         """Accepts WebSocket connection and stores the user."""
         
         await websocket.accept()
@@ -31,7 +32,7 @@ class ChatConsumer:
             del self.active_connections[user_id]
             print(f"User {user_id} disconnected.")
 
-    async def receive_message(self, websocket: WebSocket, user_id: int, receiverid: int, db):
+    async def receive_message(self, websocket: WebSocket, user_id: int, subject: str, db):
         """Listens for messages, saves them, and forwards them to the receiver."""
         try:
             while True:
@@ -41,7 +42,7 @@ class ChatConsumer:
                 sender_username = self.user_map.get(user_id, f"User-{user_id}")  # Fallback if not found
 
                 chat_service = ChatService(db)
-                chat_room = chat_service.get_or_create_chat_room(user_id, receiver_id)
+                chat_room = chat_service.get_or_create_chat_room(user_id, receiver_id, subject)
                 chat_service.save_message(chat_room.id, user_id, message_content)
                 if receiver_id in self.active_connections:
                     await self.active_connections[receiver_id].send_json({

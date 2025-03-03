@@ -205,11 +205,13 @@
             });
     
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                console.log(`Error: ${response.status}`);
+            } else {
+                showMessage("Чат был удален!", "success")
+                loadChatRooms(token); // Reload chat rooms after deletion
             }
-    
-            alert("Chat room deleted successfully!");
-            loadChatRooms(); // Reload chat rooms after deletion
+            
+
         } catch (error) {
             console.error("Failed to delete chat room:", error);
             alert("Error deleting chat room. Please try again.");

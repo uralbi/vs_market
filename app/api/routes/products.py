@@ -8,7 +8,7 @@ from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
 from app.services.image_service import ImageService
 from app.infra.kafka.kafka_producer import send_kafka_message
-import asyncio, json, datetime
+import asyncio, json, os
 import redis.asyncio as redis
 from app.domain.security.auth_user import user_authorization
 
@@ -121,7 +121,7 @@ async def create_product(
     is_dollar: bool = Form(False),
     activated: bool = Form(True),
     category: str = Form(...),
-    images: List[UploadFile] = File(None),  # ✅ Accept multiple images
+    images: List[UploadFile] = File(None),  # Accept multiple images
     token: str = Depends(token_scheme),
     db: Session = Depends(get_db)
 ):
@@ -140,14 +140,17 @@ async def create_product(
         is_dollar=is_dollar,
         activated=activated,
     )
- 
-    # Create product
+     # Create product
     new_product = product_service.create_product(user.email, product_data)
     
-    if images or len(images) > 0:
-        img_service = ImageService()
+    img_service = ImageService()
+    if images and len(images) > 0:
         image_urls = [await img_service.process_and_store_image(image) for image in images] # Process and store images
         product_service.add_images_to_product(new_product.id, image_urls) # Associate images with product
+    else:
+        default_img = os.path.abspath("app/web/static/icons/no_image.webp")
+        image_urls = [await img_service.process_and_store_image(default_img)]
+        product_service.add_images_to_product(new_product.id, image_urls)
         
     return new_product
 

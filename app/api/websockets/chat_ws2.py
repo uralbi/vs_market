@@ -10,11 +10,11 @@ router = APIRouter(
 
 chat_consumer = ChatConsumer()
 
-@router.websocket("/{user_id}/{receiverid}")
-async def websocket_chat(websocket: WebSocket, user_id: int, receiverid: int, db: Session = Depends(get_db)):
+@router.websocket("/{user_id}/{receiverid}/{subject}")
+async def websocket_chat(websocket: WebSocket, user_id: int, receiverid: int, subject: str, db: Session = Depends(get_db)):
     """WebSocket route that delegates connection handling to ChatConsumer."""
     if user_id == receiverid:
         await websocket.close(code=1003, reason="No counterpart")
         return
-    await chat_consumer.connect(websocket, user_id, receiverid, db)
-    await chat_consumer.receive_message(websocket, user_id, receiverid, db)
+    await chat_consumer.connect(websocket, user_id, db)
+    await chat_consumer.receive_message(websocket, user_id, subject, db)

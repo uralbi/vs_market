@@ -63,7 +63,7 @@ class ProductService:
         
     def delete_product(self, product_id: int, user):
         """ Delete a product and its associated images """
-        product = self.product_repo.get_product_by_id(product_id, user)
+        product = self.product_repo.get_product_by_id(product_id)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 

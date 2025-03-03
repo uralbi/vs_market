@@ -5,7 +5,7 @@ let user2Id;
 let socket;
 let userId;
 let userName;
-
+let subject = productName
 
 async function loadChatHistory(accessToken, room_id) {
     try {
@@ -20,9 +20,13 @@ async function loadChatHistory(accessToken, room_id) {
 
         const data = await response.json();
         const chatBox = document.getElementById("chatBox");
-
+        const chat_title = document.getElementById("chat_title");
         chatBox.innerHTML = "";  // Clear previous messages
-
+        
+        if (data.subject) {
+            chat_title.innerText= data.subject;
+        }
+        
         data.messages.forEach(msg => {
             displayMessage(msg.sender_username, msg.content, msg.sender_id === userId ? "msg_sent" : "msg_received", msg.timestamp);
         });
@@ -47,7 +51,7 @@ async function InitializeChat(room_id, access_token){
         recieverId = user2Id;
         userName = user.user_name;
         
-        socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}`);
+        socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}/${subject}`);
 
         socket.onopen = () => {
             console.log("Connected to WebSocket");
@@ -75,9 +79,6 @@ async function InitializeChat(room_id, access_token){
 };
 
 InitializeChat(room_id, accessToken);
-
-
-// Move sendMessage function OUTSIDE `getUserId().then(...)`
 
 
 function sendMessage() {

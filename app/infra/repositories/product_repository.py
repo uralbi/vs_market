@@ -73,7 +73,7 @@ class ProductRepository:
 
     def delete_product(self, product_id: int, user):
         """Delete a product and its images."""
-        product = self.get_product_by_id(product_id, user)
+        product = self.get_product_by_id(product_id)
         
         if not product:
             return False
@@ -83,7 +83,8 @@ class ProductRepository:
             
         # Delete images from disk before deleting from DB
         image_paths = [image.image_url for image in product.images]  # Get all image file paths
-        delete_images_from_disk(image_paths)                
+        if image_paths:
+            delete_images_from_disk(image_paths)                
         return True
 
     def get_latest_product(self):

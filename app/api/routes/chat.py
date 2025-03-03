@@ -55,8 +55,9 @@ def get_chat_history(room_id: int, token: str = Depends(token_scheme), db: Sessi
     chat_service = ChatService(db)
     messages = chat_service.get_chat_history(room_id, user.id)
     chat_service.mark_messages_as_read(user.id, [room_id,])
-    
+    room = chat_service.get_chat_room_by_id(room_id)
     return {
+        "subject" : room.subject,
         "messages": [
             {
                 "sender_id": sender_id,
@@ -77,7 +78,6 @@ def get_user_chat_rooms(token: str = Depends(token_scheme), db: Session = Depend
     user = user_authorization(token, db)
     chat_service = ChatService(db)
     chat_rooms = chat_service.get_user_chat_rooms(user.id)
-    # chat_service.mark_messages_as_read(user.id, [room["chat_room_id"] for room in chat_rooms])
     
     return [
         {

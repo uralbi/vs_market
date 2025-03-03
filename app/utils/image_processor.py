@@ -8,7 +8,11 @@ WIDTH, HEIGHT = 600, 600  # Max size
 
 def preprocess_image(image):
     """Processes an image (resize, crop, and convert to WEBP)."""
-    img = Image.open(image.file)
+    print("image type:", type(image))
+    if type(image) != str:
+        img = Image.open(image.file)
+    else:
+        img = Image.open(image)
     if img.mode != "RGB":
         img = img.convert("RGB")
     img.thumbnail((WIDTH, HEIGHT))

@@ -10,7 +10,7 @@ class ChatRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_or_create_chat_room(self, user1_id: int, user2_id: int) -> ChatRoom:
+    def get_or_create_chat_room(self, user1_id: int, user2_id: int, subject: str) -> ChatRoom:
         """Retrieve an existing chat room between two users or create a new one."""
         chat_room = (
             self.db.query(ChatRoom)
@@ -23,7 +23,7 @@ class ChatRepository:
             .first()
         )
         if not chat_room:
-            chat_room = ChatRoom(user1_id=user1_id, user2_id=user2_id)
+            chat_room = ChatRoom(user1_id=user1_id, user2_id=user2_id, subject=subject)
             self.db.add(chat_room)
             self.db.commit()
             self.db.refresh(chat_room)
@@ -74,14 +74,14 @@ class ChatRepository:
                     ) > 0, 1),
                     else_=0
                 ).label("has_unread_messages"),
-                OtherUser.username  # ✅ Correctly fetch the other user's username
+                OtherUser.username  # Correctly fetch the other user's username
             )
             .outerjoin(Message, ChatRoom.id == Message.chat_room_id)
             .join(OtherUser, 
                 case(
                     (ChatRoom.user1_id == user_id, ChatRoom.user2_id),
                     (ChatRoom.user2_id == user_id, ChatRoom.user1_id)
-                ) == OtherUser.id,  # ✅ Dynamically select the correct user
+                ) == OtherUser.id,  # Dynamically select the correct user
                 isouter=True
             )
             .filter((ChatRoom.user1_id == user_id) | (ChatRoom.user2_id == user_id))
