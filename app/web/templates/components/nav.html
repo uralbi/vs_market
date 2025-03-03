@@ -1,8 +1,12 @@
 
-<nav class="nav justify-content-end fixed-top">
-        
-    <a class = "nav-link" href="/"><i class="bi bi-box-seam"></i> Объявления</a>
+
+<nav class="nav fixed-top justify-content-end">
     
+    <div class="nav_brand_img">
+      <img src="{{ url_for('static', path='/icons/logo.png') }}"/>
+      iMarket
+    </div>
+    <a class = "nav-link" href="/"><i class="bi bi-box-seam"></i> Объявления</a>
     <a class = "nav-link" href="/movies/search"> <i class="bi bi-film"></i> Фильмы</a>
 
     {% if current_user %}
@@ -82,5 +86,7 @@
         <li><a class="nav-link  dropdown-item" role="button" onclick="toggleTheme()" > <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a></li>
     </ul>
 
-    <div id="status_messages" class="text-center alert fade show" role="alert"></div>
+  <div id="status_messages" class="text-center alert fade show" role="alert"></div>
+  
 </nav>
+

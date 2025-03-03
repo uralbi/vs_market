@@ -32,14 +32,14 @@ body button {
 
 body button:hover {}
 
-
-
 h1 {
     font-size: 24px !important;
     margin-bottom: 0;
     font-weight: 600;
     color: var(--dark-bg-color) !important;
 }
+
+
 
 .form-control, input, .card-body,  
 .card-body li, .list-group-item {
@@ -77,7 +77,6 @@ h1 {
 }
 
 .product-card:hover {
-    border: solid 4px var(--dark-bg-color);
     transform: scale(1.1) !important;
     transition: all 0.5s;
 
@@ -373,6 +372,21 @@ h1 {
 }
 
 /* NAVIGATION */
+
+.nav_brand_img {
+    height: 30px;
+    position: absolute;
+    top: 5px;
+    left: 5%;
+    color: var(--link-color4)
+}
+
+.nav_brand_img img{
+    margin: 0 6px;
+    display: inline-block;
+    height: 100%;
+    filter: drop-shadow(0 0 3px white);
+}
 
 .unread_rooms_note {
     border: solid 1px rgb(219, 207, 207);

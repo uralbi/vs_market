@@ -106,11 +106,10 @@ function displayMovies(movies, div_id) {
             <div class="card shadow-sm">
                 <img src="${movie.thumbnail_path || '/media/no_image.webp'}" class="card-img-top" alt="Movie Thumbnail">
                 <div class="card-body">
-                    <h5 class="card-title">${movie.title} <span class="movie_year">${formatYear(movie.created_at)}</span> </h5>
+                    <h5 class="card-title">${movie.title}   </h5>
                     <p class="card-text">${truncatedDescription}   </p>
                     <p class="movie_duration">${(movie.duration / 60).toFixed(0)} мин </p>
-                    
-                    <p class="movie_price">${movie.price} <span>cом</span></p>
+                    <p class="movie_price">${movie.price === 0 ? 'Бесплатно' : movie.price + ' <span>cом</span>'}</p>
                     <a href="/movies/preview/?id=${movie.id}" class="btn btn-outline-success btn-sm m-0"><i class="bi bi-play-btn me-1"></i>preview</a>
                     <a href="/movies/stream/?id=${movie.id}" class="play_btn"><i class="bi bi-play-circle-fill"></i></a>
                     
