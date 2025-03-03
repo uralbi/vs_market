@@ -8,7 +8,7 @@
     --link-color2: #434094;
     --link-color3: #7182cf;
     --link-color4: #bec8f3;
-    --form-bg-color: #ced2df;
+    --form-bg-color: #e5e7ed;
     --form-label-color: #7182cf;
 
 }
@@ -46,14 +46,11 @@ h1 {
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
 }
-.card-body {
-    background-color: var(--light-bg-color) !important;
-    border-radius: 4px;
-}
+.card-body {border-radius: 4px;}
 
-.form-control       { background: var(--form-bg-color) !important; }
+/* .form-control       { background: var(--form-bg-color) !important; }
 .form-control:focus { background: white !important; }
-.list-group-item    { background: var(--light-bg-color) !important; }
+.list-group-item    { background: var(--light-bg-color) !important; } */
 
 .form-label {
     margin: 6px 0 0 0 !important;
@@ -72,13 +69,25 @@ h1 {
     float: left;
     width: 200px;
     height: 204px !important;
+    border: solid 1px gray;
     /* box-shadow: 2px 2px 4px var(--link-color3),
                 -1px -1px 6px #ffffff; */
+    transition: all 0.5s;
+    border-radius: 6px;
 }
 
-.card {
-    border: none !important;
+.product-card:hover {
+    border: solid 4px var(--dark-bg-color);
+    transform: scale(1.1) !important;
+    transition: all 0.5s;
+
+    /* box-shadow: -8px -8px 50px 10px var(--dark-bg-color2),
+                 -8px 8px 50px 10px var(--dark-bg-color2),
+                8px -8px 50px 10px var(--dark-bg-color2),
+                8px 8px 50px 10px var(--dark-bg-color2); */
+    z-index: 2;
 }
+
 .product-card p {
     margin: 0px;
     padding: 0px;
@@ -335,7 +344,8 @@ h1 {
 .product_price {
     color: var(--price-color);
     margin-top: 16px;
-    border-bottom: solid 1px #b9bac4;
+    border-bottom: solid 0.1px #b9bac4;
+    padding-bottom: 6px;
 }
 
 .product_category {
@@ -351,12 +361,12 @@ h1 {
 
 .product_description{
     white-space: pre-line;
-    border-bottom: solid 1px #b9bac4;
+    border-bottom: solid 0.1px #b9bac4;
 }
 
 .item_detail_container, .product_info_card {
     /* box-shadow: -1px -1px 5px #caccdb, 1px 1px 5px #3a416f; */
-    background: #dadbe6;
+    background: #f0f2ff;
     border-radius: 10px;
     padding: 10px;
     margin: 10px 0;
@@ -376,7 +386,6 @@ h1 {
 .my_list_group {
     padding: 4px 6px;
     list-style: none;
-    background-color: #e3e5ed;
     border-radius: 4px;
 }
 
@@ -427,11 +436,11 @@ h1 {
 
 .dark-mode .card p, .dark-mode .card h4, 
 .dark-mode .card label {
-    color: rgb(152, 152, 152) !important;
+    color: rgb(120, 125, 165) !important;
 }
 
 .dark-mode .card-title {
-    color: rgb(192, 192, 192) !important;
+    color: rgb(130, 134, 171) !important;
 }
 
 .dark-mode .card textarea{
@@ -447,9 +456,22 @@ h1 {
     color: rgb(113, 130, 207) !important;
 }
 
-.dark-mode .btn {
-    color: rgb(195, 199, 219) !important
+.dark-mode .pin_btn i, .dark-mode .chat_btn i{
+    
 }
+
+.dark-mode .pin_btn:hover, .dark-mode .chat_btn:hover{
+    background: none;
+}
+
+.dark-mode .pin_btn i:hover, .dark-mode .chat_btn i:hover{
+    background: none;
+}
+
+.dark-mode .btn {
+    color: rgb(204, 203, 203) !important;
+}
+
 .dark-mode a:hover {
     color: rgb(173, 183, 227) !important;
   }
@@ -518,6 +540,19 @@ h1 {
     background: #131528;
     box-shadow: none;
 }
+
+.dark-mode .movie-card .card-body {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), 
+                                        rgba(0, 0, 0, 0.7),
+                                        rgba(0, 0, 0, 0));
+    padding-top: 100px;
+}
+
+.dark-mode .movie-card .play_btn i{
+    padding: 0;
+    filter: drop-shadow(0 0 4px rgb(93, 90, 90)) 
+}
+
 /* NAVIGATION */
 .nav {
     background-color: #2c315c;
@@ -691,23 +726,29 @@ background-color: #f6f9ff;
     grid-auto-columns: 1fr;
     height: auto;
     overflow: hidden;
-    gap: 4px;
-    padding-bottom: 10px;
+    gap: 6px;
+    padding: 10px 16px;
     border-bottom: solid 1px gray;
+    float: left;
 }
   
   .thumbnail {
     width: 100%;
-    max-width: 140px;
+    max-width: 100px;
     height: auto;
     max-height: 106px;
     object-fit: cover;
     border-radius: 4px;
+    transition: 0.5s;
   }
   
 
 .thumbnail:hover, .thumbnail.active {
-    border: 3px solid #007bff;
+    /* border: 3px solid #007bff; */
+    transition: 0.5s;
+    transform: scale(1.05);
+    box-shadow: -2px -2px 4px rgb(203, 203, 203), 
+                2px 2px 4px rgb(68, 68, 68);
 }
 
 .video-container video {
@@ -715,11 +756,11 @@ background-color: #f6f9ff;
 }
 
 .movie_price {
-    margin-top: 2px;
+    margin: 2px 0 0 0;
     font-size: 0.8em;
     font-weight: 100;
-    float:right;
-    color: var(--link-color3);
+    color: var(--link-color4);
+    margin-bottom: 6px;
 }
 
 .movie_price span {
@@ -727,15 +768,92 @@ background-color: #f6f9ff;
     margin-top: 2px;
     font-size: 0.8em;
     font-weight: 100;
-    float:right;
 }
 
 .movie_duration {
-    color: rgb(112, 112, 112);
-    padding-left: 2px;
-    margin-top: 2px;
+    color: rgb(239, 231, 231);
     font-size: 0.8em;
     font-weight: 100;
-    float:right;
+    margin-bottom: 0px;
 }
 
+.movie_year {
+    font-size: 0.7em;
+    font-weight: 100;
+    margin-bottom: 0px;
+    border: solid 0.4px gray;
+    padding: 1px 4px;
+}
+
+.movie-card {
+    position: relative;
+    width: 250px !important;
+    height: 350px;
+    background-position: center;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
+}
+
+
+.movie-card:hover {
+    transform: scale(1.05);
+    /* filter: drop-shadow(0 0 10px gray) */
+}
+
+.movie-card .card {
+    border-radius: 14px;
+    border: none;
+}
+
+.movie-card img {
+    width: 100%;
+    height: 350px;
+    border-radius: 14px;
+}
+
+.movie-card .card-body {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    border-radius: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), 
+                                        rgba(0, 0, 0, 0));
+    background-color: transparent !important;
+    padding-top: 60px;
+    border-bottom-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+}
+
+
+.movie-card .card-title {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.movie-card .card-text {
+    color: rgb(204, 204, 204);
+    display: inline-block;
+    font-size: 15px;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.movie-card .play_btn i{
+    padding: 0;
+    filter: drop-shadow(0 0 4px rgb(191, 191, 191)) 
+}
+
+.movie-card .play_btn {
+    position: absolute;
+    bottom: 4px;
+    right: 14px;
+    color: white;
+    font-size: 2.5em;
+    padding: 0px;
+}
+
+.movie-card .play_btn:hover > i{
+    /* color: rgb(189, 198, 231); */
+    filter: drop-shadow(0 0 4px rgb(0, 0, 0))   
+}

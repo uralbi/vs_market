@@ -68,6 +68,17 @@ function formatTimestamp(timestamp = new Date().toISOString()) {
     return dateObj.toLocaleString("en-US", options).replace(",", "");
 }
 
+function formatYearMonth(timestamp = new Date().toISOString()) {
+    const dateObj = new Date(timestamp);
+    return `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatYear(timestamp = new Date().toISOString()) {
+    const dateObj = new Date(timestamp);
+    return `${dateObj.getFullYear()}`;
+}
+
+
 function displayMovies(movies, div_id) {
     const container = document.getElementById(div_id);
     container.innerHTML = ""; // Clear previous content
@@ -78,30 +89,37 @@ function displayMovies(movies, div_id) {
     }
 
     movies.forEach(movie => {
-        const movieCard = document.createElement("div");
         let maxLength = 20;
         let truncatedName = movie.title.length > maxLength 
         ? truncatedName.substring(0, maxLength) + " ..." 
         : movie.title;
         
-        let maxLength_desc = 60
+        let maxLength_desc = 50
         let truncatedDescription = movie.description.length > maxLength_desc
         ? movie.description.substring(0, maxLength_desc) + " ..." 
         : movie.description;
+
+        const movieCard = document.createElement("div");
+        movieCard.classList.add("movie-card");
 
         movieCard.innerHTML = `
             <div class="card shadow-sm">
                 <img src="${movie.thumbnail_path || '/media/no_image.webp'}" class="card-img-top" alt="Movie Thumbnail">
                 <div class="card-body">
-                    <h5 class="card-title">${movie.title} <span class="movie_price">${movie.price} <span>cом</span></span></h5>
-                    <p class="card-text">${truncatedDescription} <span class="movie_duration">${(movie.duration / 60).toFixed(0)} мин </span></p>
-                    <a href="/movies/stream/?id=${movie.id}" class="btn btn-outline-primary btn-sm m-1"><i class="bi bi-tv me-1"></i>Смотреть</a>
-                    <a href="/movies/preview/?id=${movie.id}" class="btn btn-outline-success btn-sm m-1"><i class="bi bi-play-btn me-1"></i>Предпосмотр</a>
+                    <h5 class="card-title">${movie.title} <span class="movie_year">${formatYear(movie.created_at)}</span> </h5>
+                    <p class="card-text">${truncatedDescription}   </p>
+                    <p class="movie_duration">${(movie.duration / 60).toFixed(0)} мин </p>
+                    
+                    <p class="movie_price">${movie.price} <span>cом</span></p>
+                    <a href="/movies/preview/?id=${movie.id}" class="btn btn-outline-success btn-sm m-0"><i class="bi bi-play-btn me-1"></i>preview</a>
+                    <a href="/movies/stream/?id=${movie.id}" class="play_btn"><i class="bi bi-play-circle-fill"></i></a>
+                    
                 </div>
             </div>
         `;
         container.appendChild(movieCard);
     });
+
 }
 
 function createProductCard(product, delay) {

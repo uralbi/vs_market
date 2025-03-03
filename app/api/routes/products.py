@@ -50,10 +50,8 @@ async def search_products(
     #     message={"query": query, "timestamp": str(datetime.datetime.now())},
     # )
     
-    # Generate cache key
+    
     cache_key = f"search:{query}:{limit}:{offset}"
-
-    # Check if result exists in cache
     cached_results = await redis_client.get(cache_key)
     if cached_results:
         return json.loads(cached_results)
