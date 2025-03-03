@@ -36,13 +36,18 @@
 
 <hr>
 
-<h5>Chat Rooms:</h5>
-        <ul class="list-group" id="chatRoomsList"></ul>
+<h5>Сообщения</h5>
+    <ul class="list-group" id="chatRoomsList"></ul>
+
 <hr>
 
 {% if current_user.role in ["ADMIN", "CREATOR"] %}
     {% include "movie_forms/mylist.html" %}
 {% endif %}
+
+
+{% include "movie_forms/order_list.html" %}
+<hr>
 
 {% include "product_forms/mylist.html" %}
 
@@ -177,7 +182,8 @@
                 listItem.innerHTML = `
                     <a href="/messages?room_id=${room.chat_room_id}" class="text-decoration-none">
                     
-                        Chat with ${room.other_username}  <span class="my_badge_unread"> 
+                        Chat with ${room.other_username}  <small class="text text-secondary">(${room.subject})</small>
+                        <span class="my_badge_unread"> 
                         ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-danger"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
                     </a>
                     <button class="btn btn-outline-danger btn-sm float-end" onclick="deleteChatRoom(${room.chat_room_id})">

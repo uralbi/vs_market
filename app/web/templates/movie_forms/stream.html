@@ -101,8 +101,6 @@
 
 <script>
 
-
-
     document.addEventListener("DOMContentLoaded", function () {
         const video = document.getElementById("videoPlayer");
         const movieId = new URLSearchParams(window.location.search).get("id");
@@ -114,6 +112,7 @@
     });
 
     async function getMovieProgress(movieId, access_token) {
+        if (!access_token){  return };
         let requestBody = JSON.stringify({ access_token: access_token });
         const response = await fetch(`/api/movies/${movieId}/progress`, {
             method: "POST",
@@ -150,9 +149,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const access_token = getAccessTokenFromCookie();
-        if (!access_token){
-            showMessage("Для промостра надо авторизоваться!", "warning")
-            return}
+        if (!access_token){ return }
         const videoElement = document.getElementById("videoPlayer");
         const movieId = videoElement.dataset.movieId;
         let lastSavedTime = 0;
@@ -187,21 +184,21 @@
         }
     }
     
-    
     let hls;
 
     async function loadVideo(movieId) {
-        const access_token = getAccessTokenFromCookie();
+        let curr_token = getAccessTokenFromCookie();
+        if (!curr_token) {
+            curr_token = "NONE" }
         const buyBtn = document.getElementById("buy_btn");
         buyBtn.style.display = "none";
 
-        if (!access_token) {
+        if (!curr_token) {
             buyBtn.style.display = "block";
-            return;
-        }
+            return; }
 
         const video = document.getElementById("videoPlayer");
-        const signedHlsUrl = await fetchSignedHlsUrl(movieId, access_token);
+        const signedHlsUrl = await fetchSignedHlsUrl(movieId, curr_token);
         
         if (!signedHlsUrl) {
             buyBtn.style.display = "block";
@@ -212,7 +209,7 @@
         if (Hls.isSupported()) {
             hls = new Hls({ 
                 xhrSetup: function(xhr) {
-                    xhr.setRequestHeader("Authorization", `Bearer ${access_token}`);
+                    xhr.setRequestHeader("Authorization", `Bearer ${curr_token}`);
                 }
             });
 

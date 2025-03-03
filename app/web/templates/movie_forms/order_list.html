@@ -1,0 +1,44 @@
+<h5>Мои фильмы</h5>
+    <div id="purchased_movies"></div>
+<hr>
+
+
+<script>
+    async function fetchOrderedMovies() {
+        const accessToken = getAccessTokenFromCookie();  // Replace with your actual function
+        if (!accessToken) { return; }
+
+        try {
+            const response = await fetch("/api/movies/my_orders", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            });
+
+            if (!response.ok) throw new Error("Failed to fetch movies");
+
+            const movies = await response.json();
+            if (movies.length === 0) {
+                document.getElementById("purchased_movies").innerHTML = "<p>No ordered movies found.</p>";
+                return;
+            }
+
+            const movieList = movies.map(movie => `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-title">${movie.movie.title} Status: ${movie.status} | Ordered on: ${new Date(movie.created_at).toLocaleDateString()}</div>
+                        <a href="/movies/stream/?id=${movie.movie.id}" class="btn btn-primary btn-sm">Watch</a>
+                    </div>
+                </div>
+            `).join("");
+
+            document.getElementById("purchased_movies").innerHTML = movieList;
+        } catch (error) {
+            console.error("Error fetching movies:", error);
+            document.getElementById("purchased_movies").innerHTML = "<p>Error loading movies. Please try again later.</p>";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchOrderedMovies);
+</script>

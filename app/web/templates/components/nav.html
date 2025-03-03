@@ -31,11 +31,9 @@
                 </li>
                 
                 {% for room in rooms%}
+                  
                   <li class="message-item">
                     <a href="/messages?room_id={{room[0]}}">
-                      <!-- Favicons 
-                      <img src="assets/img/messages-1.jpg" alt="" class="rounded-circle">
-                      -->
                       <div>
                         <i class="bi bi-person-circle"></i>
                         <h4>   {{room[1]|title}}  <span> {{room[3]|time_ago}} </span> </h4>

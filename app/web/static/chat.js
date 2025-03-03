@@ -7,6 +7,9 @@ let userId;
 let userName;
 let subject = productName
 
+if (!subject){
+    subject = "-"
+}
 async function loadChatHistory(accessToken, room_id) {
     try {
         const response = await fetch(`/chat/messages?room_id=${room_id}`, {

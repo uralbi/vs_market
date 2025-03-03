@@ -80,11 +80,12 @@ def get_user_chat_rooms(token: str = Depends(token_scheme), db: Session = Depend
     chat_rooms = chat_service.get_user_chat_rooms(user.id)
     
     return [
-        {
+        {   
             "chat_room_id": room['chat_room_id'],  
             "other_user_id": room["other_user_id"],  
             "other_username": room["other_user_username"],
-            "has_unread_messages": room["has_unread_messages"] 
+            "has_unread_messages": room["has_unread_messages"],
+            "subject": room['subject'],
         }
         for room in chat_rooms
     ]

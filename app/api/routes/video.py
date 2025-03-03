@@ -65,7 +65,7 @@ def generate_qr(movie_id: int, token: str = Depends(token_scheme), db: Session =
     order.status="COMPLETED"
     db.commit()
     
-    return {"qr_path": "media/movie_24.png", "price": 100}
+    return {"qr_path": "media/movie_50.png", "price": 100}
     # return FileResponse(qr_path)
 
 
@@ -138,6 +138,35 @@ async def update_movie(id: int,
         updated_movie = movie  # No changes to title/description/is_public
 
     return {"message": "Movie updated successfully", "movie": updated_movie}
+
+
+@router.get("/my_orders")
+def get_my_ordered_movies(token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """
+    Fetch all movies uploaded by the authenticated user.
+    """
+    user = user_authorization(token, db)  # Extract user from token
+    
+    order_service = OrderService(db)
+    my_orders = order_service.get_user_orders(user.id)
+    # order: user_id, movie_id, status, created_at
+    movie_service = MovieService(db)    
+    orders_with_movies = []
+    for order in my_orders:
+        try:
+            movie = movie_service.get_movie_by_id(order.movie_id)  # Get movie object
+            if movie:
+                orders_with_movies.append({
+                    "user_id": order.user_id,
+                    "movie": movie,                                 # Replace movie_id with movie object
+                    "status": order.status,
+                    "created_at": order.created_at
+                })
+        except HTTPException as e:
+            if e.status_code == 404:                                # Handle movie not found or not accessible
+                continue
+
+    return orders_with_movies
 
 
 @router.get("/my")
@@ -395,10 +424,14 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     """
     Serve the master `.m3u8` playlist with signed URLs for variant `.m3u8` files and encryption keys.
     """
-    user = user_authorization(token, db)
     movie_service = MovieService(db)
     movie = movie_service.get_movie_by_id(movie_id)
-
+    
+    if movie.price > 0:
+        user = user_authorization(token, db)
+        order_service = OrderService(db)
+        if not order_service.check_order_status(user.id, movie_id):
+            return JSONResponse({"detail": "Unauthorized"}, status_code=401)    
     if not movie:
         return JSONResponse({"detail": "Movie not found"}, status_code=404)
 

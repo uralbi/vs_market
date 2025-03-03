@@ -2,7 +2,6 @@
 <h2>My Products</h2>
 <div id="productList"></div>
 
-
 <script>
 async function fetchMyProducts() {
     let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
@@ -34,7 +33,7 @@ function displayProducts(products) {
         productListDiv.innerHTML = "<p>No products found.</p>";
         return;
     }
-
+    // productName += `<span class="card-text"> - ${productDescription} </span>`;
     products.forEach(product => {
         let productDiv = document.createElement("div");
         productDiv.classList.add("product-card");
@@ -42,24 +41,19 @@ function displayProducts(products) {
         
         let productName = product.name;
         let productDescription = product.description;
-        productName += `<span class="card-text"> - ${productDescription} </span>`;
+        
         productDiv.innerHTML = `
-                <div class="card-img-top">
-                    <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-inside">
-                </div>
-                
-                <div class="card-body">
-                    <a href="/product/${product.id}"><h5 class="card-title">${productName} </h5></a>
-                    <small class="is_active text-${product.activated? "success": "danger"}"> ${product.activated? "Активный &#9889;": "Не активный &#10060;"} </small>
-                    <p class="card-price">
-                        ${displayPrice(product.price, product.is_dollar)}
-                    </p>
-                    
-                    <button class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="deleteProduct(${product.id})"> &#128465;	</button>
-                    <a class="btn btn-sm btn-outline-success my_item_update_btn" href="/update-product/${product.id}" > &#128395;</a>
-                    
-                </div>
-                `;
+            <div class="card-img-top">
+                <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-inside">
+            </div>
+            <div class="card-body">
+                <a href="/product/${product.id}"><h5 class="card-title">${productName.substring(0, 20)} </h5></a>
+                <small class="is_active text-${product.activated? "success": "danger"}"> ${product.activated? "Активный &#9889;": "Не активный &#10060;"} </small>
+                <p class="card-price"> ${displayPrice(product.price, product.is_dollar)} </p>
+                <button class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="deleteProduct(${product.id})"> &#128465;	</button>
+                <a class="btn btn-sm btn-outline-success my_item_update_btn" href="/update-product/${product.id}" > &#128395;</a>
+            </div>
+            `;
         productListDiv.appendChild(productDiv);
     });
 }

@@ -21,7 +21,7 @@ class MovieService:
         return self.repo.create_movie(movie)
 
     def get_movie_by_id(self, movie_id: int, user=None):
-        """Retrieve a movie by ID."""
+        """Retrieve a movie by ID. User object can be passed to get not public movies"""
         movie = self.repo.get_movie_by_id(movie_id)
         if not movie:
             raise HTTPException(status_code=404, detail="Movie not found")
@@ -29,7 +29,7 @@ class MovieService:
             return movie
         if user and movie.owner_id == user.id:
                 return movie
-        return HTTPException(status_code=404, detail="Movie not found")
+        raise HTTPException(status_code=404, detail="Movie not found")
     
     def get_movies(self, limit: int, offset: int):
         """Fetch paginated movies."""

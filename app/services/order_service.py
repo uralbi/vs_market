@@ -20,3 +20,8 @@ class OrderService:
             raise HTTPException(status_code=403, detail="Вы не завершили покупку фильма")
         
         return True
+    
+    def get_user_orders(self, user_id: int):
+        orders = self.db.query(OrderModel).filter(
+                        OrderModel.user_id == user_id).all()
+        return orders

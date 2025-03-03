@@ -65,6 +65,7 @@ class ChatRepository:
         chat_rooms = (
             self.db.query(
                 ChatRoom.id,
+                ChatRoom.subject,
                 ChatRoom.user1_id,
                 ChatRoom.user2_id,
                 case(
@@ -88,12 +89,13 @@ class ChatRepository:
             .group_by(ChatRoom.id, ChatRoom.user1_id, ChatRoom.user2_id, OtherUser.username)
             .all()
             )
+        # room in chat_rooms: (16, 'Мазда Демин 2000г4', 28, 32, 1, 'Mike')
 
         return [
-                    {
+                    {   "subject": room.subject,
                         "chat_room_id": room.id,
                         "other_user_id": room.user2_id if room.user1_id == user_id else room.user1_id,
-                        "other_user_username": room[4],
+                        "other_user_username": room[5],
                         "has_unread_messages": bool(room.has_unread_messages)
                     }
                     for room in chat_rooms
