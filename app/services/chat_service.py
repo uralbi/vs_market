@@ -19,6 +19,9 @@ class ChatService:
     def save_message(self, chat_room_id: int, sender_id: int, content: str):
         return self.repo.save_message(chat_room_id, sender_id, content)
 
+    def save_and_mark_messages_as_read(self, chat_room_id:int, user_id:int, message_content:str):
+        return self.repo.save_and_mark_messages_as_read(chat_room_id, user_id, message_content)
+    
     def get_chat_history(self, room_id: int, user_id: int):
         chat_room = self.repo.get_chat_room_by_id(room_id)
         if not chat_room or (user_id not in [chat_room.user1_id, chat_room.user2_id]):
@@ -46,3 +49,4 @@ class ChatService:
 
     def get_other_user_id(self, room_id: int, user_id: int):
         return self.repo.get_other_user_id(room_id, user_id)
+    

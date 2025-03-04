@@ -22,8 +22,9 @@ def get_other_user(token: str = Depends(token_scheme), room_id: int = Query(...,
     user = user_authorization(token, db)
     chat_service = ChatService(db)
     other_user_id = chat_service.get_other_user_id(room_id, user.id)
-
-    return {"other_user_id": other_user_id}
+    user_service = UserService(db)
+    other_user = user_service.get_user_by_id(other_user_id)
+    return {"other_user_id": other_user_id, "other_username": other_user.username}
 
 
 @router.delete("/rooms/{chat_room_id}")
@@ -58,8 +59,9 @@ def get_chat_history(room_id: int, token: str = Depends(token_scheme), db: Sessi
     room = chat_service.get_chat_room_by_id(room_id)
     return {
         "subject" : room.subject,
+        "user_id" : user.id,
         "messages": [
-            {
+            {   
                 "sender_id": sender_id,
                 "sender_username": sender_username,  # Add sender's username
                 "content": content,

@@ -32,12 +32,19 @@ class ChatRepository:
 
     def save_message(self, chat_room_id: int, sender_id: int, content: str) -> Message:
         """Save a new message in the chat room."""
-        message = Message(chat_room_id=chat_room_id, sender_id=sender_id, content=content, timestamp=datetime.utcnow())
+        message = Message(chat_room_id=chat_room_id, sender_id=sender_id, content=content, timestamp=datetime.now())
         self.db.add(message)
         self.db.commit()
         self.db.refresh(message)
         return message
 
+    def save_and_mark_messages_as_read(self, chat_room_id: int, user_id:int, message_content: str):
+        message = Message(chat_room_id=chat_room_id, sender_id=user_id, content=message_content, timestamp=datetime.now())
+        message.is_read = True
+        self.db.add(message)
+        self.db.commit()
+        self.db.refresh(message)
+        
     def get_chat_history(self, chat_room_id: int):
         """
         Retrieve all messages from a specific chat room.

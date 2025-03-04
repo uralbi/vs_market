@@ -1,15 +1,12 @@
 
 const accessToken = getAccessTokenFromCookie()
-
 let user2Id;
 let socket;
 let userId;
 let userName;
 let subject = productName
+if (!subject){ subject = "-" }
 
-if (!subject){
-    subject = "-"
-}
 async function loadChatHistory(accessToken, room_id) {
     try {
         const response = await fetch(`/chat/messages?room_id=${room_id}`, {
@@ -24,12 +21,16 @@ async function loadChatHistory(accessToken, room_id) {
         const data = await response.json();
         const chatBox = document.getElementById("chatBox");
         const chat_title = document.getElementById("chat_title");
+        const chat_user = document.getElementById("chat_username");
+        let chat_status = document.createElement("span");
+        chat_status.setAttribute("id", `chat_status_${user2Id}`);
+        chat_user.appendChild(chat_status)
         chatBox.innerHTML = "";  // Clear previous messages
         
         if (data.subject) {
-            chat_title.innerText= data.subject;
+            chat_title.innerText= `Тема: ${data.subject}`;
         }
-        
+        userId = data.user_id
         data.messages.forEach(msg => {
             displayMessage(msg.sender_username, msg.content, msg.sender_id === userId ? "msg_sent" : "msg_received", msg.timestamp);
         });
@@ -41,44 +42,40 @@ async function loadChatHistory(accessToken, room_id) {
 
 // Initialize WebSocket and load messages
 async function InitializeChat(room_id, access_token){
-    await loadOtherUser(room_id);
+    await loadOtherUser(room_id); // get id for user2Id and user2username
 
-    getUserId(accessToken).then(user => {
-        if (user.user_id == user2Id) { 
-            window.location.href = document.referrer || "/";
-            }
+    recieverId = user2Id;
+    
+    socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${recieverId}/${subject}?token=${encodeURIComponent(access_token)}`);
 
-        if (!user.user_id) { console.log('No user id'); return};
+    socket.onopen = () => {
+        updateUserStatus(userId, true);
+        showMessage("Соединение установлено", "success")
+    };
 
-        userId = user.user_id;
-        recieverId = user2Id;
-        userName = user.user_name;
-        
-        socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${userId}/${recieverId}/${subject}`);
+    socket.onerror=(error) => {
+        console.error("websocket error:", error)
+    }
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
 
-        socket.onopen = () => {
-            console.log("Connected to WebSocket");
-            document.getElementById("chatBox").innerHTML += '<div class="text-center text-muted">Connected to chat</div>';
-        };
-
-        socket.onerror=(error) => {
-            console.error("websocket error:", error)
+        if (data.hasOwnProperty("is_online") && data.hasOwnProperty("user_id")) {
+            updateUserStatus(data.user_id, data.is_online);
         }
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            displayMessage(data.sender_username, data.message, "msg_received");
-        };
-
-        socket.onclose = () => {
-            console.log("WebSocket disconnected");
-            document.getElementById("chatBox").innerHTML += '<div class="text-center text-danger">Disconnected</div>';
-        };
-
-        // Load chat history when the page loads
-        loadChatHistory(accessToken, room_id);
         
+        if (data.hasOwnProperty("sender_username") && data.hasOwnProperty("message")) {
+            displayMessage(data.sender_username, data.message, "msg_received");
+        }
+    };
 
-    });
+    socket.onclose = () => {
+        console.log("WebSocket disconnected");
+        updateUserStatus(userId, false);
+        showMessage("Соединение не установлено", "danger")
+    };
+
+    loadChatHistory(accessToken, room_id);
+
 };
 
 InitializeChat(room_id, accessToken);
@@ -128,6 +125,22 @@ function displayMessage(sender, message, type, timestamp = new Date().toISOStrin
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+function updateUserStatus(userId, isOnline) {
+    waitForElementToLoad(`chat_status_${userId}`, (userStatusElement) => {
+        userStatusElement.textContent = isOnline ? "🟢" : "⚪";
+    });
+}
+
+function waitForElementToLoad(elementId, callback) {
+    const checkExist = setInterval(() => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            clearInterval(checkExist);
+            callback(element);
+        }
+    }, 100);
+}
+
 function formatTimestamp(timestamp = new Date().toISOString()) {
     const dateObj = new Date(timestamp);
     const options = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
@@ -150,7 +163,7 @@ async function getOtherUser(roomId) {
         }
 
         const data = await response.json();
-        return data.other_user_id; // ✅ Returns the other user's ID
+        return data; // ✅ Returns the other user's ID
     } catch (error) {
         console.error("Error fetching other user:", error);
         return null;
@@ -159,7 +172,11 @@ async function getOtherUser(roomId) {
 
 async function loadOtherUser(room_id) {
     try {
-        user2Id = await getOtherUser(room_id);
+        other_data = await getOtherUser(room_id);
+        user2Id = other_data.other_user_id
+        user2username = other_data.other_username
+        userName = other_data.other_username
+        document.getElementById("chat_username").innerHTML =  `Ник: ${user2username} <span id="user_status_${user2Id}></span>` 
     } catch (error) {
         console.error("Error fetching other user:", error);
     }
