@@ -7,8 +7,6 @@ from app.utils.context import global_context
 from app.services.chat_service import ChatService
 from app.services.product_service import ProductService
 from app.core.template_config import templates
-import os
-from app.utils.misc import time_ago
 
 
 router = APIRouter(    

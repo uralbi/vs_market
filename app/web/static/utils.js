@@ -133,46 +133,6 @@ function displayMovies(movies, div_id) {
 
 }
 
-function createProductCard(product, delay) {
-    let productCard = document.createElement("div");
-    productCard.classList.add("product-card", "card");
-    productCard.setAttribute("data-aos", "fade-in");
-    productCard.setAttribute("data-aos-delay", delay);
-    let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
-    //let productName = `${product.name} <span class="card-text"> - ${product.description} </span>`;
-    let productName = product.name;
-    let maxLength = 20;
-    let truncatedName = product.name.length > maxLength 
-    ? productName.substring(0, maxLength) + " ..." 
-    : productName;
-
-    productCard.innerHTML = `
-        <div class="card-img-top">
-            ${createImageCarousel(product.id, imageUrls)}
-        </div>
-        <div class="card-body">
-            <a href="/product/${product.id}"><h5 class="card-title">${truncatedName}</h5></a>
-
-            <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                data-aos-delay="10"
-                onclick="openChat(${product.owner_id}, ${product.id})">
-                <i class="bi bi-chat-left-text"></i>
-            </button>
-
-            <button class="btn btn-sm btn-outline-secondary pin_btn"
-                id="pin_${product.id}" 
-                onclick="addToFavorites(${product.id})">
-                <i class="bi bi-paperclip"></i>
-            </button>
-
-            <p class="card-price">
-                ${displayPrice(product.price, product.is_dollar)}
-            </p>
-        </div>
-    `;
-
-    return productCard;
-}
 
 async function openChat(receiverId, product_id) {
  
