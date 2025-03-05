@@ -45,7 +45,7 @@
                                     <span id="entityAddress" class="text-muted">Loading...</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                    <span class="">Востап:</span>
+                                    <span class="">Вотсап:</span>
                                     <span id="entityWhatsApp" class="text-muted">Loading...</span>
                                 </li>
                             </ul>
@@ -65,20 +65,25 @@
             <ul class="nav nav-tabs nav-tabs-bordered">
                 
               <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-chats"><i class="bi bi-chat-square-text"></i></button>
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-chats"><i class="bi bi-chat-square-text-fill"></i></button>
               </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-products"> <i class="bi bi-box-seam"></i> </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-products"> <i class="bi bi-box-seam-fill"></i> </button>
                 </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-movies"> <i class="bi bi-film"></i> </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-movies"> <i class="bi bi-collection-play-fill"></i> </button>
               </li>
             
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-fav-products"><i class="bi bi-bookmark-star"></i></button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-fav-products"><i class="bi bi-bookmarks-fill"></i></button>
               </li>
+
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create-product"><i class="bi bi-box-fill"></i></button>
+              </li>
+
 
             </ul>
 
@@ -104,11 +109,14 @@
                     {% include "movie_forms/order_list.html" %}
               </div>
 
-              
-
               <div class="tab-pane fade pt-3" id="profile-fav-products">
                 <h5>Мои сохраненные объявления</h5>
                 {% include "product_forms/myfavs.html" %}
+              </div>
+
+              <div class="tab-pane fade pt-3" id="profile-create-product">
+                <h5>Создать объявление</h5>
+                {% include "product_forms/create_form.html" %}
               </div>
 
             </div>

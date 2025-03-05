@@ -1,0 +1,108 @@
+
+<div class="card-body p-3">
+
+<form id="productForm" enctype="multipart/form-data">
+
+    <label class='form-label' for="name">Название:</label>
+    <input class="form-control form-controm-sm" type="text" id="name" name="name" required>
+
+    <label class="form-label" for="editor">Описание:</label>
+    <div id="editor"></div> 
+    <input type="hidden" name="description" id="description">
+
+    <label class='form-label' for="price">Цена:</label>
+    <input class="form-control form-controm-sm" type="number" id="price" name="price" step="0.01" required>
+
+    <div class="form-check mb-3 p-0 fw-bold">
+        <label class="form-label" for="is_dollar">
+            В Долларах?
+        </label>
+        <input class="form-input" type="checkbox" id="is_dollar" name="is_dollar">
+    </div>
+
+    <label class='form-label' for="category">Категория:</label>
+    <input class="form-control form-controm-sm" type="text" id="category" name="category" required>
+
+    <label class='form-label' for="images">Загрузить фото (Максимально: 10)</label>
+    <input class="form-control form-controm-sm" type="file" id="images" name="images" multiple accept="image/*">
+
+    <div class="form-check mt-4 fw-bold p-0">
+        <label class="form-label" for="activated">
+            Активировать?
+        </label>
+        <input class="form-input" type="checkbox" id="activated" name="activated" checked>
+    </div>
+    
+    <button class="btn btn-sm btn-primary mt-3 px-5" type="submit">Создать</button>
+</form>
+
+<p id="statusMessage"></p>
+
+</div>
+
+<script>
+    document.getElementById("productForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+    
+        let formData = new FormData();
+        formData.append("name", document.getElementById("name").value);
+        formData.append("description", quill.root.innerHTML);
+        formData.append("price", document.getElementById("price").value);
+        formData.append("category", document.getElementById("category").value);
+        formData.append("is_dollar", document.getElementById("is_dollar").checked ? "true" : "false");
+        formData.append("activated", document.getElementById("activated").checked ? "true" : "false");
+
+        let images = document.getElementById("images").files;
+
+        if (images.length > 10) {
+            alert("You can only upload up to 10 images.");
+            return;
+        }
+
+        for (let i = 0; i < images.length; i++) {
+            formData.append("images", images[i]);
+        }
+        
+        
+        let token = getAccessTokenFromCookie();
+    
+        let response = await fetch("/api/products/create", {
+            method: "POST",
+            body: formData,  // Sending form data, not JSON
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+    
+        let result = await response.json();
+        if (response.ok) {
+            document.getElementById("productForm").reset();
+            showMessage("Объявление создано", "success")
+        } else {
+            document.getElementById("statusMessage").innerText = `Error: ${result.detail}`;
+        }
+    });
+    </script>
+    
+
+    
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <script>
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: "Введите описание ...",
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+    </script>
+
