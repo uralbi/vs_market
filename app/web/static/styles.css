@@ -18,6 +18,9 @@
     
   }
 
+body {
+    background: #f6f9ff !important;
+}
 body a{ text-decoration: none; }
 
 main { margin-top: 60px; }
@@ -29,8 +32,9 @@ h1 {
     color: var(--dark-bg-color) !important;
 }
 
-
-
+.card {
+    box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1) !important;
+}
 .form-control, input, .card-body,  
 .card-body li, .list-group-item {
     border-bottom-right-radius: 4px;
@@ -46,12 +50,6 @@ h1 {
     margin: 6px 0 0 0 !important;
     color:var(--form-label-color) !important;
     text-shadow: 0 0 2px white;
-}
-
-#productList {
-    width: 100%;
-    height: 280px;
-    overflow-y: scroll;
 }
 
 .product-card {
@@ -143,6 +141,9 @@ h1 {
 }
 /* PROFILE PAGE */
 
+.profile-info table {
+    height: 100%;;
+}
 .my_badge_unread {
     margin: 0 4px;
 }
@@ -227,22 +228,49 @@ h1 {
     bottom: 4px;
 }
 
+.my-products {
+    max-height: 300px;
+    overflow-y: scroll;
+}
+.my-products img {
+    border-radius: 5px;
+    max-width: 60px;
+    max-height: 40px;
+  }
+
+.profile-info .my-products {
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.table > :not(caption) > * > * {
+    background: none !important;
+    border-bottom: solid 1px rgb(207, 209, 225) !important;
+    color: var(--link-color2) !important;
+  }
+
+.table thead {
+    position: sticky;
+    top: 0;
+}
+
+.table thead tr {
+    background: #dbdee7;
+}
+
 .card-body .my_item_update_btn, .card-body .my_item_del_btn {
-    padding: 0 4px;
+    padding: 0 20px;
 }
 
-.card-body .my_item_update_btn {
-    position: absolute;
-    bottom: 4px;
-    left: 4px;
-    width: 40px
-}
+.filter {
 
-.card-body .my_item_del_btn {
-    position: absolute;
-    left: 47px;
-    bottom: 4px;
-}
+  }
+
+.filter .icon {
+    color: #68707e;
+    font-size: 20px;
+    padding: 0;
+  }
 
 .product-card .is_active{
     position: absolute;
@@ -361,6 +389,9 @@ h1 {
     margin: 10px 0;
 }
 
+
+
+
 /* NAVIGATION */
 .navigation .nav-link i {
     color: #b2bdef;
@@ -398,6 +429,10 @@ h1 {
 }
 
 /* Dark Mode Styling */
+
+.dark-mode h1 {
+    color: var(--link-color4) !important;
+}
 
 .dark-mode .msg_sent span {
     border: solid 1px rgb(26, 108, 59) !important;
@@ -578,6 +613,22 @@ h1 {
     border-top: solid 1px #3e4874;
 }
 
+.dark-mode .table {
+    background: var(--dark-bg-color2);
+    color: var(--link-color4);
+    border-bottom: solid 1px rgb(90, 88, 88);
+  }
+
+ .dark-mode .table thead tr {
+    background: var(--dark-bg-color);
+}
+
+.dark-mode .table > :not(caption) > :not(span) > :not(span) {
+    color: #aba9e4 !important;
+    border-bottom: solid 1px var(--dark-bg-color) !important;
+  }
+
+
 /* NAVIGATION */
 .navigation {
     background-color: #161a39;
@@ -687,6 +738,7 @@ background-color: #f6f9ff;
 
 .dropdown-item:hover {
     background-color: #404573 !important;
+    color: var(--link-color4) !important;
 }
 
 #curr_images img{
@@ -918,13 +970,13 @@ background-color: #f6f9ff;
 }
 
 #deactivateButton {
-    position: absolute;
-    bottom: 0;
-    left: 6px;
 }
 
 #deleteEntityBtn {
-    position: absolute;
-    bottom: 0;
-    left: 6px;
 }
+
+.custom-tooltip {
+    --bs-tooltip-bg: var(--dark-bg-color);
+    --bs-tooltip-color: var(--light-bg-color);
+  }
+  

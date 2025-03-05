@@ -1,6 +1,35 @@
 
+<div class="col-12">
 
-<div id="productList"></div>
+  <div class="filter">
+    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-filter-left"></i></a>
+    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+      <li><a class="dropdown-item" href="#">Активные</a></li>
+      <li><a class="dropdown-item" href="#">Не активные</a></li>
+      <li><a class="dropdown-item" href="#">Все</a></li>
+    </ul>
+  </div>
+
+    <div class="card my-products overflow-auto">
+      <div class="card-body p-0">
+
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th scope="col">Фото</th>
+              <th scope="col">Название</th>
+              <th scope="col">Цена</th>
+              <th scope="col">Редакция</th>
+              <th scope="col">Удалить</th>
+            </tr>
+          </thead>
+          <tbody id="my_products_list"> </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
 
 <script>
 async function fetchMyProducts() {
@@ -26,7 +55,7 @@ async function fetchMyProducts() {
 }
 
 function displayProducts(products) {
-    let productListDiv = document.getElementById("productList");
+    let productListDiv = document.getElementById("my_products_list");
     productListDiv.innerHTML = ""; // Clear previous items
 
     if (products.length === 0) {
@@ -35,43 +64,69 @@ function displayProducts(products) {
     }
     // productName += `<span class="card-text"> - ${productDescription} </span>`;
     products.forEach(product => {
-        let productDiv = document.createElement("div");
-        productDiv.classList.add("product-card");
-        productDiv.classList.add("card");
+        let productDiv = document.createElement("tr");
+
         
         let productName = product.name;
         let productDescription = product.description;
         
         productDiv.innerHTML = `
-            <div class="card-img-top">
-                <img src="/${product.image_urls[0]}" alt="Product Image" class="card-img-inside">
-            </div>
-            <div class="card-body">
-                <a href="/product/${product.id}"><h5 class="card-title">${productName.substring(0, 20)} </h5></a>
+              <th scope="row"><a href="#"><img src="/${product.image_urls[0]}" alt="Product Image"></a></th>
+              <td><a href="/product/${product.id}" class="text-primary fw-bold">${productName.substring(0, 20)}</a>
                 <small class="is_active text-${product.activated? "success": "danger"}"> ${product.activated? "Активный &#9889;": "Не активный &#10060;"} </small>
-                <p class="card-price"> ${displayPrice(product.price, product.is_dollar)} </p>
-                <button class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="deleteProduct(${product.id})"> &#128465;	</button>
-                <a class="btn btn-sm btn-outline-success my_item_update_btn" href="/update-product/${product.id}" > &#128395;</a>
-            </div>
+              </td>
+              <td>${displayPrice(product.price, product.is_dollar)}</td>
+              <td class=""><a class="btn btn-sm btn-outline-success my_item_update_btn" href="/update-product/${product.id}" > <i class="bi bi-pen"></i> </a></td>
+              <td><button class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="deleteProduct(${product.id})"> <i class="bi bi-trash3"></i>	</button></td>
             `;
         productListDiv.appendChild(productDiv);
     });
 }
 
 async function deleteProduct(productId) {
-    let token = getAccessTokenFromCookie();
-    const confirmed = confirm("Подтвердите удаление!");
-    if (!confirmed) return;
-    let response = await fetch(`/api/products/delete/${productId}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
-    });
 
-    if (response.ok) {
-        fetchMyProducts(); // Reload product list after deletion
-    } else {
-        alert("Failed to delete product.");
-    }
+    showConfirmationModal("Подтвердите удаление объявления", async () => { 
+        let token = getAccessTokenFromCookie();
+        let response = await fetch(`/api/products/delete/${productId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            fetchMyProducts();
+            showMessage("объявление удалено", "success")
+        } else {
+            alert("Failed to delete product.");
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const filterItems = document.querySelectorAll(".dropdown-item");
+  
+  filterItems.forEach(item => {
+      item.addEventListener("click", function (event) {
+          event.preventDefault();
+          const filterType = this.textContent.trim(); 
+          filterProducts(filterType);
+      });
+  });
+});
+
+function filterProducts(filterType) {
+  const products = document.querySelectorAll("#my_products_list tr");
+
+  products.forEach(product => {
+      const isActive = product.querySelector(".is_active").textContent.includes("Активный");
+      
+      if (filterType === "Активные" && !isActive) {
+          product.style.display = "none";
+      } else if (filterType === "Не активные" && isActive) {
+          product.style.display = "none";
+      } else {
+          product.style.display = "table-row"; 
+      }
+  });
 }
 
 

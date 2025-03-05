@@ -9,11 +9,6 @@ router = APIRouter(
     prefix='',
     tags=['Websites'])
 
-@router.get("/settings", name="settings_page")
-def settings_page(request: Request, context: dict = Depends(global_context)):
-    """Serve the Admin page"""
-    return templates.TemplateResponse("auth/settings.html", {**context, "title": "iSettings"})
-
 @router.get("/admin", name="admin_page")
 def admin_page(request: Request, context: dict = Depends(global_context)):
     """Serve the Admin page"""

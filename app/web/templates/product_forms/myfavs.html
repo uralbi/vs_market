@@ -1,15 +1,27 @@
 
-<ul id="favorite-products"></ul>
+<div class="col-12">  
+      <div class="card my-products overflow-auto">
+        <div class="card-body p-0">
+          <table class="table table-borderless">
+            <thead>
+              <tr>
+                <th scope="col">Фото</th>
+                <th scope="col">Название</th>
+                <th scope="col">Цена</th>
+                <th scope="col">Написать</th>
+                <th scope="col">Удалить</th>
+              </tr>
+            </thead>
+            <tbody id="my-favorite-products"> </tbody>
+          </table>
+  
+        </div>
+      </div>
+    </div>
 
 <script>
     async function fetchFavoriteProducts() {
-        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-        if (!token) {
-            document.getElementById("favorite-products").innerHTML = "<li>You are not logged in.</li>";
-            return;
-        }
-
-        token = token.split("=")[1];
+        let token = getAccessTokenFromCookie();
 
         let response = await fetch("/favs", {
             method: "GET",
@@ -18,48 +30,43 @@
 
         if (response.ok) {
             let products = await response.json();
-            let productList = document.getElementById("favorite-products");
-            productList.innerHTML = ""; // Clear previous list
+            displayFavProducts(products);
 
-            if (products.length === 0) {
-                productList.innerHTML = "<li>No favorite products yet.</li>";
-                return;
-            }
-
-            products.forEach(product => {
-
-                let productItem = document.createElement("div");
-                productItem.classList.add("fav_card");
-
-                let productName = product.name;
-                let productDescription = product.description;
-                productName += `<span class="card-text"> - ${productDescription} </span>`;
-
-                productItem.innerHTML = `
-
-                    <div class="card">
-                        <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="${product.image_urls[0] || 'static/default.jpg'}" class="img-fluid rounded-start" alt="...">
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <a href="/product/${product.id}"><h5 class="card-title">${productName}</h5></a>
-                                    <p class="card-price">
-                                        ${displayPrice(product.price, product.is_dollar)}
-                                    </p>
-                                    <button class="btn btn-sm btn-outline-danger ms-1 " onclick="removeFromFavorites(${product.id})">
-                                    <i class="bi bi-x-lg"></i> </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>                
-                `;
-                productList.appendChild(productItem);
-            });
         } else {
-            document.getElementById("favorite-products").innerHTML = "<li>Failed to load favorites.</li>";
+            console.log('error in loading favorite products')
         }
+    }
+
+    function displayFavProducts(products) {
+        let productListDiv = document.getElementById("my-favorite-products");
+        productListDiv.innerHTML = ""; // Clear previous items
+    
+        if (products.length === 0) {
+            productListDiv.innerHTML = "<p>No products found.</p>";
+            return;
+        }
+        // productName += `<span class="card-text"> - ${productDescription} </span>`;
+        products.forEach(product => {
+            let productDiv = document.createElement("tr");
+            let productName = product.name;
+            let productDescription = product.description;
+            
+            productDiv.innerHTML = `
+                  <th scope="row"><a href="#"><img src="/${product.image_urls[0]}" alt="Product Image"></a></th>
+                  <td><a href="/product/${product.id}" class="text-primary fw-bold">${productName.substring(0, 20)}</a></td>
+                  <td>${displayPrice(product.price, product.is_dollar)}</td>
+                  <td class="">
+                        <button class="btn btn-outline-success btn-sm px-3"
+                        onclick="openChat(${product.owner_id}, ${product.id})">
+                        <i class="bi bi-chat-left-text"></i>
+                    </button>
+                 </td>
+                  <td> <button class="btn btn-sm btn-outline-danger px-3" onclick="removeFromFavorites(${product.id})">
+                        <i class="bi bi-x-lg"></i> </button>
+                  </td>
+                `;
+            productListDiv.appendChild(productDiv);
+        });
     }
 
     async function removeFromFavorites(productId) {
@@ -80,6 +87,14 @@
         }
     }
 
-    // Fetch favorites when the page loads
+    function getAccessTokenFromCookie() {
+        const cookies = document.cookie.split("; ");
+        for (let cookie of cookies) {
+            const [name, value] = cookie.split("=");
+            if (name === "access_token") return value;
+        }
+        return null;
+    }
+
     fetchFavoriteProducts();
 </script>

@@ -2,66 +2,230 @@
 
 {% block content %}
 
-<div class="container">
+<div class="pagetitle">
+    <h1>Профиль</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Главная</a></li>
+        <li class="breadcrumb-item">Профайл</li>
+      </ol>
+    </nav>
+  </div>
 
-<h1> Добро пожаловать {{current_user.username}} ! </h1>
-<h5>{{current_user.email}} : <small class="text text-secondary">{{current_user.role.value}}</small></h5>
+<section class="section profile-info">
+    <div class="row">
+      <div class="col-xl-4">
 
-    <div class="card shadow-sm border-0 rounded-3 w-50 mb-4">
-        <div class="profile_note"></div>
-        <div class="card-body p-2 profile_card">
-            <h5 class="mb-1 text-primary my_profile_title">Мой профиль <small>(Видимый для всех)</small></h5>
-            <div class="profile_card_body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                        <span class="fw-semibold">Название:</span>
-                        <span id="entityName" class="text-muted">Loading...</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                        <span class="fw-semibold">Телефон:</span>
-                        <span id="entityPhone" class="text-muted">Loading...</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                        <span class="fw-semibold">Адрес:</span>
-                        <span id="entityAddress" class="text-muted">Loading...</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                        <span class="fw-semibold">Востап:</span>
-                        <span id="entityWhatsApp" class="text-muted">Loading...</span>
-                    </li>
-                </ul>
+        <div class="card mb-3">
+          <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+            <h4> Имя (Ник): {{current_user.username}} </h4>
+            <h5>Статус: {{current_user.role.value}}</h5>
+            <h6>{{current_user.email}}</h5>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                <p> Профиль <small>(Видимый для всех)</small> </p>
+              <div class="card shadow-sm border-0 rounded-3 w-100 mb-4">
+                <div class="profile_info"></div>
+                    <div class="card-body p-2 profile_card">
+                        <div class="profile_card_body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                    <span class="">Название:</span>
+                                    <span id="entityName" class="text-muted">Loading...</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                    <span class="">Телефон:</span>
+                                    <span id="entityPhone" class="text-muted">Loading...</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                    <span class="">Адрес:</span>
+                                    <span id="entityAddress" class="text-muted">Loading...</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                    <span class="">Востап:</span>
+                                    <span id="entityWhatsApp" class="text-muted">Loading...</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+      </div>
+
+      <div class="col-xl-8">
+
+        <div class="card">
+          <div class="card-body pt-3">
+
+            <ul class="nav nav-tabs nav-tabs-bordered">
+                
+              <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-chats"><i class="bi bi-chat-square-text"></i></button>
+              </li>
+
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-products"> <i class="bi bi-box-seam"></i> </button>
+                </li>
+
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-movies"> <i class="bi bi-film"></i> </button>
+              </li>
+            
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-fav-products"><i class="bi bi-bookmark-star"></i></button>
+              </li>
+
+            </ul>
+
+            <div class="tab-content pt-2">
+                
+                <div class="tab-pane fade show active profile-edit pt-3" id="profile-chats">
+                    <h5>Сообщения</h5>
+                    <ul class="list-group" id="chatRoomsList"></ul>
+              </div>
+
+                <div class="tab-pane fade pt-3" id="profile-products">    
+                    <h5>Мои объявления</h5>
+                    {% include "product_forms/mylist.html" %}
+                  </div>
+
+              <div class="tab-pane fade profile-edit pt-3" id="profile-movies">
+                    {% if current_user.role in ["ADMIN", "CREATOR"] %}
+                        <h5>Мои фильмы</h5>    
+                        {% include "movie_forms/mylist.html" %}
+                    {% endif %}
+                    <hr>
+                    <h5>Купленные фильмы</h5>
+                    {% include "movie_forms/order_list.html" %}
+              </div>
+
+              
+
+              <div class="tab-pane fade pt-3" id="profile-fav-products">
+                <h5>Мои сохраненные объявления</h5>
+                {% include "product_forms/myfavs.html" %}
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <hr>
+        
+        <h5>Настройки</h5>
+        <div class="card">
+            <div class="card-body pt-3">
+  
+              <ul class="nav nav-tabs nav-tabs-bordered">
+  
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">
+                    <i class="bi bi-pencil-square"></i></button>
+                </li>
+  
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create"> <i class="bi bi-sun"></i></button>
+                </li>
+              
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-username"> <i class="bi bi-person"></i></button>
+                </li>
+  
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-email"><i class="bi bi-envelope-at"></i></button>
+                </li>
+  
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password"><i class="bi bi-lock"></i></button>
+                </li>
+  
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings"> <i class="bi bi-gear"></i></button>
+                </li>
+  
+              </ul>
+  
+              <div class="tab-content pt-2">
+  
+                <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                  <h5> Обновить данные профиля </h5>
+                  {% include "entity_forms/update_entity.html" %}
+                </div>
+  
+                <div class="tab-pane fade profile-edit pt-3" id="profile-create">
+                  <h5> Создать профиля </h5>
+                  {% include "entity_forms/create_entity.html" %}
+                </div>
+  
+                <div class="tab-pane fade pt-3" id="profile-settings">    
+                    
+                    <div class="row mb-3">
+                        <label class="col-md-4 col-lg-3 col-form-label">Удалить Аккаунт</label>
+                        <div class="col-md-8 col-lg-9">
+                            <button id="deactivateButton" class="btn btn-sm btn-outline-danger mb-1" ><i class="bi bi-trash3"></i> </button>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-md-4 col-lg-3 col-form-label">Удалить Профайл</label>
+                        <div class="col-md-8 col-lg-9">
+                            <button id="deleteEntityBtn" class="btn btn-sm btn-outline-danger mb-1" ><i class="bi bi-trash3"></i> </button>
+                        </div>
+                    </div>
+  
+                </div>
+                <div class="tab-pane fade pt-3" id="profile-change-username">
+                  <h5> Изменить имя профиля </h5>
+                  {% include "entity_forms/update_username.html" %}
+                </div>
+  
+                <div class="tab-pane fade pt-3" id="profile-change-email">
+  
+                  <h5> Обновить эл. почту </h5>
+                  {% include "entity_forms/update_email.html" %}
+  
+                </div>
+  
+                <div class="tab-pane fade pt-3" id="profile-change-password">
+  
+                  <h5> Изменить пароль </h5>
+                  {% include "entity_forms/change_pass.html" %}
+                </div>
+  
+              </div>
+  
+            </div>
+          </div>
+
+      </div>
     </div>
+  </section>
 
-<hr>
+<div class="container">
 
-<h5>Сообщения</h5>
-    <ul class="list-group" id="chatRoomsList"></ul>
-
-<hr>
-
-{% if current_user.role in ["ADMIN", "CREATOR"] %}
-
-    <h5>My Movies</h5>    
-    {% include "movie_forms/mylist.html" %}
-
-{% endif %}
-
-
-<h5>Мои фильмы</h5>
-{% include "movie_forms/order_list.html" %}
-<hr>
-
-<h5>Мои объявления</h5>
-{% include "product_forms/mylist.html" %}
-
-<hr>
-
-<h5>Мои сохраненные объявления</h5>
-{% include "product_forms/myfavs.html" %}
-
-
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="confirmationModalLabel">Подтверждение</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmationModalBody">
+            Вы уверены, что хотите выполнить это действие?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-outline-success" data-bs-dismiss="modal"><i class="bi bi-box-arrow-up-left me-1"></i> Отмена</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" id="confirmActionBtn"><i class="bi bi-check-all me-1"></i>Подтвердить</button>
+        </div>
+        </div>
+    </div>
+</div>
 
 <script>
     let EntityID;
@@ -155,30 +319,96 @@
     }
     
     async function deleteChatRoom(chatRoomId) {
-        if (!confirm("Are you sure you want to delete this chat room?")) return;
-        let token = getAccessTokenFromCookie();
-        try {
-            const response = await fetch(`/chat/rooms/${chatRoomId}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+        showConfirmationModal("Подтвердите удаление чат", async () => { 
+            let token = getAccessTokenFromCookie();
+            try {
+                const response = await fetch(`/chat/rooms/${chatRoomId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+        
+                if (!response.ok) {
+                    console.log(`Error: ${response.status}`);
+                } else {
+                    showMessage("Чат был удален!", "success")
+                    loadChatRooms(token); // Reload chat rooms after deletion
                 }
-            });
-    
-            if (!response.ok) {
-                console.log(`Error: ${response.status}`);
-            } else {
-                showMessage("Чат был удален!", "success")
-                loadChatRooms(token); // Reload chat rooms after deletion
-            }
-            
+                
 
-        } catch (error) {
-            console.error("Failed to delete chat room:", error);
-            alert("Error deleting chat room. Please try again.");
-        }
+            } catch (error) {
+                console.error("Failed to delete chat room:", error);
+                alert("Error deleting chat room. Please try again.");
+            }
+        });
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const deleteBtn = document.getElementById("deleteEntityBtn");
+        if (deleteBtn && !deleteBtn.hasAttribute("listener")) { // Prevent duplicate listeners
+            deleteBtn.setAttribute("listener", "true"); // Mark as already added
+            deleteBtn.addEventListener("click", async function(event) {
+                event.preventDefault();
+                // const confirmed = confirm("Подтвердите удаление.");
+                // if (!confirmed) return;
+                
+                showConfirmationModal("Подтвердите удаление", async () => { 
+                
+                    try {
+                        let token = getAccessTokenFromCookie();
+                        const response = await fetch(`/api/ent/${EntityID}`, {
+                            method: "DELETE",
+                            headers: {
+                                "Authorization": `Bearer ${token}`,
+                                "Content-Type": "application/json"
+                            }
+                        });
+        
+                        if (response.ok) {
+                            showMessage("Профиль удален!", "success")
+                            setTimeout(() => {
+                                window.location.reload(); }, 2000); 
+                        } else {
+                            const errorData = await response.json();
+                            showMessage(`Ошибка при удалении: ${errorData.detail}`, "warning")
+                        }
+                        } catch (error) {
+                            console.error("Delete error:", error);
+                            showMessage(`Ошибка при удалении, попробуйте позже`, "warning")
+                        }
+                });
+
+                
+            });
+        }
+    });
+
+    document.getElementById("deactivateButton").addEventListener("click", async function() {
+        let token = getAccessTokenFromCookie();
+        if (!token) {
+            alert("Вы не вошли в систему!");
+            return;
+        }
+
+        showConfirmationModal("Подтвердите удаление", async () => {  
+        
+            let response = await fetch("/api/auth/deactivate", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert("Your account has been deactivated and will be deleted in 30 days.");
+                document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/login"; // Redirect to login or homepage
+            } else {
+                let error = await response.json();
+                alert("Error: " + error.detail);
+            }
+        });
+    });
 
 </script>
 

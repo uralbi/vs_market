@@ -78,6 +78,18 @@ function formatYear(timestamp = new Date().toISOString()) {
     return `${dateObj.getFullYear()}`;
 }
 
+function showConfirmationModal(message, onConfirm) {
+    // showConfirmationModal("Ваш текст", () => { });
+    const modal = new bootstrap.Modal(document.getElementById("confirmationModal"));
+    document.getElementById("confirmationModalBody").innerText = message;
+    document.getElementById("confirmActionBtn").onclick = function () {
+        modal.hide();
+        onConfirm(); // Execute callback function
+    };
+
+    modal.show();
+}
+
 
 function displayMovies(movies, div_id) {
     const container = document.getElementById(div_id);
@@ -160,4 +172,27 @@ function createProductCard(product, delay) {
     `;
 
     return productCard;
+}
+
+async function openChat(receiverId, product_id) {
+ 
+    try {
+        const user = await authenticatedRequest('me'); 
+        if (!user) {
+            // msg_field.innerHTML = "Вы не зарегистрированы!"
+            showMessage("Вы не зарегистрированы!", "warning");
+            return;
+        }
+
+        if (user.user_id === receiverId) {
+            // msg_field.innerHTML = "Это ваше объявление!"
+            showMessage("Это ваше объявление!", "success");
+            return;
+        }
+        window.location.href = `/messages/users?user_id=${user.user_id}&receiver_id=${receiverId}&product_id=${product_id}`;
+
+    } catch (error) {
+        console.error("Authentication error:", error);
+        showMessage("Вы не зарегистрированы!", "warning");
+    }
 }

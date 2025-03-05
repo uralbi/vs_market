@@ -44,6 +44,9 @@
     
             let result = await response.json();
             showMessage(result.message, "success");
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             showMessage("Ошибка при обновлении", "warning");
             console.log(error)
