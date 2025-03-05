@@ -16,6 +16,7 @@ from app.domain.security.signed_url import generate_signed_url, generate_signed_
 from app.domain.security.signed_url import verify_signed_url, \
         update_variant_playlists_with_signed_urls, \
         update_m3u8_with_signed_urls, generate_signature
+from app.services.image_service import ImageService
 import os, shutil, time, io
 from dotenv import load_dotenv
 from pathlib import Path
@@ -120,6 +121,11 @@ async def update_movie(id: int,
         thumbnail_path = os.path.join(upload_dir, thumbnail_filename)
         with open(thumbnail_path, "wb") as buffer:
             shutil.copyfileobj(thumbnail.file, buffer)        
+        img_service = ImageService()
+        try:
+            thumbnail_path = await img_service.process_and_store_thumbnails(thumbnail_path, upload_dir)
+        except Exception as e:
+            print("error in processing image:", e)
         movie_service.update_movie_thumbnail(id, thumbnail_path)
 
     update_data = {}

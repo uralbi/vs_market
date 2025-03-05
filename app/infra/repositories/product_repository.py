@@ -109,17 +109,14 @@ class ProductRepository:
 
     def update_product_images(self, product_id: int, image_urls: List[str], keep_existing: bool = True):
         """Replace images for a product."""
-        
-        old_images = self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).all()
+        new_images = image_urls[:10]
         
         if not keep_existing:
+            old_images = self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).all()
             delete_images_from_disk(old_images)
             self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).delete()
-    
-        
-        self.db.query(ProductImageModel).filter(ProductImageModel.product_id == product_id).delete()
 
-        for image_url in image_urls:
+        for image_url in new_images:
             image = ProductImageModel(product_id=product_id, image_url=image_url)
             self.db.add(image)
 

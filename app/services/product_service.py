@@ -4,6 +4,7 @@ from sqlalchemy.sql import text
 from app.infra.database.models import ProductModel, UserModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
 from app.services.user_service import UserService
+from app.services.image_service import ImageService
 from typing import List
 from app.infra.repositories.product_repository import ProductRepository
 
@@ -78,6 +79,7 @@ class ProductService:
         return self.product_repo.update_product(product_id, updated_data)
 
     def update_product_images(self, product_id: int, image_urls: List[str], keep_existing: bool = True):
+       
         return self.product_repo.update_product_images(product_id, image_urls, keep_existing)
 
     def search(self, query: str, limit: int, offset: int) -> List[ProductDTO]:

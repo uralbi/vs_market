@@ -6,23 +6,20 @@ from app.utils.image_processor import preprocess_image
 from app.domain.dtos.product import ProductImageDTO
 
 
-router = APIRouter()
+# router = APIRouter()
 
-@router.post("/upload/{product_id}", response_model=ProductImageDTO)
-async def upload_product_image(
-    product_id: int,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
-    """Upload an image for a product after preprocessing it."""
-    if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
-        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP images are allowed")
+# @router.post("/upload/{product_id}", response_model=ProductImageDTO)
+# async def upload_product_image(
+#     product_id: int,
+#     file: UploadFile = File(...),
+#     db: Session = Depends(get_db)
+# ):
+#     """Upload an image for a product after preprocessing it."""
+#     if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
+#         raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP images are allowed")
 
-    # Preprocess image before saving
-    image_path = preprocess_image(file, format="JPEG")
+#     image_path = preprocess_image(file).replace("app/web/", "")
+#     image_repo = ProductImageRepository(db)
+#     image = image_repo.add_image(product_id, image_path)
 
-    # Store Image in Database
-    image_repo = ProductImageRepository(db)
-    image = image_repo.add_image(product_id, image_path)
-
-    return image
+#     return image

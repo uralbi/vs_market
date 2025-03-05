@@ -3,12 +3,14 @@ from io import BytesIO
 import uuid
 import os
 
-UPLOAD_FOLDER = "app/web/static/uploads/"
+
 WIDTH, HEIGHT = 600, 600  # Max size
 
-def preprocess_image(image):
-    """Processes an image (resize, crop, and convert to WEBP)."""
-    print("image type:", type(image))
+def preprocess_image(image, UPLOAD_FOLDER = "app/web/static/uploads/"):
+    """
+        Returns same folder path with uuid name.
+        Processes an image (resize, crop, and convert to WEBP).
+    """
     if type(image) != str:
         img = Image.open(image.file)
     else:
@@ -31,17 +33,14 @@ def preprocess_image(image):
         left, right = cr_size, cur_w - cr_size
         img = img.crop((left, 0, right, cur_h))
 
-    # Save the processed image as WEBP
     buffer = BytesIO()
     img.save(buffer, format="WEBP", optimize=True)
     buffer.seek(0)
 
-    # Generate Unique Filename
     new_img_filename = f"{uuid.uuid4().hex}.webp"
     save_path = os.path.join(UPLOAD_FOLDER, new_img_filename)
 
-    # Write to File
     with open(save_path, "wb") as f:
         f.write(buffer.getbuffer())
 
-    return save_path.replace("app/web/", "")
+    return save_path
