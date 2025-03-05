@@ -18,9 +18,9 @@ class ImageService:
         filepath = preprocess_image(image)
         return filepath.replace("app/web/", "")
 
-    async def process_and_store_thumbnails(self, image: UploadFile, FOLDER) -> str:
+    async def process_and_store_thumbnails(self, image: UploadFile, FOLDER, file_name) -> str:
         """
         Resize and optimize image before saving.
         """
-        filepath = preprocess_image(image, FOLDER)
+        filepath = preprocess_image(image, FOLDER, file_name)
         return filepath

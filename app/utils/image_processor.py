@@ -6,7 +6,7 @@ import os
 
 WIDTH, HEIGHT = 600, 600  # Max size
 
-def preprocess_image(image, UPLOAD_FOLDER = "app/web/static/uploads/"):
+def preprocess_image(image, UPLOAD_FOLDER = "app/web/static/uploads/", filename=None):
     """
         Returns same folder path with uuid name.
         Processes an image (resize, crop, and convert to WEBP).
@@ -37,7 +37,10 @@ def preprocess_image(image, UPLOAD_FOLDER = "app/web/static/uploads/"):
     img.save(buffer, format="WEBP", optimize=True)
     buffer.seek(0)
 
-    new_img_filename = f"{uuid.uuid4().hex}.webp"
+    if not filename:
+        new_img_filename = f"{uuid.uuid4().hex}.webp"
+    else:
+        new_img_filename = filename
     save_path = os.path.join(UPLOAD_FOLDER, new_img_filename)
 
     with open(save_path, "wb") as f:

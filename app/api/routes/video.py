@@ -123,7 +123,8 @@ async def update_movie(id: int,
             shutil.copyfileobj(thumbnail.file, buffer)        
         img_service = ImageService()
         try:
-            thumbnail_path = await img_service.process_and_store_thumbnails(thumbnail_path, upload_dir)
+            f_name = os.path.basename(thumbnail_path)
+            thumbnail_path = await img_service.process_and_store_thumbnails(thumbnail_path, upload_dir, f_name)
         except Exception as e:
             print("error in processing image:", e)
         movie_service.update_movie_thumbnail(id, thumbnail_path)
