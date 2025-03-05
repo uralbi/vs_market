@@ -56,12 +56,12 @@
                   <td><a href="/product/${product.id}" class="text-primary fw-bold">${productName.substring(0, 20)}</a></td>
                   <td>${displayPrice(product.price, product.is_dollar)}</td>
                   <td class="">
-                        <button class="btn btn-outline-success btn-sm px-3"
+                        <button class="btn btn-outline-success btn-sm my_item_update_btn"
                         onclick="openChat(${product.owner_id}, ${product.id})">
                         <i class="bi bi-chat-left-text"></i>
                     </button>
                  </td>
-                  <td> <button class="btn btn-sm btn-outline-danger px-3" onclick="removeFromFavorites(${product.id})">
+                  <td> <button class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="removeFromFavorites(${product.id})">
                         <i class="bi bi-x-lg"></i> </button>
                   </td>
                 `;

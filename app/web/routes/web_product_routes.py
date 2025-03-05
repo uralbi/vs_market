@@ -42,13 +42,15 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
         return
     
     product_id = request.query_params.get("product_id")
-    product_service = ProductService(db)
-    prod = product_service.get_product_by_id(product_id, None)
-    
+    subject = product_id
+    if product_id.isdigit(): 
+        product_service = ProductService(db)
+        prod = product_service.get_product_by_id(product_id, None)
+        subject = prod.name
     chat_service = ChatService(db)
-    room = chat_service.get_or_create_chat_room(user_id, receiver_id, prod.name)
-    
-    return templates.TemplateResponse("chat.html", {**context, "other_id": receiver_id, "room_id": room.id, 'product': prod.name })
+    room = chat_service.get_or_create_chat_room(user_id, receiver_id, subject)
+    return templates.TemplateResponse("chat.html", {**context, "other_id": receiver_id, "room_id": room.id, 'product': subject })
+
 
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):

@@ -21,7 +21,16 @@
 body {
     background: #f6f9ff !important;
 }
-body a{ text-decoration: none; }
+body a { 
+    text-decoration: none; 
+    color: var(--link-color1);
+}
+
+body a:hover { 
+    text-decoration: none; 
+    color: var(--link-color2);
+}
+
 
 main { margin-top: 60px; }
 
@@ -411,7 +420,7 @@ h1 {
     margin: 2px 6px;
     display: inline-block;
     height: 100%;
-    filter: drop-shadow(0 0 3px white);
+    /* filter: drop-shadow(0 0 3px white); */
 }
 
 .unread_rooms_note {
@@ -985,8 +994,43 @@ background-color: #f6f9ff;
 #deleteEntityBtn {
 }
 
-.custom-tooltip {
-    --bs-tooltip-bg: var(--dark-bg-color);
-    --bs-tooltip-color: var(--light-bg-color);
+button {
+    position: relative;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    background-color: #aaacb878;
+    color: #29335f;
+    text-align: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    position: absolute;
+    top: -40px;
+    right: -155px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    min-width: 180px;
+    text-shadow: 0 0 2px white;
   }
-  
+
+.dark-mode .tooltip-text {
+    background-color: #393c5275;
+    color: #afbaf1;
+    text-shadow: none;
+  }
+
+.dark-mode .dropdown-menu {
+    background-color: #080912;
+    opacity: 0.9;
+}
+
+button:hover .tooltip-text {
+    visibility: visible;
+    opacity: 0.8;
+}

@@ -1,4 +1,3 @@
-<h3 class="badge bg-primary">User List</h3>
 
 <div class="row mb-3">
     <div class="col-md-4">
@@ -106,31 +105,39 @@
             users.forEach(user => {
                 const row = `<tr>
                     <td>${user.id}</td>
-                    <td>${user.username}</td>
+                    <td>${user.username} 
+
+                        <input class="" type="text" id="chat_subject" required>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="openChatWithSubject(${user.id})">
+                            <i class="bi bi-chat-left-text"></i>
+                        </button>
+
+                    
+                     </td>
                     <td>${user.email}</td>
                     <td>${user.role}</td>
                     <td>${new Date(user.created_at).toLocaleDateString()}</td>
                     <td>${user.is_active ? "✅" : "❌"}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="deactivateUser(${user.id})">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deactivateUser(${user.id})">
                             Deactivate
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-info" onclick="sendActivation(${user.id})">
+                        <button class="btn btn-sm btn-outline-primary" onclick="sendActivation(${user.id})">
                             Activate
                         </button>
                     </td>
                     <td>
                         <form id="changeRoleForm_${user.id}">
                             <input type="hidden" id="user_id" name="user_id" value="${user.id}">
-                            <select id="role" name="role" required>
+                            <select class="p-1 me-2 border-0 rounded" id="role" name="role" required>
                                 <option value="USER">User</option>
                                 <option value="CREATOR">Creator</option>
                                 <option value="MANAGER">Manager</option>
                                 <option value="ADMIN">Admin</option>
                             </select>
-                            <button class="btn btn-sm btn-success" type="submit">
+                            <button class="btn btn-sm btn-outline-success" type="submit">
                                 Change
                             </button>
                         </form>
@@ -218,6 +225,11 @@
             }
         }
         
+        function openChatWithSubject(user_id) {
+            const subject = document.getElementById("chat_subject").value;
+            openChat(user_id, subject);
+        }
+        
     </script>
 
     <script>
@@ -228,7 +240,7 @@
                 const form = event.target;
                 const userId = form.querySelector("input[name='user_id']").value;
                 const userRole = form.querySelector("select[name='role']").value;
-                const token = getAccessTokenFromCookie(); // 🔥 Replace with actual auth token
+                const token = getAccessTokenFromCookie(); 
                 
                 try {
                     const response = await fetch("http://127.0.0.1:8000/api/auth/update-role", {

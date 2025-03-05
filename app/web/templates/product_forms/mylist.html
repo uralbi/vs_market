@@ -18,6 +18,7 @@
             <tr>
               <th scope="col">Фото</th>
               <th scope="col">Название</th>
+              <th scope="col">Публикация</th>
               <th scope="col">Цена</th>
               <th scope="col">Редакция</th>
               <th scope="col">Удалить</th>
@@ -28,7 +29,7 @@
 
       </div>
     </div>
-  </div>
+</div>
 
 
 <script>
@@ -61,16 +62,15 @@ function displayProducts(products) {
     }
     // productName += `<span class="card-text"> - ${productDescription} </span>`;
     products.forEach(product => {
-        let productDiv = document.createElement("tr");
-
-        
+        let productDiv = document.createElement("tr");        
         let productName = product.name;
         let productDescription = product.description;
         
         productDiv.innerHTML = `
               <th scope="row"><a href="#"><img src="/${product.image_urls[0]}" alt="Product Image"></a></th>
-              <td><a href="/product/${product.id}" class="text-primary fw-bold">${productName.substring(0, 20)}</a>
-                <small class="is_active text-${product.activated? "success": "danger"}"> ${product.activated? "Активный &#9889;": "Не активный &#10060;"} </small>
+              <td><a href="/product/${product.id}" class="">${productName.substring(0, 20)}</a></td>
+              <td>
+                <small class="is_active text-${product.activated? "success": "danger"}"> ${product.activated? "Активный": "Не активный"} </small>
               </td>
               <td>${displayPrice(product.price, product.is_dollar)}</td>
               <td class=""><a class="btn btn-sm btn-outline-success my_item_update_btn" href="/update-product/${product.id}" > <i class="bi bi-pen"></i> </a></td>

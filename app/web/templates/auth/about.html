@@ -7,7 +7,7 @@
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/">Главная</a></li>
-      <li class="breadcrumb-item">Профайл</li>
+      <li class="breadcrumb-item">Профиль</li>
     </ol>
   </nav>
 </div>
@@ -18,8 +18,8 @@
 
         <div class="card mb-3">
           <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-            <h4> Имя (Ник): {{current_user.username}} </h4>
-            <h5>Статус: {{current_user.role.value}}</h5>
+            <h4> <small class="fs-6"> Имя </small> {{current_user.username}} </h4>
+            <h5>  <small class="fs-6"> Статус </small> {{current_user.role.value}}</h5>
             <h6>{{current_user.email}}</h5>
           </div>
         </div>
@@ -65,28 +65,35 @@
             <ul class="nav nav-tabs nav-tabs-bordered">
                 
               <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-chats"><i class="bi bi-chat-square-text-fill"></i></button>
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-chats"><i class="bi bi-chat-square-text-fill"></i>
+                  <span class="tooltip-text">Сообщения</span> </button>
               </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-products"> <i class="bi bi-box-seam-fill"></i> </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-products"> <i class="bi bi-box-seam-fill"></i> 
+                  <span class="tooltip-text">Объявления</span> </button>
                 </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-movies"> <i class="bi bi-collection-play-fill"></i> </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-movies"> <i class="bi bi-collection-play-fill"></i> 
+                  <span class="tooltip-text">Мои Видео</span> </button>
               </li>
             
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-fav-products"><i class="bi bi-bookmarks-fill"></i></button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-fav-products"><i class="bi bi-bookmarks-fill"></i>
+                  <span class="tooltip-text">Сохранненные</span> </button>
               </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create-product"><i class="bi bi-box-fill"></i></button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create-product"><i class="bi bi-box-fill"></i>
+                  <span class="tooltip-text">Создать </span> </button>
               </li>
 
               {% if current_user.role == "ADMIN" or current_user.role == "CREATOR" %}
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-upload-video"><i class="bi bi-camera-reels-fill"></i></button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-upload-video"><i class="bi bi-camera-reels-fill"></i>
+                    <span class="tooltip-text"> Загрузить </span>
+                  </button>
                 </li>
               {% endif %}
 
@@ -143,40 +150,53 @@
         <hr>
         
         <h5>Настройки</h5>
-        <div class="card">
+        <div class="card mt-3">
             <div class="card-body pt-3">
   
               <ul class="nav nav-tabs nav-tabs-bordered">
-  
+                
+                <li class="nav-item">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#settings-clear"> <i class="bi bi-chevron-bar-up"></i></button>
+                </li>
+
                 <li class="nav-item">
                   <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">
-                    <i class="bi bi-pencil-square"></i></button>
+                    <i class="bi bi-pencil-square"></i> <span class="tooltip-text">Обновить профиль</span> </button>
                 </li>
   
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create"> <i class="bi bi-sun"></i></button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create"> <i class="bi bi-sun"></i>
+                    <span class="tooltip-text">Создать профиль</span> </button>
                 </li>
               
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-username"> <i class="bi bi-person"></i></button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-username"> <i class="bi bi-person"></i>
+                    <span class="tooltip-text">Изменить имя</span> </button>
                 </li>
   
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-email"><i class="bi bi-envelope-at"></i></button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-email"><i class="bi bi-envelope-at"></i>
+                    <span class="tooltip-text">Изменить почту</span> </button>
                 </li>
   
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password"><i class="bi bi-lock"></i></button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password"><i class="bi bi-lock"></i>
+                    <span class="tooltip-text">Изменить пароль</span>
+                  </button>
                 </li>
   
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings"> <i class="bi bi-gear"></i></button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings"> <i class="bi bi-gear"></i>
+                    <span class="tooltip-text">Удалить</span> </button>
                 </li>
   
               </ul>
   
               <div class="tab-content pt-2">
-  
+                
+                <div class="tab-pane fade show profile-edit pt-3" id="settings-clear">
+                </div>
+
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
                   <h5> Обновить данные профиля </h5>
                   {% include "entity_forms/update_entity.html" %}
@@ -229,6 +249,45 @@
 
       </div>
     </div>
+
+    {% if current_user.role.value == "ADMIN" %}
+      <div class="row my-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body pt-3">
+  
+              <ul class="nav nav-tabs nav-tabs-bordered">
+                
+                <li class="nav-item">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-clear"> <i class="bi bi-chevron-bar-up"></i></button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-user-management"> <i class="bi bi-people"></i> </button>
+                </li>
+  
+              </ul>
+  
+              <div class="tab-content pt-2">
+                
+                <div class="tab-pane fade profile-edit pt-3" id="profile-clear">
+                </div>
+
+                <div class="tab-pane fade profile-edit pt-3" id="profile-user-management">
+                  <h5> Пользователи </h5>
+                  {% include "entity_forms/users.html" %}
+                </div>
+  
+              </div>
+  
+            </div>
+          </div>
+
+       
+        </div>
+      </div>
+    {% endif %}
+
   </section>
 
 <div class="container">
@@ -303,12 +362,12 @@
                 chatRoomsList.innerHTML = "<li class='list-group-item'>No chat rooms found</li>";
                 return;
             }
-    
+
             chatRooms.forEach(room => {
                 const listItem = document.createElement("li");
                 listItem.classList.add("my_list_group");
                 listItem.innerHTML = `
-                    <a href="/messages?room_id=${room.chat_room_id}" class="text-decoration-none">
+                    <a href="/messages?room_id=${room.chat_room_id}" class="">
                     
                         От ${room.other_username}  <small class="text text-secondary">(${room.subject})</small>
                         <span class="my_badge_unread"> 

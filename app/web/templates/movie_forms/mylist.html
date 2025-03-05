@@ -1,7 +1,65 @@
 
-    <div id="movies-list" class=""></div>
+<div class="col-12">
+
+    <div class="filter">
+      <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-filter-left"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+        <li><a class="dropdown-item dropdown-movie-item" href="#">Активные</a></li>
+        <li><a class="dropdown-item dropdown-movie-item" href="#">Не активные</a></li>
+        <li><a class="dropdown-item dropdown-movie-item" href="#">Все</a></li>
+      </ul>
+    </div>
+  
+      <div class="card my-products overflow-auto">
+        <div class="card-body p-0">
+  
+          <table class="table table-borderless">
+            <thead>
+              <tr>
+                <th scope="col">Фото</th>
+                <th scope="col">Название</th>
+                <th scope="col">Публикация</th>
+                <th scope="col">Цена</th>
+                <th scope="col">Редакция</th>
+                <th scope="col">Удалить</th>
+              </tr>
+            </thead>
+            <tbody id="my_video_list"> </tbody>
+          </table>
+  
+        </div>
+      </div>
+  </div>
 
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterItems = document.querySelectorAll(".dropdown-movie-item");
+            
+            filterItems.forEach(item => {
+                item.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const filterType = this.textContent.trim(); 
+                    filterMovies(filterType);
+                });
+            });
+          });
+
+        function filterMovies(filterType) {
+            const products = document.querySelectorAll("#my_video_list tr");
+          
+            products.forEach(product => {
+                const isActive = product.querySelector(".is_active").textContent.includes("Активный");
+                
+                if (filterType === "Активные" && !isActive) {
+                    product.style.display = "none";
+                } else if (filterType === "Не активные" && isActive) {
+                    product.style.display = "none";
+                } else {
+                    product.style.display = "table-row"; 
+                }
+            });
+          }
 
         async function fetchMyMovies() {
                 const token = getAccessTokenFromCookie();
@@ -20,20 +78,12 @@
                     displayListMovies(movies);
                     
                 } catch (error) {
-                    document.getElementById("movies-list").innerHTML = `
-                    <div class="card p-3 mb-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <h6 class="mb-1">У вас нет загруженных фильмов</h6>
-                            </div>
-                        </div>
-                    </div>
-                    `
+                    document.getElementById("my_video_list").innerHTML = `<h6 class="mb-1">У вас нет загруженных фильмов</h6>`
                 } 
         }
 
         function displayListMovies(movies) {
-            const moviesList = document.getElementById("movies-list");
+            const moviesList = document.getElementById("my_video_list");
             moviesList.innerHTML = ""; // Clear existing list
         
             if (movies.length === 0) {
@@ -42,24 +92,15 @@
                 }
 
             movies.forEach(movie => {
-                const movieCard = document.createElement("div");
-                movieCard.classList.add("card", "shadow-sm", "mb-1", "p-1", "border-0");
-        
+
+                const movieCard = document.createElement("tr");        
                 movieCard.innerHTML = `
-                    <div class="row btn-group d-flex justify-content-between">
-                        <div class="col-md-5 d-flex align-items-center justify-content-between">
-                            <div>
-                                <h2 class="fs-5 m-0">${movie.title}</h2>
-                                <small class="text-muted m-0"> Создан: ${formatTimestamp(movie.created_at)} </small>
-                            </div>
-                            <span class="badge bg-success px-3 ms-3">${movie.price} сом</span>
-                        </div>
-                        <div class="col-md-5 d-flex justify-content-end">
-                        <a class="btn btn-outline-success" href="/movies/stream?id=${movie.id}"><i class="bi bi-play-btn"></i></a>
-                        <a class="btn btn-outline-primary" href="/movies/update?id=${movie.id}"><i class="bi bi-pencil-square"></i></a>
-                        <a role="button" class="btn btn-outline-danger" onclick="Delete_movie_btn(${movie.id})"><i class="bi bi-x-square"></i></a>
-                        </div>
-                    </div>
+                    <th scope="row"><a href="#"><img src="${movie.thumbnail_path}" alt="Movie Image"></a></th>
+                    <td><a href="/movies/stream?id=${movie.id}">${movie.title}</a></td>
+                    <td class="is_active"> ${movie.is_public? "Активный":"Не активный"} </td>
+                    <td> ${movie.price} сом </td>
+                    <td><a class="btn btn-sm btn-outline-primary my_item_update_btn" href="/movies/update?id=${movie.id}"><i class="bi bi-pencil-square"></i></a></td>
+                    <td><a role="button" class="btn btn-sm btn-outline-danger my_item_del_btn" onclick="Delete_movie_btn(${movie.id})"> <i class="bi bi-trash3"></i></a></td>
                 `;
         
                 moviesList.appendChild(movieCard);
@@ -101,4 +142,5 @@
         }
 
         document.addEventListener("DOMContentLoaded", fetchMyMovies);
+
     </script>
