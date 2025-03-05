@@ -25,7 +25,7 @@ class UserService:
         # ✅ Check if email already exists
         existing_user = self.db.query(UserModel).filter(UserModel.email == user_data.email).first()
         if existing_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(status_code=400, detail="Такой аккаунт уже существует!")
 
         hashed_password = get_password_hash(user_data.password)
 
@@ -45,11 +45,11 @@ class UserService:
             error_message = str(e.orig)
 
             if "ix_users_username" in error_message:  # ✅ Username unique constraint
-                raise HTTPException(status_code=400, detail="Username already taken")
+                raise HTTPException(status_code=400, detail="Такое имя пользователя уже существует")
             elif "ix_users_email" in error_message:  # ✅ Email unique constraint
-                raise HTTPException(status_code=400, detail="Email already registered")
+                raise HTTPException(status_code=400, detail="Эл. почта уже была зарегистрирована")
             else:
-                raise HTTPException(status_code=500, detail="Database error during registration")
+                raise HTTPException(status_code=500, detail="Ошибка при регистрации")
 
         self.send_activation_email(db_user.email)
 
@@ -74,6 +74,21 @@ class UserService:
         """Retrieves a user by username."""
         return self.db.query(UserModel).filter(UserModel.username == username).first()
     
+    
+    def update_username(self, user: UserModel, new_username: str):
+        """Update user's username with uniqueness check."""
+        if self.db.query(UserModel).filter(UserModel.username == new_username).first():
+            raise HTTPException(status_code=400, detail="Такое имя пользователя уже существует")
+        try:
+            user.username = new_username
+            self.db.commit()
+            self.db.refresh(user)
+        except Exception:
+            self.db.rollback()
+            raise HTTPException(status_code=500, detail="Ошибка при обновлении имени пользователя")
+
+        
+        
     def update_password(self, user: UserModel, new_password: str):
         """Update user's password with hashing."""
         user.hashed_password = get_password_hash(new_password)

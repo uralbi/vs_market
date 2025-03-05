@@ -1,7 +1,4 @@
 
-<h2>My Movies</h2>
-    
-    
     <div id="movies-list" class=""></div>
 
     <script>
@@ -9,9 +6,7 @@
         async function fetchMyMovies() {
             const token = getAccessTokenFromCookie();
 
-            if (!token) {                
-                return;
-            }
+            if (!token) {  return; }
 
             try {
                 const response = await fetch("api/movies/my", {
@@ -20,13 +15,14 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(await response.text());
+                    error = await response.json();
                 }
-
+                
                 const movies = await response.json();
+
                 displayListMovies(movies);
+                
             } catch (error) {
-                console.log(error)
                 document.getElementById("movies-list").innerHTML = `
                 <div class="card p-3 mb-3">
                 <div class="d-flex align-items-center justify-content-between">

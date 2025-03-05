@@ -4,7 +4,8 @@
 
 <div class="container">
 
-<h1> Добро пожаловать {{current_user.username}} ! <small class="text text-secondary">{{current_user.role}}</small></h1>
+<h1> Добро пожаловать {{current_user.username}} ! </h1>
+<h5>{{current_user.email}} : <small class="text text-secondary">{{current_user.role.value}}</small></h5>
 
     <div class="card shadow-sm border-0 rounded-3 w-50 mb-4">
         <div class="profile_note"></div>
@@ -29,7 +30,6 @@
                         <span id="entityWhatsApp" class="text-muted">Loading...</span>
                     </li>
                 </ul>
-                <button id="deleteEntityBtn" class="btn btn-sm btn-outline-danger" >Удалить Профиль</button>
             </div>
         </div>
     </div>
@@ -42,34 +42,25 @@
 <hr>
 
 {% if current_user.role in ["ADMIN", "CREATOR"] %}
+
+    <h5>My Movies</h5>    
     {% include "movie_forms/mylist.html" %}
+
 {% endif %}
 
 
+<h5>Мои фильмы</h5>
 {% include "movie_forms/order_list.html" %}
 <hr>
 
+<h5>Мои объявления</h5>
 {% include "product_forms/mylist.html" %}
 
 <hr>
 
+<h5>Мои сохраненные объявления</h5>
 {% include "product_forms/myfavs.html" %}
 
-<hr>
-
-{% include "entity_forms/create_entity.html" %}
-
-<hr>
-
-{% include "entity_forms/update_entity.html" %}
-
-<hr>
-
-{% include "entity_forms/change_pass.html" %}
-
-<hr>
-
-{% include "entity_forms/update_email.html" %}
 
 
 <script>
@@ -114,41 +105,6 @@
         let token = getAccessTokenFromCookie()
         loadChatRooms(token)
     });
-
-    document.addEventListener("DOMContentLoaded", function() {
-        const deleteBtn = document.getElementById("deleteEntityBtn");
-        if (deleteBtn && !deleteBtn.hasAttribute("listener")) { // Prevent duplicate listeners
-            deleteBtn.setAttribute("listener", "true"); // Mark as already added
-            deleteBtn.addEventListener("click", async function(event) {
-                event.preventDefault();
-                const confirmed = confirm("Подтвердите удаление.");
-                if (!confirmed) return;
-    
-                try {
-                    let token = getAccessTokenFromCookie();
-                    const response = await fetch(`/api/ent/${EntityID}`, {
-                        method: "DELETE",
-                        headers: {
-                            "Authorization": `Bearer ${token}`,
-                            "Content-Type": "application/json"
-                        }
-                    });
-    
-                    if (response.ok) {
-                        showMessage("Профиль удален!", "success")
-                        setTimeout(() => {
-                            window.location.reload(); }, 2000); 
-                    } else {
-                        const errorData = await response.json();
-                        showMessage(`Ошибка при удалении: ${errorData.detail}`, "warning")
-                    }
-                } catch (error) {
-                    console.error("Delete error:", error);
-                    showMessage(`Ошибка при удалении, попробуйте позже`, "warning")
-                }
-            });
-        }
-    });
     
         
     async function loadChatRooms(token) {
@@ -182,7 +138,7 @@
                 listItem.innerHTML = `
                     <a href="/messages?room_id=${room.chat_room_id}" class="text-decoration-none">
                     
-                        Chat with ${room.other_username}  <small class="text text-secondary">(${room.subject})</small>
+                        От ${room.other_username}  <small class="text text-secondary">(${room.subject})</small>
                         <span class="my_badge_unread"> 
                         ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-danger"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
                     </a>
@@ -227,36 +183,7 @@
 </script>
 
 <br>
-<button class="btn btn-sm btn-outline-danger" id="deactivateButton">Удалить Аккаунт</button>
 
-<script>
-    document.getElementById("deactivateButton").addEventListener("click", async function() {
-        if (!confirm("Удалить Аккаунт?.")) {
-            return;
-        }
-
-        let token = getAccessTokenFromCookie();
-        if (!token) {
-            alert("Вы не вошли в систему!");
-            return;
-        }
-        token = token.split("=")[1];
-
-        let response = await fetch("/api/auth/deactivate", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-            alert("Your account has been deactivated and will be deleted in 30 days.");
-            document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.location.href = "/login"; // Redirect to login or homepage
-        } else {
-            let error = await response.json();
-            alert("Error: " + error.detail);
-        }
-    });
-</script>
 
 </div>
 {% endblock %}

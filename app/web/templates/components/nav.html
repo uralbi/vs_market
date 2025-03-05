@@ -1,6 +1,6 @@
 
 
-<nav class="nav fixed-top justify-content-end">
+<nav class="nav navigation fixed-top justify-content-end">
     
     <div class="nav_brand_img">
       <img src="{{ url_for('static', path='/icons/logo.png') }}"/>
@@ -58,17 +58,20 @@
 
     <a class="nav-link dropdown-toggle px-4" type="button" role="button"
         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-activity"></i> Действия
+        {% if current_user %}
+          <i class="bi bi-person-circle"></i> {{current_user.username|title}} </a>
+        {% else %}
+          <i class="bi bi-activity"></i> Действия
+        {% endif %}
     </a>
     
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         {% if not current_user or current_user == 'None'%}
-        <li> <a class="dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Войти </a> </li>
-        <li> <a class="dropdown-item" href="/register"><i class="bi bi-pencil-square"></i> Регистрация</a> </li>
+        <li> <a class="nav-link dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Войти </a> </li>
+        <li> <a class="nav-link dropdown-item" href="/register"><i class="bi bi-pencil-square"></i> Регистрация</a> </li>
         {% else %}
-        <li><a class = "nav-link dropdown-item" href="/about"> 
-          <i class="bi bi-person-circle"></i> {{current_user.username|title}} | Профайл </a>
-        </li>  
+        <li><a class="nav-link dropdown-item" href="/about"> 
+          <i class="bi bi-person-square"></i> Профайл </a> </li>  
         <div class="dropdown-divider"></div>
         <li> <a class="nav-link dropdown-item" href="/create-product"><i class="bi bi-file-earmark-richtext"></i> Создать обьявление</a>  </li>
         
@@ -78,10 +81,12 @@
         {% elif current_user.role == "CREATOR" %}
         <li> <a class ="nav-link dropdown-item" href="/movies/upload"><i class="bi bi-cloud-arrow-up"></i> Загрузить Видео</a> </li>
         {% endif %}
-        <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-up-left"></i> Выйти</a> </li>
+        <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Выйти</a> </li>
+        <li> <a class="nav-link dropdown-item" href="/settings"> <i class="bi bi-gear"></i> Настройки </a> </li>  
         {% endif %}
-
-        <li><a class="nav-link  dropdown-item" role="button" onclick="toggleTheme()" > <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a></li>
+        
+        <li><a class="nav-link dropdown-item" role="button" onclick="toggleTheme()" > 
+            <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a></li>
     </ul>
 
   <div id="status_messages" class="text-center alert fade show" role="alert"></div>

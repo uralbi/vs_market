@@ -1,4 +1,4 @@
-<h5>Мои фильмы</h5>
+
     <div id="purchased_movies"></div>
 <hr>
 
@@ -20,7 +20,15 @@
 
             const movies = await response.json();
             if (movies.length === 0) {
-                document.getElementById("purchased_movies").innerHTML = "<p>No ordered movies found.</p>";
+                document.getElementById("purchased_movies").innerHTML = `
+                <div class="card p-3 mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-1">У вас нет приобретенных фильмов</h6>
+                        </div>
+                    </div>
+                </div>
+                `;
                 return;
             }
 

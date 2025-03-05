@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+      <div class="py-4 logo d-flex align-items-center justify-content-center">
+          <img src="{{ url_for('static', path='/icons/logo.png') }}" alt="iMarket logo">
+          <span class="d-none d-lg-block">iMarket</span>
+      </div>
+
+      <div id="registerMessage" class="fade show p-2" role="alert">
+    </div>
+
+      <div class="card mb-3">
+
+        <div class="card-body">
+
+          <div class="pt-4 pb-2">
+            <h5 class="card-title text-center pb-0 fs-4">Регистрация аккаунта</h5>
+            <p class="text-center small">Введите ваш имя пользователя, имейл и пароль</p>
+          </div>
+
+          <form id="registerForm" class="row g-3 needs-validation" novalidate>
+            
+            <div class="col-12">
+                <label class="form-label" for="username">Имя пользователя:</label>
+                <div class="input-group has-validation">
+                    <input class="form-control" type="text" id="username" name="username" required>
+                </div>
+              </div>
+
+            <div class="col-12">
+              <label for="email" class="form-label">Эл. почта</label>
+              <div class="input-group has-validation">
+                <input type="email" name="email" class="form-control" id="email" required>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label for="password" class="form-label">Пароль</label>
+              <input type="password" name="password" class="form-control" id="password" required>
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-primary w-100" type="submit">Регистрация</button>
+            </div>
+            
+            <div class="col-12">
+                <p class="py-3"> Есть аккаунт? <a href="{{ url_for('login_page') }}">Войти</a></p>
+            </div> 
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+<script>
+    document.getElementById("registerForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        let formData = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value
+        };
+
+        let response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        });
+
+        let result = await response.json();
+
+        if (response.ok) {
+            document.getElementById("registerMessage").innerText = "Вы зарегистрированы! Проверьте почту, чтоб активировать!";
+            document.getElementById("registerMessage").classList.add("alert");
+            document.getElementById("registerMessage").classList.remove("alert-warning");
+            document.getElementById("registerMessage").classList.add("alert-success");
+            document.getElementById("registerForm").reset(); 
+        } else {
+            document.getElementById("registerMessage").innerHTML = `<i class="bi bi-exclamation-triangle me-1"></i> ${result.detail}`;
+            document.getElementById("registerMessage").classList.add("alert");
+            document.getElementById("registerMessage").classList.add("alert-warning");
+        }
+
+    });
+</script>
+
+{% endblock%}

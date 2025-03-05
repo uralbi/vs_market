@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response, Body
 from app.services.user_service import UserService
 from app.infra.database.db import get_db
-from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO
+from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO, UpdateUsernameDTO
 from app.infra.database.models import UserRole
 from sqlalchemy.orm import Session
 from app.domain.security.auth_token import decode_access_token, create_access_token, \
@@ -52,6 +52,31 @@ def deactivate_user(payload: UserIDRequest, token: str = Depends(token_scheme), 
     product_service = ProductService(db)
     product_service.deactivate_user_products(user_id)
     return {"message": "Your account is deactivated"}
+
+
+
+@router.put("/update-username")
+def change_username(
+    data: UpdateUsernameDTO,
+    token: str = Depends(token_scheme),
+    db: Session = Depends(get_db)
+):
+    """
+    API Endpoint: Allows authenticated users to change their password.
+    """
+
+    user = user_authorization(token, db)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.verify_password(data.password):
+        raise HTTPException(status_code=400, detail="Неверный пароль")
+    
+    user_service = UserService(db)
+    user_service.update_username(user, data.username)
+    return {"message": "У вас новое имя пользователя!"}
+
 
 @router.put("/change-password")
 def change_password(
@@ -167,10 +192,10 @@ async def login(user: UserLoginDTO, db: Session = Depends(get_db)):
     stored_user = user_service.get_user_by_email(user.email) 
 
     if not stored_user or not stored_user.verify_password(user.password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+        raise HTTPException(status_code=400, detail="Неверные данные")
     if not stored_user.is_active:
         # user_service.send_activation_email(stored_user.email)
-        raise HTTPException(status_code=400, detail="Account not activated. Please contact the web manager.")
+        raise HTTPException(status_code=400, detail="Ваш аккаунт не активирован!")
 
     access_token = create_access_token({"sub": stored_user.email})
     refresh_token = create_refresh_token({"sub": stored_user.email})

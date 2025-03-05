@@ -8,12 +8,12 @@
 <div class="row justify-content-center">
     <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
-      <div class="d-flex justify-content-center py-4">
-        <a href="index.html" class="logo d-flex align-items-center w-auto">
-          <img src="assets/img/logo.png" alt="">
+      <!-- End Logo  <a href="index.html" class="logo d-flex align-items-center w-auto">-->
+
+      <div class="py-4 logo d-flex align-items-center justify-content-center">
+          <img src="{{ url_for('static', path='/icons/logo.png') }}" alt="iMarket logo">
           <span class="d-none d-lg-block">iMarket</span>
-        </a>
-      </div><!-- End Logo -->
+      </div>
 
       <div class="card mb-3">
 
@@ -41,9 +41,12 @@
             <div class="col-12">
               <button class="btn btn-primary w-100" type="submit">Login</button>
             </div>
+            
             <div class="col-12">
-              <p class="small mb-0">Нет аккаунта? <a href="{{ url_for('register_page') }}">Создать аккаунт</a></p>
-            </div>
+              <p class="small m-0"><a class="btn btn-sm btn-outline-primary p-0 px-2 my-2" href="{{ url_for('register_page') }}">Создать аккаунт</a></p>
+              <p class="small m-0"><a class="btn btn-sm btn-outline-success p-0 px-2" href="{{ url_for('register_page') }}">Восстановить Пароль</a></p>
+            </div> 
+
           </form>
 
         </div>
@@ -76,9 +79,11 @@
             document.cookie = `refresh_token=${data.refresh_token}; path=/`;
             window.location.href = "/about"; // Redirect on success
         } else {
+            console.log(data)
+            console.log(data.detail)
             showMessage(data.detail, 'danger')
         }
     });
-    </script>
+</script>
 
 {% endblock %}

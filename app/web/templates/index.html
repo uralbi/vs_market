@@ -109,7 +109,7 @@ async function openChat(receiverId, product_id) {
 
     } catch (error) {
         console.error("Authentication error:", error);
-        alert("Войдите чтоб написать продавцу.");
+        showMessage("Вы не зарегистрированы!", "warning");
     }
 }
 

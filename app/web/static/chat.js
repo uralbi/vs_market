@@ -50,7 +50,7 @@ async function InitializeChat(room_id, access_token){
 
     socket.onopen = () => {
         updateUserStatus(userId, true);
-        showMessage("Соединение установлено", "success")
+        // showMessage("Соединение установлено", "success")
     };
 
     socket.onerror=(error) => {
@@ -71,7 +71,6 @@ async function InitializeChat(room_id, access_token){
     socket.onclose = () => {
         console.log("WebSocket disconnected");
         updateUserStatus(userId, false);
-        showMessage("Соединение не установлено", "danger")
     };
 
     loadChatHistory(accessToken, room_id);
@@ -163,7 +162,7 @@ async function getOtherUser(roomId) {
         }
 
         const data = await response.json();
-        return data; // ✅ Returns the other user's ID
+        return data; // Returns the other user's ID
     } catch (error) {
         console.error("Error fetching other user:", error);
         return null;

@@ -1,31 +1,38 @@
 
 <form id="updateEntityForm">
 
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
-        <div class="card-body p-2">
-            <h4 class="mb-1 text-primary">Обновить профиль</h4>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                    <label class="form-label fw-semibold me-4">Название:</label>
-                    <input class="form-control form-control-sm ms-auto" type="text" id="entity_name" name="entity_name">
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                    <label class="form-label fw-semibold me-4">Телефон:</label>
-                    <input class="form-control form-control-sm ms-auto" type="text" id="entity_phone" name="entity_phone">
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                    <label class="form-label fw-semibold me-4">Адрес:</label>
-                    <input class="form-control form-control-sm ms-auto" type="text" id="entity_address" name="entity_address">
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                    <label class="form-label fw-semibold me-4">WhatsApp:</label>
-                    <input class="form-control form-control-sm ms-auto" type="text" id="entity_whatsapp" name="entity_whatsapp">
-                </li>
-            </ul>
+    <div class="row mb-3">
+        <label class="col-md-4 col-lg-3 col-form-label">Название</label>
+        <div class="col-md-8 col-lg-9">
+          <input class="form-control" type="text" id="entity_name" name="entity_name">
         </div>
     </div>
 
-    <button type="submit" class="btn btn-sm btn-primary px-5">Update</button>
+    <div class="row mb-3">
+        <label class="col-md-4 col-lg-3 col-form-label">Телефон</label>
+        <div class="col-md-8 col-lg-9">
+          <input class="form-control" type="text" id="entity_phone" name="entity_phone">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-md-4 col-lg-3 col-form-label">Адрес</label>
+        <div class="col-md-8 col-lg-9">
+          <input class="form-control" type="text" id="entity_address" name="entity_address">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-md-4 col-lg-3 col-form-label">WhatsApp</label>
+        <div class="col-md-8 col-lg-9">
+          <input class="form-control" type="text" id="entity_whatsapp" name="entity_whatsapp">
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-sm btn-primary px-4">Обновить</button>
+    </div>
+
 </form>
 
 <script>

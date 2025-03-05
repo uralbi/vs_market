@@ -23,6 +23,10 @@ class ChangePasswordDTO(BaseModel):
     new_password: str = Field(..., min_length=6)
 
 
+class UpdateUsernameDTO(BaseModel):
+    username: str
+    password: str
+    
 class UpdateEmailDTO(BaseModel):
     new_email: EmailStr
     password: str = Field(..., min_length=6)

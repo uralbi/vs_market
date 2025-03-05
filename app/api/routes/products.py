@@ -12,7 +12,6 @@ import asyncio, json, os
 import redis.asyncio as redis
 from app.domain.security.auth_user import user_authorization
 
-
 import logging
 import logging.config
 from app.core.config import settings
@@ -49,7 +48,6 @@ async def search_products(
     #     key="search",
     #     message={"query": query, "timestamp": str(datetime.datetime.now())},
     # )
-    
     
     cache_key = f"search:{query}:{limit}:{offset}"
     cached_results = await redis_client.get(cache_key)

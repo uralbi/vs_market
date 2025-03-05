@@ -1,0 +1,56 @@
+
+<form id="updateUsernameForm">
+
+    <div class="row mb-3">
+        <label for="new_username" class="col-md-4 col-lg-3 col-form-label">Новое Имя пользователя</label>
+        <div class="col-md-8 col-lg-9">
+          <input name="new_username" type="text" class="form-control" id="new_username">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="password" class="col-md-4 col-lg-3 col-form-label">Пароль</label>
+        <div class="col-md-8 col-lg-9">
+          <input name="password" type="password" class="form-control" id="password">
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-sm btn-primary px-4">Изменить</button>
+    </div>
+</form>
+
+<script>
+    
+    async function updateUsername(event) {
+        event.preventDefault();
+        let token = getAccessTokenFromCookie();
+    
+        let data = {
+            username: document.getElementById("new_username").value.trim(),
+            password: document.getElementById("password").value.trim()
+        };
+        try {
+            let response = await fetch("/api/auth/update-username", {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                let errorData = await response.json();
+                throw new Error(errorData.detail || "Ошибка обновления имени пользователя");
+            }
+    
+            let result = await response.json();
+            showMessage(result.message, "success");
+        } catch (error) {
+            showMessage("Ошибка при обновлении", "warning");
+            console.log(error)
+        }
+    }
+
+    document.getElementById("updateUsernameForm").addEventListener("submit", updateUsername);
+
+
+    </script>

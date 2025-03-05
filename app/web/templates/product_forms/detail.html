@@ -4,14 +4,12 @@
 
 
 <div class="row">
-    <!-- Product Image -->
     <div class="col-md-6">
         <div id="productImageContainer" class="text-center">
             <img id="productImage" src="" class="img-fluid rounded shadow" alt="Product Image">
         </div>
     </div>
 
-    <!-- Product Details -->
     <div class="col-md-6">
         <div class="product_info_card">
             <h2 id="productName" class="product_name"></h2>
@@ -55,19 +53,18 @@
                     }
                 });
 
-
             if (!response.ok ) {
                 let error = await response.json()
                 if (document.referrer) {
                     console.log('error', error)
-                    window.location.href = document.referrer; // Redirect to the referring page
+                    window.location.href = document.referrer;   // Redirect to the referring page
                 } else {
                     console.log('error', error)
-                    window.history.back(); // If no referrer, use history back
+                    window.history.back();                      // If no referrer, use history back
                 }
                 throw new Error("Product is not available yet"); 
             }
-    
+
             const product = await response.json();
 
             // Populate product details
@@ -128,8 +125,6 @@
         document.getElementById("bigImage").src = newImageUrl;
     }
 
-    
-    // Function to Create Bootstrap Carousel for Images
     function createImageCarousel(images) {
         let indicators = "";
         let slides = "";
@@ -158,8 +153,8 @@
                 </div>`;
         }
     
-    // Load product details when page loads
-    document.addEventListener("DOMContentLoaded", loadProductDetails);
+    document.addEventListener("DOMContentLoaded", 
+            loadProductDetails  );
     
     async function loadEntityInfo(user_id) {
     
@@ -186,7 +181,7 @@
         button.addEventListener("click", async function () {
             try{ await authenticatedRequest('me') }
             catch(error){
-                alert("Войдите чтоб написать продавцу.")
+                showMessage("Войдите чтоб написать продавцу.", "warning")
                 return
             }
             const receiverId = this.getAttribute("data-receiver-id");
