@@ -100,7 +100,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
         # Run FFmpeg command
         try:
             subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(f"Created HLS variant: {variant['name']} ({variant['resolution']})")            
+            # print(f"Created HLS variant: {variant['name']} ({variant['resolution']})")            
             variant_playlists.append((variant_output_m3u8, variant["bitrate"], variant["resolution"]))
         except subprocess.CalledProcessError as e:
             print(f"Error converting video {variant['name']}: {e}")

@@ -39,13 +39,13 @@ class UserIDRequest(BaseModel):
 @router.post("/deactivate_user")
 def deactivate_user(payload: UserIDRequest, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """
-    Logs out the user by clearing the authentication token from cookies.
+    Deactivation a user by Admin
     """
-    print("the user id: ", payload.user_id)
+
     user_id = payload.user_id
     user = user_authorization(token, db)
     
-    if user.role != "ADMIN":
+    if not user_admin_auth(user):
         return HTTPException(status_code=401, detail="Unauthorized")
     user_service = UserService(db)
     user_service.deactivate_user(user_id)

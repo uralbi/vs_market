@@ -55,5 +55,4 @@ def user_admin_auth(user: UserModel) -> bool:
     """
     if user.role != "ADMIN":
         return False
-        # raise HTTPException(status_code=401, detail="Unauthorized")
     return True

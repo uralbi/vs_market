@@ -89,7 +89,16 @@ class MovieService:
         #     thumb_path = movie.thumbnail_path.replace("media", "media/movies/thumbs")
         #     if os.path.exists(thumb_path):
         #         os.remove(thumb_path)
+        
+        movie = self.repo.get_movie_by_id(movie_id)
+        exs_path = movie.thumbnail_path.replace("/media", "media/movies/thumbs")
 
+        if exs_path and exs_path != thumbnail_path and os.path.exists(exs_path):
+            os.remove(exs_path)
+        else:
+            print('same path in db, no need to update db')
+            return
+        
         thumbnail_path = thumbnail_path.replace("media/movies/thumbs", "/media")
         
         return self.repo.update_movie_thumbnail(movie_id, thumbnail_path)

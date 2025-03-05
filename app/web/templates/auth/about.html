@@ -84,6 +84,12 @@
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-create-product"><i class="bi bi-box-fill"></i></button>
               </li>
 
+              {% if current_user.role == "ADMIN" or current_user.role == "CREATOR" %}
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-upload-video"><i class="bi bi-camera-reels-fill"></i></button>
+                </li>
+              {% endif %}
+
 
             </ul>
 
@@ -117,6 +123,16 @@
               <div class="tab-pane fade pt-3" id="profile-create-product">
                 <h5>Создать объявление</h5>
                 {% include "product_forms/create_form.html" %}
+              </div>
+
+              
+                {% if current_user.role.value == "ADMIN" or current_user.role.value == "CREATOR" %}
+                    <div class="tab-pane fade pt-3" id="profile-upload-video">
+                    <h5>Загрузить видео</h5>
+                    {% include "movie_forms/upload_form.html" %}
+                {% endif %}
+                
+                
               </div>
 
             </div>
