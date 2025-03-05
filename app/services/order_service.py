@@ -8,6 +8,13 @@ class OrderService:
     def __init__(self, db: Session):
         self.db = db
 
+    def check_is_ordered(self, movie_id: int):
+        order = self.db.query(OrderModel).filter(
+            OrderModel.movie_id == movie_id,
+            OrderModel.status.in_(["PENDING", "COMPLETED"])
+        ).first()
+        return order is not None
+            
     def check_order_status(self, user_id: int, movie_id: int):
         order = self.db.query(OrderModel).filter(
         OrderModel.user_id == user_id, 

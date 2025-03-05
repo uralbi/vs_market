@@ -2,7 +2,16 @@
 
 {% block content %}
 
-<h1> Поиск объявлений</h1>
+<div class="pagetitle">
+    <h1>Поиск объявлений</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Главная</a></li>
+        <li class="breadcrumb-item">Поиск</li>
+      </ol>
+    </nav>
+  </div>
+
 
 {% include "product_forms/search_form.html" %}
 
@@ -54,7 +63,6 @@ async function fetchProducts() {
     }
 }
 
-
 fetchProducts();
 
 function createImageCarousel(productId, imageUrls) {
@@ -89,10 +97,6 @@ function createImageCarousel(productId, imageUrls) {
     `;
 }
 
-
-
-
 </script>
-
 
 {% endblock %}

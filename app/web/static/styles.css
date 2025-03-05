@@ -247,6 +247,7 @@ h1 {
     background: none !important;
     border-bottom: solid 1px rgb(207, 209, 225) !important;
     color: var(--link-color2) !important;
+    line-height: 1.3;
   }
 
 .table thead {
@@ -936,6 +937,15 @@ background-color: #f6f9ff;
 .movie-card .play_btn:hover > i{
     /* color: rgb(189, 198, 231); */
     filter: drop-shadow(0 0 4px rgb(0, 0, 0))   
+}
+
+#movies-list .btn {
+    padding: 0px 14px;
+    border: none;
+}
+
+#movies-list .btn i {
+    padding: 0px;
 }
 
 .logo img {

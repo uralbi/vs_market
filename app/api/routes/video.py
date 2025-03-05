@@ -198,6 +198,10 @@ def delete_movie(id: int, token: str = Depends(token_scheme), db: Session = Depe
     """
     user = user_authorization(token, db)
     user_creator_auth(user)
+    
+    order_service = OrderService(db)
+    if order_service.check_is_ordered(id):
+        raise HTTPException(status_code=401, detail="Фильм приобретен и не может быть удален")
     movie_service = MovieService(db)
     deleted = movie_service.delete_movie(id, user.id)
 

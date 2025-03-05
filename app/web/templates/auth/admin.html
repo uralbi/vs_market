@@ -11,6 +11,16 @@
     </script>
 {% else %}
 
+<div class="pagetitle">
+    <h1>Admin</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Главная</a></li>
+        <li class="breadcrumb-item">Админ</li>
+      </ol>
+    </nav>
+  </div>
+
     <h1> {{ current_user.role.value }} </h1>
 
 

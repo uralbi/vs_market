@@ -7,6 +7,7 @@ from app.infra.database.db import get_db
 from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
 from app.services.image_service import ImageService
+from app.services.fav_service import FavService
 from app.infra.kafka.kafka_producer import send_kafka_message
 import asyncio, json, os
 import redis.asyncio as redis
@@ -214,6 +215,10 @@ async def update_product(
         image_service = ImageService()
         new_image_urls = [await image_service.process_and_store_image(image) for image in images[:10]]
         product_service.update_product_images(product_id, new_image_urls, keep_existing_images)
+    
+    if not activated:
+        fav_service = FavService(db)
+        fav_service.remove_from_favs(product_id)
     
     updated_product = product_service.update_product(product_id, user, updated_data)
 

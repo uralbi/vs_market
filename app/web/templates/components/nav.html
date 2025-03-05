@@ -73,13 +73,9 @@
         <li><a class="nav-link dropdown-item" href="/about"> 
           <i class="bi bi-person-square"></i> Профайл </a> </li>  
         <div class="dropdown-divider"></div>
-        <li> <a class="nav-link dropdown-item" href="/create-product"><i class="bi bi-file-earmark-richtext"></i> Создать обьявление</a>  </li>
         
         {% if current_user.role == "ADMIN" %}
-        <li> <a class ="nav-link dropdown-item" href="/movies/upload"><i class="bi bi-cloud-arrow-up"></i> Загрузить Видео</a> </li>
         <li> <a class="nav-link dropdown-item" href="/admin"> <i class="bi bi-sliders2"></i></i> Админ </a> </li>
-        {% elif current_user.role == "CREATOR" %}
-        <li> <a class ="nav-link dropdown-item" href="/movies/upload"><i class="bi bi-cloud-arrow-up"></i> Загрузить Видео</a> </li>
         {% endif %}
         <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Выйти</a> </li>
         {% endif %}

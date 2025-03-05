@@ -3,14 +3,14 @@
 {% block content %}
 
 <div class="pagetitle">
-    <h1>Профиль</h1>
-    <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Главная</a></li>
-        <li class="breadcrumb-item">Профайл</li>
-      </ol>
-    </nav>
-  </div>
+  <h1>Профиль</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Главная</a></li>
+      <li class="breadcrumb-item">Профайл</li>
+    </ol>
+  </nav>
+</div>
 
 <section class="section profile-info">
     <div class="row">
@@ -233,23 +233,7 @@
 
 <div class="container">
 
-<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="confirmationModalLabel">Подтверждение</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="confirmationModalBody">
-            Вы уверены, что хотите выполнить это действие?
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-outline-success" data-bs-dismiss="modal"><i class="bi bi-box-arrow-up-left me-1"></i> Отмена</button>
-            <button type="button" class="btn btn-sm btn-outline-danger" id="confirmActionBtn"><i class="bi bi-check-all me-1"></i>Подтвердить</button>
-        </div>
-        </div>
-    </div>
-</div>
+{% include "components/modal.html" %}
 
 <script>
     let EntityID;
