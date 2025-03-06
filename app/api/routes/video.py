@@ -440,9 +440,10 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     
     if movie.price > 0:
         user = user_authorization(token, db)
-        order_service = OrderService(db)
-        if not order_service.check_order_status(user.id, movie_id):
-            return JSONResponse({"detail": "Unauthorized"}, status_code=401)    
+        if not user_creator_auth(user):
+            order_service = OrderService(db)
+            if not order_service.check_order_status(user.id, movie_id):
+                return JSONResponse({"detail": "Unauthorized"}, status_code=401)    
     if not movie:
         return JSONResponse({"detail": "Movie not found"}, status_code=404)
 

@@ -37,7 +37,7 @@ def user_creator_auth(user: UserModel) -> bool:
     Authorization for ADMIN, CREATOR.
     """
     if user.role not in ["ADMIN", "CREATOR"]:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        return False
     return True
 
 def user_manager_auth(user: UserModel) -> bool:
