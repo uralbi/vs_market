@@ -16,11 +16,3 @@ async def set_eviction_policy(policy: str):
         print(f"Redis eviction policy set to: {policy}")
     except Exception as e:
         print(f"Failed to set eviction policy: {e}")
-
-
-
-
-
-    
-
-

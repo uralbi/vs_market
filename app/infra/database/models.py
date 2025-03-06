@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, ForeignKey, \
                         Text, Float, Table, Index, UniqueConstraint, Computed
-from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from passlib.context import CryptContext
@@ -113,7 +112,7 @@ class MovieLikeModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who liked
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Liked movie
-    liked_at = Column(DateTime, default=datetime.utcnow)  # Timestamp
+    liked_at = Column(DateTime, default=datetime.now)  # Timestamp
 
     movie = relationship("MovieModel", back_populates="likes")
 
