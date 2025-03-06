@@ -1034,3 +1034,8 @@ button:hover .tooltip-text {
     visibility: visible;
     opacity: 0.8;
 }
+
+#buy_btn {
+    padding: 4px 40px;
+    box-shadow: 0 0 4px var(--link-color2);
+}
