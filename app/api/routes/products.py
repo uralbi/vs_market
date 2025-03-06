@@ -9,8 +9,9 @@ from app.services.product_service import ProductService
 from app.services.image_service import ImageService
 from app.services.fav_service import FavService
 from app.infra.kafka.kafka_producer import send_kafka_message
+from app.infra.redis_fld.redis_config import redis_client
 import asyncio, json, os
-import redis.asyncio as redis
+
 from app.domain.security.auth_user import user_authorization
 
 import logging
@@ -25,8 +26,6 @@ router = APIRouter(
     tags=['Products']
 )
 
-REDIS_URL = "redis://localhost:6379"
-redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
@@ -58,7 +57,7 @@ async def search_products(
     product_service = ProductService(db)
     results = product_service.search(query, limit, offset)
     
-    # Store result in Redis (expires in 1 hour 3600 secs)
+    # Store result in Redis (expires in 1 hour 3600 secs 1 min 60 sec)
     serialized_results = [r.model_dump(mode="json") for r in results]
     await redis_client.setex(cache_key, 60, json.dumps(serialized_results))
     

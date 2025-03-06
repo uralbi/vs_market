@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
-from celery.schedules import crontab
+# from celery.schedules import crontab
+from app.infra.redis_fld.redis_config import set_eviction_policy
+
 load_dotenv()
 
 
