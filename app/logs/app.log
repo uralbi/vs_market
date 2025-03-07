@@ -462,3 +462,4 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+app.domain.security.auth_user - ERROR - User auth error: Token has expired
