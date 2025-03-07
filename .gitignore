@@ -12,4 +12,8 @@ cookies.txt
 reqs.txt
 reqs2.txt
 tests/
-media/
+logs/*
+!logs/
+media/movies/*
+media/movies/thumbs/*
+!media/movies/thumbs/
