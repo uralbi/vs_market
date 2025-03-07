@@ -6,8 +6,6 @@ load_dotenv()
 
 celery_app = Celery(
     "tasks",
-    # broker="redis://localhost:6377/0", 
-    # backend="redis://localhost:6377/0",
     broker = os.getenv("CELERY_BROKER_URL"),
     backend = os.getenv("CELERY_RESULT_BACKEND"),
     include=["app.infra.tasks.email_tasks", "app.infra.tasks.vid_tasks"]
