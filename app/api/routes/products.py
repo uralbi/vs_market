@@ -8,7 +8,7 @@ from app.domain.dtos.product import ProductDTO, ProductCreateDTO
 from app.services.product_service import ProductService
 from app.services.image_service import ImageService
 from app.services.fav_service import FavService
-# from app.infra.kafka.kafka_producer import send_kafka_message
+from app.infra.kafka.kafka_producer import send_kafka_message
 from app.infra.redis_fld.redis_config import redis_client
 import asyncio, json, os
 
