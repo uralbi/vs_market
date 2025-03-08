@@ -78,9 +78,6 @@ body a:hover {
     margin-top: var(--bs-dropdown-spacer);
   }
 
-
-main { margin-top: 60px; }
-
 h1 {
     font-size: 24px !important;
     margin-bottom: 0;
@@ -111,7 +108,7 @@ h1 {
 .product-card {
     margin: 6px;
     float: left;
-    width: 180px;
+    width: 170px;
     height: 204px !important;
     border: solid 1px gray;
     /* box-shadow: 2px 2px 4px var(--link-color3),
