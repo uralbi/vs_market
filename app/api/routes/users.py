@@ -54,7 +54,6 @@ def deactivate_user(payload: UserIDRequest, token: str = Depends(token_scheme), 
     return {"message": "Your account is deactivated"}
 
 
-
 @router.put("/update-username")
 def change_username(
     data: UpdateUsernameDTO,

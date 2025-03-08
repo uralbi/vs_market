@@ -1,0 +1,112 @@
+<nav class="my-navbar navbar navbar-expand-md py-1">
+  <div class="container-fluid">
+    <div class="row flex-grow-1 align-items-center w-100">
+      
+      <!-- Brand Logo -->
+      <div class="col-4">
+        <div class="nav_brand_img">
+          <img src="{{ url_for('static', path='/icons/logo_ws.png') }}"/>
+          iMarket
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="col-4 d-flex justify-content-center">
+      </div>
+
+      <!-- Navbar Toggler -->
+      <div class="col-4 d-flex justify-content-end">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Collapsible Menu -->
+    <div class="collapse navbar-collapse justify-content-end align-items-center" id="navbarSupportedContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/"><i class="bi bi-box-seam"></i> Объявления</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/movies/search"><i class="bi bi-film"></i> Фильмы</a>
+        </li>
+
+        {% if current_user %}
+        {% if unread_rooms > 0 %}
+
+          <li class="nav-item dropdown">
+
+              <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                <i class="bi bi-chat-square-text"></i>
+                <span class="badge bg-success badge-number">{{unread_rooms}}</span>
+              </a>
+      
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                <li class="dropdown-header">
+                   У вас {{unread_rooms}} сообщений.
+                   
+                  <a href="#"><span class="badge bg-success p-2 ms-2">Посмотреть</span></a> 
+                  
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                
+                {% for room in rooms%}
+                  
+                  <li class="message-item">
+                    <a href="/messages?room_id={{room[0]}}">
+                      <div>
+                        <i class="bi bi-person-circle"></i>
+                        <h4>   {{room[1]|title}}  <span> {{room[3]|time_ago}} </span> </h4>
+                        {% for msg in room[2] %}
+                          <p> - {{msg}}</p>
+                        {% endfor %}
+                         
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                {% endfor %}
+      
+                    </ul>
+                </li>
+
+              {% endif %}
+          {% endif %}
+
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if current_user %}
+          <i class="bi bi-person-circle"></i> {{current_user.username|title}} </a>
+          {% else %}
+            <i class="bi bi-activity"></i> Действия
+          {% endif %}
+          </a>
+          <ul class="dropdown-menu">
+            {% if not current_user or current_user == 'None'%}
+          <li> <a class="nav-link dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Войти </a> </li>
+          <li> <a class="nav-link dropdown-item" href="/register"><i class="bi bi-pencil-square"></i> Регистрация</a> </li>
+          {% else %}
+          <li><a class="nav-link dropdown-item" href="/about"> 
+            <i class="bi bi-person-square"></i> Профиль </a> </li>  
+          <div class="dropdown-divider"></div>
+          
+          <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Выйти</a> </li>
+          {% endif %}
+          
+          <li><a class="nav-link dropdown-item" role="button" onclick="toggleTheme()" > 
+            <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a></li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+
+  </div>
+</nav>

@@ -1,18 +1,19 @@
 
 
-<nav class="nav navigation fixed-top justify-content-end">
+<nav class="nav navigation fixed-bottom justify-content-end">
     
     <div class="nav_brand_img">
       <img src="{{ url_for('static', path='/icons/logo_ws.png') }}"/>
       iMarket
     </div>
+    
     <a class = "nav-link" href="/"><i class="bi bi-box-seam"></i> Объявления</a>
     <a class = "nav-link" href="/movies/search"> <i class="bi bi-film"></i> Фильмы</a>
 
     {% if current_user %}
         {% if unread_rooms > 0 %}
 
-            <li class="nav-link dropdown">
+          <li class="nav-link dropdown">
 
               <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                 <i class="bi bi-chat-square-text"></i>

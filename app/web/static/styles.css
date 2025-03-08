@@ -11,6 +11,11 @@
     --form-bg-color: #e5e7ed;
     --form-label-color: #7182cf;
 
+    --main-bg-color: #e6eeef;
+    --main-shadow-color: #cad3d4;
+    --nav-bg: rgb(5, 48, 54);
+    --nav-text-color: rgb(136, 162, 184);
+
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, p, a {
@@ -20,8 +25,10 @@
 
 body {
     background: #f6f9ff !important;
+    padding-bottom: 120px;
 }
-body a { 
+
+body a {
     text-decoration: none; 
     color: var(--link-color1);
 }
@@ -30,6 +37,46 @@ body a:hover {
     text-decoration: none; 
     color: var(--link-color2);
 }
+
+.my-navbar {
+    width: 100%;
+    position: fixed !important;
+    bottom: 0;
+    background: var(--dark-bg-color);
+    z-index: 999;
+}
+.my-navbar a, .my-navbar p, .my-navbar li, .my-navbar ul {
+    color: #909bce !important;
+}
+
+.my-navbar li {
+    text-align: center;
+}
+
+.my-navbar .navbar-toggler {
+    border: solid 1px gray;
+    margin: 6px;
+}
+
+.my-navbar .navbar-toggler i{
+    color: rgb(207, 190, 190) !important;
+}
+
+.my-navbar li:hover {
+    background: rgb(65 69 107);
+    border-radius: 6px;
+}
+
+.my-navbar .dropdown-item:hover {
+    background: #216069;
+}
+
+.my-navbar .dropdown-menu[data-bs-popper] {
+    background: var(--dark-bg-color);
+    top: -162px;
+    left: -50px;
+    margin-top: var(--bs-dropdown-spacer);
+  }
 
 
 main { margin-top: 60px; }
@@ -64,7 +111,7 @@ h1 {
 .product-card {
     margin: 6px;
     float: left;
-    width: 200px;
+    width: 180px;
     height: 204px !important;
     border: solid 1px gray;
     /* box-shadow: 2px 2px 4px var(--link-color3),
@@ -400,19 +447,19 @@ h1 {
 }
 
 
-
-
 /* NAVIGATION */
 .navigation .nav-link i {
     color: #b2bdef;
     font-size: 1.2em;
     margin-right: 2px;
 }
+
+.navigation .nav-link {
+    color: #b2bdef;
+}
+
 .nav_brand_img {
     height: 30px;
-    position: absolute;
-    top: 5px;
-    left: 5%;
     color: var(--link-color4)
 }
 
@@ -645,32 +692,32 @@ h1 {
     opacity: 0.9;
 }
 
-.nav .messages {
-inset: 8px -15px auto auto !important;
-transform: translate3d(10px, 40px, 0px) !important;
-max-height: 600px;
-overflow-y: scroll;
-  }
-  
-.nav .messages .message-item {
+.my-navbar .messages {
+    inset: 0px 0px auto auto !important;
+    transform: translate3d(25px, -325px, 0px) !important;
+    height: 318px;
+    overflow-y: scroll;
+}
+
+.my-navbar .messages .message-item {
 padding: 0px 20px;
 transition: 0.3s;
 }
 
-.nav .messages .message-item a {
+.my-navbar .messages .message-item a {
 display: flex;
 }
 
-.nav .messages .message-item img {
+.my-navbar .messages .message-item img {
 margin: 0 20px 0 10px;
 max-height: 40px;
 }
-.nav .messages .message-item i {
+.my-navbar .messages .message-item i {
     display: inline-block;
     font-size: 1.2em;
     color: rgb(76, 170, 128);
 }
-.nav .messages .message-item h4 {
+.my-navbar .messages .message-item h4 {
     display: inline-block;
 font-size: 16px;
 font-weight: 600;
@@ -678,24 +725,24 @@ margin-bottom: 5px;
 color: var(--form-label-color);
 }
 
-.nav .messages .message-item p {
+.my-navbar .messages .message-item p {
 font-size: 13px;
 margin-bottom: 3px;
 color: var(--link-color3);
 }
 
-.nav .messages .message-item span {
+.messages .message-item span {
     padding-left: 4px;
     color: #a7a7aa;
     font-size: 0.8em;
     font-weight: 200;
 }
 
-.nav .messages .message-item:hover {
+.messages .message-item:hover {
 background-color: #f6f9ff;
 }
 
-.nav a {
+.nav-item a {
     color: var(--link-color4);
 }
 
@@ -731,10 +778,6 @@ background-color: #f6f9ff;
 
 .nav .dropdown-menu {
     background-color: #111636;
-}
-.dropdown-menu i {
-    padding: 6px 6px 6px 0px;
-    /* color: rgb(126, 105, 105); */
 }
 
 .nav .messages .message-item h4 {
