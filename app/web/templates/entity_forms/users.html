@@ -243,7 +243,7 @@
                 const token = getAccessTokenFromCookie(); 
                 
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/api/auth/update-role", {
+                    const response = await fetch("/api/auth/update-role", {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",

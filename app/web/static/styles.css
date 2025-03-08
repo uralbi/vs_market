@@ -72,7 +72,7 @@ body a:hover {
 }
 
 .my-navbar .dropdown-menu[data-bs-popper] {
-    background: var(--dark-bg-color);
+    background: var(--dark-bg-color2);
     top: -162px;
     left: -50px;
     margin-top: var(--bs-dropdown-spacer);
@@ -691,9 +691,10 @@ h1 {
 
 .my-navbar .messages {
     inset: 0px 0px auto auto !important;
-    transform: translate3d(25px, -325px, 0px) !important;
+    transform: translate3d(8px, -325px, 0px) !important;
     height: 318px;
     overflow-y: scroll;
+    position: absolute !important;
 }
 
 .my-navbar .messages .message-item {
@@ -1067,7 +1068,7 @@ button {
 
 .dark-mode .dropdown-menu {
     background-color: #080912;
-    opacity: 0.9;
+    opacity: 0.96;
 }
 
 button:hover .tooltip-text {
