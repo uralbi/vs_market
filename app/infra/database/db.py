@@ -9,8 +9,8 @@ pgpass = os.getenv("POSTGRES_PASSWORD")
 pguser = os.getenv("POSTGRES_USER")
 docker = os.getenv("DOCKER")
 DB_PORT = os.getenv("DB_PORT")
-
-SQLALCHEMY_DATABASE_URL = f'postgresql://{pguser}:{pgpass}@127.0.0.1:{DB_PORT}/Market'
+POSTGRES_DB = os.getenv("POSTGRES_DB")
+SQLALCHEMY_DATABASE_URL = f'postgresql://{pguser}:{pgpass}@127.0.0.1:{DB_PORT}/{POSTGRES_DB}'
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
