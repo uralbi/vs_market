@@ -44,9 +44,19 @@ async function loadChatHistory(accessToken, room_id) {
 async function InitializeChat(room_id, access_token){
     await loadOtherUser(room_id); // get id for user2Id and user2username
 
+    const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    let hostName = window.location.hostname;
+    let back_host = '127.0.0.1:8000';
+
+    if (hostName === '127.0.0.1'){
+        back_host = 'http://127.0.0.1:8000'
+        } else {
+        back_host = 'http://3.127.61.187'
+        }
+
     recieverId = user2Id;
     
-    socket = new WebSocket(`ws://localhost:8000/ws/v2/chat/${recieverId}/${subject}?token=${encodeURIComponent(access_token)}`);
+    socket = new WebSocket(`${ws_scheme}://${back_host}/ws/v2/chat/${recieverId}/${subject}?token=${encodeURIComponent(access_token)}`);
 
     socket.onopen = () => {
         updateUserStatus(userId, true);
