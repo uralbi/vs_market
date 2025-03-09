@@ -23,6 +23,7 @@
 
 
 <script>
+
 async function fetchProducts() {
     try {
         let response = await fetch("/api/products/list");  // Fetch from API
@@ -66,6 +67,7 @@ async function fetchProducts() {
 fetchProducts();
 
 let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
+let curr_user = {{ current_user.id if current_user else '' }};
 
 if (user_favs.includes(58)) {
     console.log('58 in user favs', user_favs)
@@ -115,45 +117,49 @@ function createProductCard(product, delay) {
     let truncatedName = product.name.length > maxLength 
     ? productName.substring(0, maxLength) 
     : productName;
-    
+
+    let query = document.getElementById("searchQuery").value.trim();
+    let queryParam = query ? encodeURIComponent(query) : ''; // Ensure query is defined
+
     productCard.innerHTML = `
         <div class="card-img-top">
             ${createImageCarousel(product.id, imageUrls)}
         </div>
         <div class="card-body">
-            <a href="/product/${product.id}"><h5 class="card-title">${truncatedName}</h5></a>
-
-        {% if current_user %}
-            <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                data-aos-delay="10"
-                onclick="openChat(${product.owner_id}, ${product.id})">
-                <i class="bi bi-chat-left-text"></i>
-            </button>
-
-            <button class="btn btn-sm btn-outline-secondary pin_btn"
-                id="pin_${product.id}" 
-                onclick="addToFavorites(${product.id})">
-                <i class="bi bi-paperclip"></i>
-            </button>
-            {% else %}
-
-            <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                data-aos-delay="10" disabled>
-                <i class="bi bi-chat-left-text"></i>
-            </button>
-
-            <button class="btn btn-sm btn-outline-secondary pin_btn"
-                id="pin_${product.id}" disabled>
-                <i class="bi bi-paperclip"></i>
-            </button>
-
-
-        {% endif %}
+            <a href="/product/${product.id}?query=${queryParam}">
+                <h5 class="card-title">${truncatedName}</h5>
+            </a>
+    
+            ${curr_user ? `
+                <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                    data-aos-delay="10"
+                    onclick="openChat(${product.owner_id}, ${product.id})">
+                    <i class="bi bi-chat-left-text"></i>
+                </button>
+    
+                <button class="btn btn-sm btn-outline-secondary pin_btn"
+                    id="pin_${product.id}" 
+                    onclick="addToFavorites(${product.id})">
+                    <i class="bi bi-paperclip"></i>
+                </button>
+            ` : `
+                <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                    data-aos-delay="10" disabled>
+                    <i class="bi bi-chat-left-text"></i>
+                </button>
+    
+                <button class="btn btn-sm btn-outline-secondary pin_btn"
+                    id="pin_${product.id}" disabled>
+                    <i class="bi bi-paperclip"></i>
+                </button>
+            `}
+    
             <p class="card-price">
                 ${displayPrice(product.price, product.is_dollar)}
             </p>
         </div>
     `;
+    
 
     return productCard;
 }

@@ -59,8 +59,8 @@ async def search_products(
     
     # Store result in Redis (expires in 1 hour 3600 secs 1 min 60 sec)
     serialized_results = [r.model_dump(mode="json") for r in results]
-    await redis_client.setex(cache_key, 60, json.dumps(serialized_results))
-    
+    await redis_client.setex(cache_key, 1800, json.dumps(serialized_results))
+
     return results
 
 @router.get("/sse_products")
@@ -224,12 +224,15 @@ async def update_product(
     return updated_product
 
 
-@router.get("/{product_id}", response_model=ProductDTO)
-def get_product(product_id: int, request: Request, db: Session = Depends(get_db), ):
+@router.get("/{product_id}", response_model=dict)
+async def get_product(product_id: int, request: Request, db: Session = Depends(get_db), query: str = Query(None) ):
     """Fetch product details by ID."""
+
+    product = None
+    cached_data = None
     
     token = request.headers.get("Authorization").replace("Bearer ", "")
-    product_service = ProductService(db)
+    
     user = None
     if token != 'null':
         try:
@@ -237,16 +240,27 @@ def get_product(product_id: int, request: Request, db: Session = Depends(get_db)
         except Exception as e:
             logger.info(f"Trying get product detail with invalid token, Error: {e}")
             user = None
-            
-    product = product_service.get_product_by_id(product_id, user)
-
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    product_dto = ProductDTO.model_validate(product)
-    product_dto.image_urls = [img.image_url for img in product.images]
     
-    return product_dto
+    if query:
+        cache_key = f"search:{query}:100:0"
+        cached_results = await redis_client.get(cache_key)
+        if cached_results:
+            cached_data = json.loads(cached_results)
+            if str(product_id) in cached_data:
+                product = ProductDTO(**cached_data[str(product_id)])  # Get product from cache
+    
+    if not product:
+        product_service = ProductService(db)
+        product_model = product_service.get_product_by_id(product_id, user)
+
+        if not product_model:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        product = ProductDTO.model_validate(product_model)
+        product.image_urls = [img.image_url for img in product_model.images]
+    
+    return {"product": product.model_dump(), "cached_data": cached_data}
+
 
 @router.post("/my/{product_id}", response_model=ProductDTO)
 def get_product(product_id: int, db: Session = Depends(get_db), token: str = Depends(token_scheme),):

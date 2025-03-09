@@ -1,3 +1,4 @@
+
 async function addToFavorites(productId) {
     try { 
         await authenticatedRequest('me'); 

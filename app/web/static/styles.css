@@ -447,6 +447,12 @@ h1 {
 .product_description{
     white-space: pre-line;
     border-bottom: solid 0.1px #b9bac4;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.product_description p {
+    margin-bottom: 1px;
 }
 
 .item_detail_container, .product_info_card {
@@ -458,6 +464,18 @@ h1 {
     margin: 10px 0;
 }
 
+#SearchDetailContainer {
+    margin-bottom: 80px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    height: auto;
+    overflow-x: scroll;
+    width: 100%;
+    padding: 10px 16px;
+    border-bottom: solid 1px gray;
+    float: left;
+    }
 
 /* NAVIGATION */
 .navigation .nav-link i {
