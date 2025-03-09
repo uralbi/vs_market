@@ -84,7 +84,7 @@ function createImageCarousel(productId, imageUrls) {
         `;
         slides += `
             <div class="carousel-item ${activeClass}">
-                <img src="/${imgUrl}" class="d-block w-100 rounded" alt="Product Image">
+                <img src="/${imgUrl}" class="d-block rounded" alt="Product Image">
             </div>
         `;
     });
@@ -126,7 +126,7 @@ function createProductCard(product, delay) {
         primary = "primary"
     }
     productCard.innerHTML = `
-        <div class="card-img-top">
+        <div class="card-img-top image-card-top d-flex align-items-center">
             ${createImageCarousel(product.id, imageUrls)}
         </div>
         <div class="card-body">
