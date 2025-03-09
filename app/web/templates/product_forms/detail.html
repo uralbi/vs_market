@@ -24,11 +24,11 @@
         <div class="product_info_card">
             <h2 id="productName" class="product_name"></h2>
 
-            <div id="is_activated_product" class="text-danger badge d-flex my-4 fs-5 p-0"></div>
+            <div id="is_activated_product" class="text-danger"></div>
 
             <p id="productCategory" class="product_category"></p>
             <p id="productPrice" class="product_price"></p>
-            <p id="productDescription" class="product_description text-muted"></p>
+            <p id="productDescription" class="product_description"></p>
 
             <div class="prodcut_ent_Name" id="entityName"></div>
             <div class="prodcut_ent_Address" id="entityAddress"></div>
@@ -36,8 +36,13 @@
             <div class="prodcut_ent_WhatsApp" id="entityWhatsApp"></div>
 
             <div class="mt-3"> 
+                {% if current_user %}
                 <a href="#" id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></a>
                 <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
+                {% else %}
+                <button disabled id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></button>
+                <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})" disabled><i class="bi bi-paperclip"></i></button>
+                {% endif  %}
             </div>
         </div>
     </div>
@@ -84,7 +89,7 @@
             document.getElementById("productDescription").innerHTML = product.description;
             
             if (!product.activated) {
-                let elem = document.getElementById("is_activated_product").textContent = "NOT ACTIVATED"
+                let elem = document.getElementById("is_activated_product").textContent = "Не опубликован!"
             }
             
             // Display all product images in Bootstrap Carousel

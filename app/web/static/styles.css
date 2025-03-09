@@ -15,7 +15,6 @@
     --main-shadow-color: #cad3d4;
     --nav-bg: rgb(5, 48, 54);
     --nav-text-color: rgb(136, 162, 184);
-
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, p, a {
@@ -105,6 +104,11 @@ h1 {
     text-shadow: 0 0 2px white;
 }
 
+#is_activated_product {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
 .product-card {
     margin: 6px;
     float: left;
@@ -116,6 +120,12 @@ h1 {
     transition: all 0.5s;
     border-radius: 6px;
 }
+
+@media (min-width: 428px) {
+    .product-card {
+        width: 190px;
+    }
+  }
 
 .product-card:hover {
     transform: scale(1.1) !important;
@@ -160,7 +170,7 @@ h1 {
 .product-card .card-price {
     position: absolute;
     bottom: 8px;
-    right: 30px;
+    right: 20px;
     max-height: 36px;
     font-weight: 500;
     color: rgb(74, 67, 67);
@@ -303,6 +313,9 @@ h1 {
     line-height: 1.3;
   }
 
+.table small {
+    color: gray;
+}
 .table thead {
     position: sticky;
     top: 0;
@@ -437,6 +450,7 @@ h1 {
 
 .item_detail_container, .product_info_card {
     /* box-shadow: -1px -1px 5px #caccdb, 1px 1px 5px #3a416f; */
+    position: relative;
     background: #f0f2ff;
     border-radius: 10px;
     padding: 10px;
@@ -516,7 +530,7 @@ h1 {
 .dark-mode .my_list_group {background-color: var(--dark-bg-color2)}
 
 .dark-mode p, .dark-mode h2, .dark-mode h4, .dark-mode h5, .dark-mode h3, .dark-mode h6 {
-    color: rgb(95, 100, 135) !important;
+    color:#a2a4b5 !important;
 }
 .dark-mode select {
     background-color: #333;
@@ -678,8 +692,13 @@ h1 {
 }
 
 .dark-mode .table > :not(caption) > :not(span) > :not(span) {
-    color: #aba9e4 !important;
+    color: #7182cf !important;
     border-bottom: solid 1px var(--dark-bg-color) !important;
+  }
+
+  .dark-mode .table > :not(caption) > :not(span) > th {
+    color: #9ea5c1 !important;
+    font-weight: 300;
   }
 
 
@@ -1029,6 +1048,10 @@ background-color: #f6f9ff;
     color: var(--link-color2);
 }
 
+.tab-pane {
+    overflow: scroll;
+}
+
 #deactivateButton {
 }
 
@@ -1036,7 +1059,6 @@ background-color: #f6f9ff;
 }
 
 button {
-    position: relative;
     cursor: pointer;
     border: none;
     background: none;
@@ -1080,3 +1102,4 @@ button:hover .tooltip-text {
     padding: 4px 40px;
     box-shadow: 0 0 4px var(--link-color2);
 }
+

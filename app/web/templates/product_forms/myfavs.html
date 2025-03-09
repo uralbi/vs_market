@@ -53,7 +53,7 @@
             
             productDiv.innerHTML = `
                   <th scope="row"><a href="#"><img src="/${product.image_urls[0]}" alt="Product Image"></a></th>
-                  <td><a href="/product/${product.id}" class="text-primary fw-bold">${productName.substring(0, 20)}</a></td>
+                  <td><a href="/product/${product.id}" class="">${productName.substring(0, 18)}</a></td>
                   <td>${displayPrice(product.price, product.is_dollar)}</td>
                   <td class="">
                         <button class="btn btn-outline-success btn-sm my_item_update_btn"

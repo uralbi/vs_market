@@ -210,15 +210,15 @@
                 <div class="tab-pane fade pt-3" id="profile-settings">    
                     
                     <div class="row mb-3">
-                        <label class="col-md-4 col-lg-3 col-form-label">Удалить Аккаунт</label>
-                        <div class="col-md-8 col-lg-9">
+                        <label class="col-8 col-lg-3 col-form-label">Удалить Аккаунт</label>
+                        <div class="col-2 col-lg-9">
                             <button id="deactivateButton" class="btn btn-sm btn-outline-danger mb-1" ><i class="bi bi-trash3"></i> </button>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-md-4 col-lg-3 col-form-label">Удалит Профиль</label>
-                        <div class="col-md-8 col-lg-9">
+                        <label class="col-8 col-lg-3 col-form-label">Удалит Профиль</label>
+                        <div class="col-2 col-lg-9">
                             <button id="deleteEntityBtn" class="btn btn-sm btn-outline-danger mb-1" ><i class="bi bi-trash3"></i> </button>
                         </div>
                     </div>
@@ -369,7 +369,7 @@
                 listItem.innerHTML = `
                     <a href="/messages?room_id=${room.chat_room_id}" class="">
                     
-                        От ${room.other_username}  <small class="text text-secondary">(${room.subject})</small>
+                        От ${room.other_username}  <small class="text text-secondary">(${room.subject.substring(0, 20)})</small>
                         <span class="my_badge_unread"> 
                         ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-danger"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
                     </a>

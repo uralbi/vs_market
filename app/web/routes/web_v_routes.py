@@ -16,6 +16,9 @@ router = APIRouter(
 @router.get("/update")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
     """ Movie Search page """
+    curr_user = context.get("current_user")
+    if not curr_user:
+        return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("movie_forms/update.html", {**context, })
 
 @router.get("/search")
@@ -39,5 +42,7 @@ def stream_movie_page(request: Request, context: dict = Depends(global_context))
 @router.get("/upload")
 def upload_page(request: Request, context: dict = Depends(global_context)):
     """ Movie Upload page """
-
+    curr_user = context.get("current_user")
+    if not curr_user:
+        return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("movie_forms/upload.html", {**context, })

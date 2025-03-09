@@ -19,7 +19,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>ID</th>
+            <!-- <th>ID</th> -->
             <th>Username</th>
             <th>Email</th>
             <th>Role</th>
@@ -101,13 +101,13 @@
         function updateTable(users) {
             const tableBody = document.getElementById("userTableBody");
             tableBody.innerHTML = "";
-        
+            //  <td>${user.id}</td>
             users.forEach(user => {
                 const row = `<tr>
-                    <td>${user.id}</td>
+                   
                     <td>${user.username} 
 
-                        <input class="" type="text" id="chat_subject" required>
+                        <input class="w-50" type="text" id="chat_subject" required>
                         <button class="btn btn-outline-secondary btn-sm" onclick="openChatWithSubject(${user.id})">
                             <i class="bi bi-chat-left-text"></i>
                         </button>
@@ -129,16 +129,17 @@
                         </button>
                     </td>
                     <td>
-                        <form id="changeRoleForm_${user.id}">
+                        <form class="w-100" id="changeRoleForm_${user.id}">
                             <input type="hidden" id="user_id" name="user_id" value="${user.id}">
-                            <select class="p-1 me-2 border-0 rounded" id="role" name="role" required>
+                            <select class="p-1 me-2 border-0 rounded w-25" id="role" name="role" 
+                                data-initial="${user.role}" required>
                                 <option value="USER">User</option>
                                 <option value="CREATOR">Creator</option>
                                 <option value="MANAGER">Manager</option>
                                 <option value="ADMIN">Admin</option>
                             </select>
-                            <button class="btn btn-sm btn-outline-success" type="submit">
-                                Change
+                            <button class="btn btn-outline-success w-50" type="submit">
+                                <i class="bi bi-arrow-clockwise"></i>
                             </button>
                         </form>
                     </td>
@@ -242,6 +243,17 @@
                 const userRole = form.querySelector("select[name='role']").value;
                 const token = getAccessTokenFromCookie(); 
                 
+                const selectElement = form.querySelector("#role");
+                const selectedRole = selectElement.value;
+                const initialRole = selectElement.getAttribute("data-initial");
+
+                console.log(initialRole)
+
+                if (selectedRole === initialRole) {
+                    showMessage("Статус пользователя тот же.", "success")
+                    return;
+                }
+
                 try {
                     const response = await fetch("/api/auth/update-role", {
                         method: "PUT",

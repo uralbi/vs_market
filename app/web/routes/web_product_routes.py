@@ -23,6 +23,9 @@ def get_product_page(request: Request, product_id: int, context: dict = Depends(
 @router.get("/messages")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
     """ Serve the product listing page """
+    curr_user = context.get("current_user")
+    if not curr_user:
+        return RedirectResponse(url="/", status_code=303)
     room_id = request.query_params.get("room_id")
     user_id = context['current_user'].id
     chat_service = ChatService(db)
@@ -33,6 +36,9 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
 @router.get("/messages/users")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
     """ Serve the product listing page """
+    curr_user = context.get("current_user")
+    if not curr_user:
+        return RedirectResponse(url="/", status_code=303)
     user_id = request.query_params.get("user_id")
     receiver_id = request.query_params.get("receiver_id")
     
@@ -58,9 +64,15 @@ def product_list_page(request: Request, context: dict = Depends(global_context))
 @router.get("/update-product/{product_id}")
 def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Update product page """
+    curr_user = context.get("current_user")
+    if not curr_user:
+        return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("product_forms/update.html", {**context, "product_id": product_id})
 
 @router.get("/create-product")
 def create_product_page(request: Request, context: dict = Depends(global_context)):
     """ Create product page """
+    curr_user = context.get("current_user")
+    if not curr_user:
+        return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("product_forms/create.html", {**context, "title": "Create Product"})
