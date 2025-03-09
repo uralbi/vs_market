@@ -319,6 +319,7 @@ h1 {
 .table thead {
     position: sticky;
     top: 0;
+    text-align: center;
 }
 
 .table thead tr {
@@ -759,6 +760,9 @@ color: var(--link-color3);
 background-color: #f6f9ff;
 }
 
+.nav-item {
+    position: relative;
+}
 .nav-item a {
     color: var(--link-color4);
 }
@@ -1073,13 +1077,19 @@ button {
     border-radius: 4px;
     position: absolute;
     top: -40px;
-    right: -155px;
+    left: 40%;
     transform: translateX(-50%);
     white-space: nowrap;
     opacity: 0;
     transition: opacity 0.3s;
     min-width: 180px;
     text-shadow: 0 0 2px white;
+  }
+
+  @media (max-width: 1025px) {
+    .tooltip-text  {
+        min-width: auto;
+    }
   }
 
 .dark-mode .tooltip-text {
