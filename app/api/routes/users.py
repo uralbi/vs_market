@@ -117,10 +117,10 @@ def update_email(
         raise HTTPException(status_code=404, detail="User not found")
 
     if not user.verify_password(email_data.password):
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=400, detail="Неверный пароль")
 
     if email_data.new_email == user.email:
-        raise HTTPException(status_code=400, detail="Email already in use")
+        raise HTTPException(status_code=400, detail="Эл. почта уже зарегистрирована!")
 
     user_service = UserService(db)
     user_service.update_email(user, email_data.new_email)

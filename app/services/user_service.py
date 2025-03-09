@@ -101,10 +101,19 @@ class UserService:
         """Update user's email."""
         oldemail = user.email
         user.email = new_email
-        self.db.commit()
-        self.db.refresh(user)
-        message_body = "This EMAIL is changed for authentication to our Account!"
-        send_notification_email.delay(oldemail, message_body)
+        
+        try:
+            self.db.commit()
+            self.db.refresh(user)
+            message_body = f"Эл. почта для вашего аккаунта в iMarket изменен на {new_email}!"
+            send_notification_email.delay(oldemail, message_body)
+        except IntegrityError:
+            self.db.rollback()
+            raise HTTPException(status_code=400, detail="Эл. почта уже существует")
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, detail="Ошибка обновления почты")
+        
 
     def send_activation_email(self, email: str):
         acc_token = create_access_token({"sub": email})

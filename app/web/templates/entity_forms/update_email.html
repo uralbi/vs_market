@@ -11,7 +11,7 @@
     <div class="row mb-3">
         <label for="password" class="col-md-4 col-lg-3 col-form-label">Пароль</label>
         <div class="col-md-8 col-lg-9">
-          <input name="password" type="password" class="form-control" id="password" required>
+          <input name="password" type="password" class="form-control" id="password_email" required>
         </div>
     </div>
 
@@ -26,14 +26,13 @@
         event.preventDefault();
         let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
         if (!token) {
-            alert("You must be logged in.");
             return;
         }
         token = token.split('=')[1].trim();
     
         let data = {
             new_email: document.getElementById("new_email").value.trim(),
-            password: document.getElementById("password").value.trim()
+            password: document.getElementById("password_email").value.trim()
         };
     
         let response = await fetch("/api/auth/update-email", {
@@ -43,7 +42,7 @@
         });
     
         let result = await response.json();
-        alert(result.message);
+        showMessage(result.detail, "warning")
     }
 
     document.getElementById("updateEmailForm").addEventListener("submit", updateEmail);
