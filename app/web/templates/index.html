@@ -67,7 +67,7 @@ async function fetchProducts() {
 fetchProducts();
 
 let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
-let curr_user = {{ current_user.id if current_user else '' }};
+let curr_user = {{ current_user.id if current_user else "null" }};
 
 if (user_favs.includes(58)) {
     console.log('58 in user favs', user_favs)
@@ -119,7 +119,7 @@ function createProductCard(product, delay) {
     : productName;
 
     let query = document.getElementById("searchQuery").value.trim();
-    let queryParam = query ? encodeURIComponent(query) : ''; // Ensure query is defined
+    let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
 
     productCard.innerHTML = `
         <div class="card-img-top">
