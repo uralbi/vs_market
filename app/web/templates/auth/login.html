@@ -77,7 +77,7 @@
         if (response.ok) {
             document.cookie = `access_token=${data.access_token}; path=/`; // Store token
             document.cookie = `refresh_token=${data.refresh_token}; path=/`;
-            window.location.href = "/about"; // Redirect on success
+            window.location.href = "/"; // Redirect on success
         } else {
             console.log(data)
             console.log(data.detail)

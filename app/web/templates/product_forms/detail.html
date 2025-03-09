@@ -14,6 +14,7 @@
   </div>
 
 <div class="row">
+
     <div class="col-md-6">
         <div id="productImageContainer" class="text-center">
             <img id="productImage" src="" class="img-fluid rounded shadow" alt="Product Image">
@@ -38,7 +39,14 @@
             <div class="mt-3"> 
                 {% if current_user %}
                 <a href="#" id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></a>
-                <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
+                
+                {% if product_id in current_user.favorite_products | get_ids | list %}
+                    <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-primary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
+                {% else %}
+                    <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
+                {% endif %}
+
+                
                 {% else %}
                 <button disabled id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></button>
                 <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})" disabled><i class="bi bi-paperclip"></i></button>
@@ -46,11 +54,18 @@
             </div>
         </div>
     </div>
+    
 </div>
 
 <div id="SearchDetailContainer"></div>
 
 <script>
+
+    let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
+
+    if (user_favs.includes(0)) {
+        console.log('58 in user favs', user_favs)
+    }
 
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -117,23 +132,8 @@
             let productContainer = document.getElementById("SearchDetailContainer");
             let timer = 0;
             const ch_data = data.cached_data
-            console.log('data:', data)
+            
             if (ch_data) {
-                ch_data.forEach(product => {
-                    let productCard = createProductCard(product, timer);
-                    timer += 10;
-                    productContainer.appendChild(productCard);
-                });
-                ch_data.forEach(product => {
-                    let productCard = createProductCard(product, timer);
-                    timer += 10;
-                    productContainer.appendChild(productCard);
-                });
-                ch_data.forEach(product => {
-                    let productCard = createProductCard(product, timer);
-                    timer += 10;
-                    productContainer.appendChild(productCard);
-                });
                 ch_data.forEach(product => {
                     let productCard = createProductCard(product, timer);
                     timer += 10;
@@ -157,12 +157,15 @@
     
         return `
             <div class="item_detail_container">
-                <div class="thumbnail-container row-1">
-                    ${thumbnails}
-                </div>
+                
                 <div class="big-image-container">
                     <img id="bigImage" src="/${bigImageUrl}" class="big-image">
                 </div>
+
+                <div class="thumbnail-container row-1">
+                    ${thumbnails}
+                </div>
+                
             </div>
     `;
     }

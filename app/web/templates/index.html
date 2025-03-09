@@ -69,7 +69,7 @@ fetchProducts();
 let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
 let curr_user = {{ current_user.id if current_user else "null" }};
 
-if (user_favs.includes(58)) {
+if (user_favs.includes(0)) {
     console.log('58 in user favs', user_favs)
 }
 
@@ -121,6 +121,10 @@ function createProductCard(product, delay) {
     let query = document.getElementById("searchQuery").value.trim();
     let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
 
+    let primary = "secondary";
+    if (user_favs.includes(product.id)) {
+        primary = "primary"
+    }
     productCard.innerHTML = `
         <div class="card-img-top">
             ${createImageCarousel(product.id, imageUrls)}
@@ -137,7 +141,7 @@ function createProductCard(product, delay) {
                     <i class="bi bi-chat-left-text"></i>
                 </button>
     
-                <button class="btn btn-sm btn-outline-secondary pin_btn"
+                <button class="btn btn-sm btn-outline-${primary} pin_btn"
                     id="pin_${product.id}" 
                     onclick="addToFavorites(${product.id})">
                     <i class="bi bi-paperclip"></i>
