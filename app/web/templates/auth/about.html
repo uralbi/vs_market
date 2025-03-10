@@ -466,18 +466,6 @@
         });
     });
   
-    document.querySelectorAll(".nav-link").forEach(button => {
-      button.addEventListener("touchstart", function () {
-          this.querySelector(".tooltip-text").style.visibility = "visible";
-          this.querySelector(".tooltip-text").style.opacity = "0.8";
-      });
-  
-      button.addEventListener("touchend", function () {
-          this.querySelector(".tooltip-text").style.visibility = "hidden";
-          this.querySelector(".tooltip-text").style.opacity = "0";
-      });
-    });
-
   </script>
 </div>
 
