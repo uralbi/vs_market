@@ -177,7 +177,7 @@ h1 {
 .product-card .card-price {
     position: absolute;
     bottom: 8px;
-    right: 20px;
+    right: 15px;
     max-height: 36px;
     font-weight: 500;
     color: rgb(74, 67, 67);
@@ -464,7 +464,7 @@ h1 {
     overflow-y: scroll;
     padding: 10px 6px;
     border-bottom: solid 4px #d8dcef;
-    box-shadow: 0px 0px 18px -10px #3f477b;
+    /* box-shadow: 0px 0px 18px -10px #3f477b; */
     border-radius: 6px;
 }
 
@@ -617,10 +617,6 @@ h1 {
 
 .dark-mode .pin_btn i:hover, .dark-mode .chat_btn i:hover{
     background: none;
-}
-
-.dark-mode .btn {
-    color: rgb(204, 203, 203) !important;
 }
 
 .dark-mode a:hover {
