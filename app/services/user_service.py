@@ -90,8 +90,6 @@ class UserService:
         user.hashed_password = get_password_hash(new_password)
         self.db.commit()
         self.db.refresh(user)
-        body = "Ваш пароль изменен!"
-        send_notification_email.delay(user.email, body)
 
     def update_email(self, user: UserModel, new_email: str):
         """Update user's email."""
@@ -101,7 +99,7 @@ class UserService:
         try:
             self.db.commit()
             self.db.refresh(user)
-            message_body = f"Эл. почта для вашего аккаунта в iMarket изменен на {new_email}!"
+            message_body = f"Эл. почта для вашего аккаунта изменена на {new_email}!"
             send_notification_email.delay(oldemail, message_body)
         except IntegrityError:
             self.db.rollback()
@@ -110,7 +108,6 @@ class UserService:
             self.db.rollback()
             raise HTTPException(status_code=500, detail="Ошибка обновления почты")
         
-
     def send_activation_email(self, email: str):
         acc_token = create_access_token({"sub": email})
         verification_link = f"{settings.DOMAIN}/activated?token={acc_token}"

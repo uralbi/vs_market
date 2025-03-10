@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response, Body
+from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response, status
 from app.services.user_service import UserService
 from app.infra.database.db import get_db
 from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO, UpdateUsernameDTO
@@ -9,6 +9,8 @@ from app.domain.security.auth_token import decode_access_token, create_access_to
 from fastapi.security import OAuth2PasswordBearer
 from app.services.product_service import ProductService
 from app.domain.security.auth_user import user_authorization, user_admin_auth
+from app.domain.security.pass_gen import generate_password
+from app.infra.tasks.email_tasks import send_notification_email
 from pydantic import BaseModel
 from typing import Optional
 
@@ -74,10 +76,30 @@ def change_username(
     
     user_service = UserService(db)
     user_service.update_username(user, data.username)
-    return {"message": "У вас новое имя пользователя!"}
+    return {"detail": "У вас новое имя пользователя!"}
 
 
-@router.put("/change-password")
+class EmailRequest(BaseModel):
+    email: str
+    
+@router.post("/pass_change_request")
+def pass_change_request(
+    request: EmailRequest, db: Session = Depends(get_db) ):
+    """
+    API Endpoint: Sending new password to the user's email.
+    """
+    user_service = UserService(db)
+    user = user_service.get_user_by_email(request.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="Аккаунт не найден")
+    new_pass = generate_password(8)
+    user_service = UserService(db)
+    user_service.update_password(user, new_pass)
+    message_body = f"Ваш новый временный пароль: {new_pass} "
+    send_notification_email.delay(user.email, message_body)
+    return {"message": "Проверьте почту"}
+
+@router.put("/change-password", status_code=status.HTTP_200_OK)
 def change_password(
     password_data: ChangePasswordDTO,
     token: str = Depends(token_scheme),
@@ -86,20 +108,20 @@ def change_password(
     """
     API Endpoint: Allows authenticated users to change their password.
     """
-
     user = user_authorization(token, db)
-
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Аккаунт не найден")
 
     if not user.verify_password(password_data.old_password):
-        raise HTTPException(status_code=400, detail="Incorrect current password")
+        raise HTTPException(status_code=400, detail="Не верный текущий пароль")
 
     if user.verify_password(password_data.new_password):
-        raise HTTPException(status_code=400, detail="New password cannot be the same as the old password")
+        raise HTTPException(status_code=400, detail="Вы ввели старый пароль")
     user_service = UserService(db)
     user_service.update_password(user, password_data.new_password)
-    return {"message": "Password changed successfully"}
+    body = "Ваш пароль изменен!"
+    send_notification_email.delay(user.email, body)
+    return {"detail": "Пароль изменен"}
 
 
 @router.put("/update-email")
@@ -114,7 +136,7 @@ def update_email(
     user = user_authorization(token, db)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Аккаунт не найден")
 
     if not user.verify_password(email_data.password):
         raise HTTPException(status_code=400, detail="Неверный пароль")
@@ -124,7 +146,7 @@ def update_email(
 
     user_service = UserService(db)
     user_service.update_email(user, email_data.new_email)
-    return {"message": "Email updated successfully"}
+    return {"detail": "Почта изменена"}
 
 
 @router.post("/logout")

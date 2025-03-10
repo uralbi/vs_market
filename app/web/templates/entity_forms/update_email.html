@@ -24,25 +24,26 @@
     
     async function updateEmail(event) {
         event.preventDefault();
-        let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-        if (!token) {
-            return;
-        }
-        token = token.split('=')[1].trim();
+        let token = getAccessTokenFromCookie();
+        if (!token) { return; }
     
-        let data = {
-            new_email: document.getElementById("new_email").value.trim(),
-            password: document.getElementById("password_email").value.trim()
-        };
-    
-        let response = await fetch("/api/auth/update-email", {
-            method: "PUT",
-            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+        showConfirmationModal("Подтверждение. \n (Восстановление пароля возможна только через почту)", async() => { 
+
+            let data = {
+                new_email: document.getElementById("new_email").value.trim(),
+                password: document.getElementById("password_email").value.trim()
+            };
+        
+            let response = await fetch("/api/auth/update-email", {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+        
+            let result = await response.json();
+            showMessage(result.detail, "warning")
+
         });
-    
-        let result = await response.json();
-        showMessage(result.detail, "warning")
     }
 
     document.getElementById("updateEmailForm").addEventListener("submit", updateEmail);

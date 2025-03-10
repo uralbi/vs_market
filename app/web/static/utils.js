@@ -157,3 +157,36 @@ async function openChat(receiverId, product_id) {
         showMessage("Вы не зарегистрированы!", "warning");
     }
 }
+
+function timeLapse(timestamp = new Date().toISOString()) {
+    const dateObj = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - dateObj) / 1000);
+
+    if (diffInSeconds < 300) return "менее 5 мин назад"; // <5 min
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин назад`; // Minutes
+    if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours} ${getHourWord(hours)} назад`; // Hours
+    }
+    if (diffInSeconds < 2592000) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `${days} ${getDayWord(days)} назад`; // Days
+    }
+
+    return formatYearMonth(timestamp); // Fallback to Year-Month if >30 days
+}
+
+// Helper function to correctly format "час", "часа", "часов"
+function getHourWord(hours) {
+    if (hours === 1 || hours % 10 === 1 && hours !== 11) return "час";
+    if ([2, 3, 4].includes(hours % 10) && ![12, 13, 14].includes(hours)) return "часа";
+    return "часов";
+}
+
+// Helper function to correctly format "день", "дня", "дней"
+function getDayWord(days) {
+    if (days === 1 || days % 10 === 1 && days !== 11) return "день";
+    if ([2, 3, 4].includes(days % 10) && ![12, 13, 14].includes(days)) return "дня";
+    return "дней";
+}

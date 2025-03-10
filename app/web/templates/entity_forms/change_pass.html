@@ -22,10 +22,7 @@
     async function updatePassword(event) {
         event.preventDefault();
         let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-        if (!token) {
-            alert("You must be logged in.");
-            return;
-        }
+        if (!token) { return; }
         token = token.split('=')[1].trim();
     
         let data = {
@@ -40,8 +37,10 @@
         });
     
         let result = await response.json();
-        alert(result.message);
+        console.log(result)
+        showMessage(result.detail, "warning")
     }
+    
     
     document.getElementById("changePasswordForm").addEventListener("submit", updatePassword);
     </script>

@@ -20,11 +20,11 @@
         <div class="card-body">
 
           <div class="pt-4 pb-2">
-            <h5 class="card-title text-center pb-0 fs-4">Войти в аккаунт</h5>
-            <p class="text-center small">Введите ваш имейл и пароль</p>
+            <h5 class="card-title text-center pb-0 fs-4">Восстановить Пароль</h5>
+            <p class="text-center small">Введите ваш имейл</p>
           </div>
 
-          <form id="loginForm" class="row g-3 needs-validation" novalidate>
+          <form id="Pass_Req_Form" class="row g-3 needs-validation" novalidate>
         
             <div class="col-12">
               <label for="email" class="form-label">Эл. почта</label>
@@ -34,17 +34,11 @@
             </div>
 
             <div class="col-12">
-              <label for="password" class="form-label">Пароль</label>
-              <input type="password" name="password" class="form-control" id="password" required>
-            </div>
-
-            <div class="col-12">
-              <button class="btn btn-primary w-100" type="submit">Войти</button>
+              <button class="btn btn-primary w-100" type="submit">Получить пароль</button>
             </div>
             
             <div class="col-12">
               <p class="small m-0"><a class="btn btn-sm btn-outline-primary p-0 px-2 my-2" href="{{ url_for('register_page') }}">Создать аккаунт</a></p>
-              <p class="small m-0"><a class="btn btn-sm btn-outline-success p-0 px-2" href="{{ url_for('pass_request_page') }}">Восстановить Пароль</a></p>
             </div> 
 
           </form>
@@ -56,33 +50,30 @@
   </div>
 
 <script>
-    document.getElementById("loginForm").addEventListener("submit", async function(event) {
+    document.getElementById("Pass_Req_Form").addEventListener("submit", async function(event) {
         event.preventDefault(); // Prevent default form submission
     
         let email = document.getElementById("email").value;
-        let password = document.getElementById("password").value;
     
-        let response = await fetch("/api/auth/token", {
-            method: "POST",
+        let response = await fetch("/api/auth/pass_change_request", {
+            method: "POST", 
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                "email": email,
-                "password": password
-            })
+            body: JSON.stringify({ "email": email })
         });
-        
+    
         let data = await response.json();
         if (response.ok) {
-            document.cookie = `access_token=${data.access_token}; path=/`; // Store token
-            document.cookie = `refresh_token=${data.refresh_token}; path=/`;
-            window.location.href = "/"; // Redirect on success
+            showMessage(data.message);
+            setTimeout(() => {
+                window.location.href = ("/login"); }, 2000);
         } else {
-            console.log(data.detail)
-            showMessage(data.detail, 'danger')
+            console.log(data.detail);
+            showMessage(data.detail, 'danger');
         }
     });
+    
 </script>
 
 {% endblock %}

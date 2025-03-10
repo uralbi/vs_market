@@ -27,6 +27,7 @@
 
             <div id="is_activated_product" class="text-danger"></div>
 
+            <p id="productTime" class="product_category"></p>
             <p id="productCategory" class="product_category"></p>
             <p id="productPrice" class="product_price"></p>
             <p id="productDescription" class="product_description"></p>
@@ -109,6 +110,7 @@
     
     function updateProductDetail(product){
         document.getElementById("productName").textContent = product.name;
+        document.getElementById("productTime").textContent = timeLapse(product.created_at);
         document.getElementById("productCategory").textContent = product.category;
         document.getElementById("productPrice").innerHTML = displayPrice_org(product.price, product.is_dollar);
         document.getElementById("productDescription").innerHTML = product.description;
@@ -249,6 +251,7 @@ function createProductCard(product, delay) {
         <div class="card-img-top">
             ${createImageCarousel2(product.id, imageUrls)}
         </div>
+        <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
         <div class="card-body">
             <a href="#" class="product-link"
                 data-product="${btoa(unescape(encodeURIComponent(JSON.stringify(product))))}">

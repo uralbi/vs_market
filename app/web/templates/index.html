@@ -129,6 +129,9 @@ function createProductCard(product, delay) {
         <div class="card-img-top image-card-top d-flex align-items-center">
             ${createImageCarousel(product.id, imageUrls)}
         </div>
+
+        <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
+
         <div class="card-body">
             <a href="/product/${product.id}?query=${queryParam}">
                 <h5 class="card-title">${truncatedName}</h5>
