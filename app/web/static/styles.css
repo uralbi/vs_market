@@ -1172,3 +1172,20 @@ button:hover .tooltip-text {
     padding: 4px 40px;
     box-shadow: 0 0 4px var(--link-color2);
 }
+#map { 
+    height: 300px; 
+    width: 90%; 
+    border-radius: 10px;
+    border: solid 1px rgb(179, 179, 179);
+    margin: 4px;
+}
+
+#product-location input{
+    border: none;
+    display: flex;
+    padding: 2px;
+    width: 90%;
+    position: relative;
+    font-size: 0.7em;
+
+}

@@ -101,42 +101,41 @@
                 <div class="tab-pane fade show active profile-edit pt-3" id="profile-chats">
                     <h5>Сообщения</h5>
                     <ul class="list-group" id="chatRoomsList"></ul>
-              </div>
+                </div>
 
                 <div class="tab-pane fade pt-3" id="profile-products">    
-                    <h5>Мои объявления</h5>
-                    {% include "product_forms/mylist.html" %}
-                  </div>
+                  <h5>Мои объявления</h5>
+                  {% include "product_forms/mylist.html" %}
+                </div>
 
-              <div class="tab-pane fade profile-edit pt-3" id="profile-movies">
-                    {% if current_user.role in ["ADMIN", "CREATOR"] %}
-                        <h5>Мои фильмы</h5>    
-                        {% include "movie_forms/mylist.html" %}
-                    {% endif %}
-                    <hr>
-                    <h5>Купленные фильмы</h5>
-                    {% include "movie_forms/order_list.html" %}
-              </div>
+                <div class="tab-pane fade profile-edit pt-3" id="profile-movies">
+                  {% if current_user.role in ["ADMIN", "CREATOR"] %}
+                      <h5>Мои фильмы</h5>    
+                      {% include "movie_forms/mylist.html" %}
+                  {% endif %}
+                  <hr>
+                  <h5>Купленные фильмы</h5>
+                  {% include "movie_forms/order_list.html" %}
+                </div>
 
-              <div class="tab-pane fade pt-3" id="profile-fav-products">
-                <h5>Мои сохраненные объявления</h5>
-                {% include "product_forms/myfavs.html" %}
-              </div>
+                <div class="tab-pane fade pt-3" id="profile-fav-products">
+                  <h5>Мои сохраненные объявления</h5>
+                  {% include "product_forms/myfavs.html" %}
+                </div>
 
-              <div class="tab-pane fade pt-3" id="profile-create-product">
-                <h5>Создать объявление</h5>
-                {% include "product_forms/create_form.html" %}
-              </div>
+                <div class="tab-pane fade pt-3" id="profile-create-product">
+                  <h5>Создать объявление</h5>
+                  {% include "product_forms/create_form.html" %}
+                </div>
 
-              
                 {% if current_user.role.value == "ADMIN" or current_user.role.value == "CREATOR" %}
-                    <div class="tab-pane fade pt-3" id="profile-upload-video">
+                  <div class="tab-pane fade pt-3" id="profile-upload-video">
                     <h5>Загрузить видео</h5>
                     {% include "movie_forms/upload_form.html" %}
-                {% endif %}
-
-              </div>
+                  </div>
+                  {% endif %}
             </div>
+            
         </div>
       </div>
         

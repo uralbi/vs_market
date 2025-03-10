@@ -30,15 +30,90 @@
     <label class='form-label' for="images">Загрузить фото (Максимально: 10)</label>
     <input class="form-control form-controm-sm" type="file" id="images" name="images" multiple accept="image/*">
 
-    <div class="form-check mt-4 fw-bold p-0">
+    <div class="form-check my-4 fw-bold p-0">
         <label class="form-label" for="activated">
             Активировать?
         </label>
         <input class="form-input" type="checkbox" id="activated" name="update_activated" checked>
     </div>
     
+    <h5>Вы можете указать местораспложение по желанию:</h5>
+    <div class="card">
+        <div class="card-body pt-3">
+
+          <ul class="nav nav-tabs nav-tabs-bordered">
+            
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings-clear"> <i class="bi bi-chevron-bar-up"></i></button>
+              </li>
+
+            <li class="nav-item">
+              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#product-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span class="tooltip-text">Местораспложение</span> </button>
+            </li>
+
+          </ul>
+
+          <div class="tab-content pt-2">
+              
+                <div class="tab-pane fade profile-edit pt-3" id="settings-clear">
+                </div>
+
+              <div class="tab-pane fade show active profile-edit p-3" id="product-location">
+                    <div class="row">
+                        <div class="col-md-2 p-2">
+                            <input type="text" id="latitude" placeholder="Широта" readonly>
+                            <input type="text" id="longitude" placeholder="Долгота" readonly>
+                            <button id="resetLocation" class="btn btn-success btn-sm mt-2">Сбросить</button>
+                        </div>
+                        <div class="col-md-10 px-2 align-content-center">
+                            <div class="card" id="map"></div>
+                        </div>
+                    </div>
+              </div>
+
+          </div>
+        </div>
+    </div>
+
     <button class="btn btn-sm btn-primary mt-3 px-5" type="submit">Создать</button>
 </form>
+
+
+<script>
+    let defaultLocation = { lat: 42.8746, lng: 74.5698 }; // Default: Bishkek
+    let map = L.map("map").setView(defaultLocation, 12);
+
+    // Load OpenStreetMap tiles
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    let marker = L.marker(defaultLocation, { draggable: true }).addTo(map);
+
+    function updateLatLng(lat, lng) {
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
+    }
+
+    map.on("click", function (e) {
+        marker.setLatLng(e.latlng);
+        updateLatLng(e.latlng.lat, e.latlng.lng);
+    });
+
+    marker.on("dragend", function () {
+        let position = marker.getLatLng();
+        updateLatLng(position.lat, position.lng);
+    });
+
+    // Reset button event listener
+    document.getElementById("resetLocation").addEventListener("click", function () {
+        marker.setLatLng(defaultLocation);
+        map.setView(defaultLocation, 12);
+        updateLatLng("", ""); // Clear the input fields
+    });
+</script>
 
 <p id="statusMessage"></p>
 
