@@ -12,49 +12,46 @@
   </nav>
 </div>
 
-<section class="section profile-info">
-    <div class="row">
-      <div class="col-xl-4">
-
-        <div class="card mb-3">
-          <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-            <h4> <small class="fs-6"> Имя </small> {{current_user.username}} </h4>
-            <h5>  <small class="fs-6"> Статус </small> {{current_user.role.value}}</h5>
-            <h6>{{current_user.email}}</h5>
-          </div>
-        </div>
-
-        <div class="card mb-3">
+  <section class="section profile-info">
+      <div class="row">
+        <div class="col-xl-4">
+          <div class="card mb-3">
             <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                <p> Профиль <small>(Видимый для всех)</small> </p>
-              <div class="card shadow-sm border-0 rounded-3 w-100 mb-4">
-                <div class="profile_info"></div>
-                    <div class="card-body p-2 profile_card">
-                        <div class="profile_card_body">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                    <span class="">Название:</span>
-                                    <span id="entityName" class="text-muted">Loading...</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                    <span class="">Телефон:</span>
-                                    <span id="entityPhone" class="text-muted">Loading...</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                    <span class="">Адрес:</span>
-                                    <span id="entityAddress" class="text-muted">Loading...</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                    <span class="">Вотсап:</span>
-                                    <span id="entityWhatsApp" class="text-muted">Loading...</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+              <h4> <small class="fs-6"> Имя </small> {{current_user.username}} </h4>
+              <h5>  <small class="fs-6"> Статус </small> {{current_user.role.value}}</h5>
+              <h6>{{current_user.email}}</h5>
             </div>
-        </div>
-
+          </div>
+          <div class="card mb-3">
+              <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                  <p> Профиль <small>(Видимый для всех)</small> </p>
+                <div class="card shadow-sm border-0 rounded-3 w-100 mb-4">
+                  <div class="profile_info"></div>
+                      <div class="card-body p-2 profile_card">
+                          <div class="profile_card_body">
+                              <ul class="list-group list-group-flush">
+                                  <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                      <span class="">Название:</span>
+                                      <span id="entityName" class="text-muted">Loading...</span>
+                                  </li>
+                                  <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                      <span class="">Телефон:</span>
+                                      <span id="entityPhone" class="text-muted">Loading...</span>
+                                  </li>
+                                  <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                      <span class="">Адрес:</span>
+                                      <span id="entityAddress" class="text-muted">Loading...</span>
+                                  </li>
+                                  <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                      <span class="">Вотсап:</span>
+                                      <span id="entityWhatsApp" class="text-muted">Loading...</span>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
       </div>
 
       <div class="col-xl-8">
@@ -142,7 +139,7 @@
             </div>
         </div>
       </div>
-      
+        
       <div class="col mt-3">
         <h5>Настройки</h5>
         <div class="card mt-3">
@@ -245,50 +242,49 @@
         </div>
       </div>
 
-    </div>
-
-    {% if current_user.role.value == "ADMIN" %}
-      <div class="col my-3">
-        <h5>Управление</h5>
-          <div class="card">
-            <div class="card-body pt-3">
-  
-              <ul class="nav nav-tabs nav-tabs-bordered">
-                
-                <li class="nav-item">
-                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-clear"> <i class="bi bi-chevron-bar-up"></i></button>
-                </li>
-
-                <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-user-management"> <i class="bi bi-people"></i> </button>
-                </li>
-  
-              </ul>
-  
-              <div class="tab-content pt-2">
-                
-                <div class="tab-pane fade profile-edit pt-3" id="profile-clear">
-                </div>
-
-                <div class="tab-pane fade profile-edit pt-3" id="profile-user-management">
-                  <h5> Пользователи </h5>
-                  {% include "entity_forms/users.html" %}
-                </div>
-  
-              </div>
-  
-            </div>
-          </div>
       </div>
-    {% endif %}
 
+      {% if current_user.role.value == "ADMIN" %}
+        <div class="col my-3">
+          <h5>Управление</h5>
+            <div class="card">
+              <div class="card-body pt-3">
+    
+                <ul class="nav nav-tabs nav-tabs-bordered">
+                  
+                  <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-clear"> <i class="bi bi-chevron-bar-up"></i></button>
+                  </li>
+
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-user-management"> <i class="bi bi-people"></i> </button>
+                  </li>
+    
+                </ul>
+    
+                <div class="tab-content pt-2">
+                  
+                  <div class="tab-pane fade profile-edit pt-3" id="profile-clear">
+                  </div>
+
+                  <div class="tab-pane fade profile-edit pt-3" id="profile-user-management">
+                    <h5> Пользователи </h5>
+                    {% include "entity_forms/users.html" %}
+                  </div>
+    
+                </div>
+    
+              </div>
+            </div>
+        </div>
+      {% endif %}
   </section>
 
+
 <div class="container">
+    {% include "components/modal.html" %}
 
-{% include "components/modal.html" %}
-
-<script>
+  <script>
     let EntityID;
 
     async function loadUserInfo(user_id) {
@@ -331,7 +327,6 @@
         loadChatRooms(token)
     });
     
-        
     async function loadChatRooms(token) {
         try {
             const response = await fetch(`/chat/rooms/`, {
@@ -470,11 +465,20 @@
             }
         });
     });
+  
+    document.querySelectorAll(".nav-link").forEach(button => {
+      button.addEventListener("touchstart", function () {
+          this.querySelector(".tooltip-text").style.visibility = "visible";
+          this.querySelector(".tooltip-text").style.opacity = "0.8";
+      });
+  
+      button.addEventListener("touchend", function () {
+          this.querySelector(".tooltip-text").style.visibility = "hidden";
+          this.querySelector(".tooltip-text").style.opacity = "0";
+      });
+    });
 
-</script>
-
-<br>
-
-
+  </script>
 </div>
+
 {% endblock %}
