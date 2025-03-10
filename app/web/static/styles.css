@@ -115,10 +115,17 @@ h1 {
     margin: 6px;
     float: left;
     width: 200px;
-    height: 240px !important;
+    height: 240px;
     border: solid 1px gray;
     transition: all 0.5s;
     border-radius: 6px;
+}
+
+@media (max-width: 744px) {
+    .product-card {
+        width: 162px;
+        height: 200px !important;
+    }
 }
 
 @media (max-width: 428px) {
