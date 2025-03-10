@@ -91,7 +91,9 @@ class MovieService:
         #         os.remove(thumb_path)
         
         movie = self.repo.get_movie_by_id(movie_id)
-        exs_path = movie.thumbnail_path.replace("/media", "media/movies/thumbs")
+        exs_path = None
+        if movie.thumbnail_path:
+            exs_path = movie.thumbnail_path.replace("/media", "media/movies/thumbs")
 
         if exs_path and exs_path != thumbnail_path and os.path.exists(exs_path):
             os.remove(exs_path)
