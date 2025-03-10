@@ -62,6 +62,7 @@
 <script>
 
     let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
+    let cach_data;
 
     if (user_favs.includes(0)) {
         console.log('58 in user favs', user_favs)
@@ -101,8 +102,28 @@
 
             const data = await response.json();
             const product = data.product
+            
             // Populate product details
-            document.getElementById("productName").textContent = product.name;
+            updateProductDetail(product)
+
+            let productContainer = document.getElementById("SearchDetailContainer");
+            let timer = 0;
+            cach_data = data.cached_data
+            if (cach_data) {
+                cach_data.forEach(product => {
+                    let productCard = createProductCard(product, timer);
+                    timer += 10;
+                    productContainer.appendChild(productCard);
+                });
+            }
+
+        } catch (error) {
+            console.error("Error loading product:", error);
+        }
+    }
+    
+    function updateProductDetail(product){
+        document.getElementById("productName").textContent = product.name;
             document.getElementById("productCategory").textContent = product.category;
             document.getElementById("productPrice").innerHTML = displayPrice_org(product.price, product.is_dollar);
             document.getElementById("productDescription").innerHTML = product.description;
@@ -128,25 +149,8 @@
                 document.getElementById("chatSeller").classList.add('d-none')
             }
             loadEntityInfo(product.owner_id)
-
-            let productContainer = document.getElementById("SearchDetailContainer");
-            let timer = 0;
-            const ch_data = data.cached_data
-            
-            if (ch_data) {
-                ch_data.forEach(product => {
-                    let productCard = createProductCard(product, timer);
-                    timer += 10;
-                    productContainer.appendChild(productCard);
-                });
-            }
-
-
-        } catch (error) {
-            console.error("Error loading product:", error);
-        }
     }
-    
+
     function createImageCard(imageUrls) {
         if (!imageUrls || imageUrls.length === 0) return "";
     
@@ -174,37 +178,6 @@
         document.getElementById("bigImage").src = newImageUrl;
     }
 
-    function createImageCarousel(images) {
-        let indicators = "";
-        let slides = "";
-    
-        images.forEach((imgUrl, index) => {
-            const activeClass = index === 0 ? "active" : "";
-            indicators += `<button type="button" data-bs-target="#productCarousel" data-bs-slide-to="${index}" class="${activeClass}" aria-label="Slide ${index + 1}"></button>`;
-            slides += `
-                <div class="carousel-item ${activeClass}">
-                    <img src="/${imgUrl}" class="d-block w-100 rounded" alt="Product Image">
-                </div>`;
-        });
-    
-            return `
-                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-indicators">${indicators}</div>
-                    <div class="carousel-inner">${slides}</div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>`;
-        }
-    
-    document.addEventListener("DOMContentLoaded", 
-            loadProductDetails  );
-    
     async function loadEntityInfo(user_id) {
     
         let response = await fetch(`/api/ent/${user_id}`, {
@@ -239,6 +212,8 @@
         });
     });
 
+document.addEventListener("DOMContentLoaded", 
+    loadProductDetails  );
 
 function createProductCard(product, delay) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -260,7 +235,9 @@ function createProductCard(product, delay) {
             ${createImageCarousel2(product.id, imageUrls)}
         </div>
         <div class="card-body">
-            <a href="/product/${product.id}?query=${encodeURIComponent(query)}"><h5 class="card-title">${truncatedName}</h5></a>
+            <a href="#" class="product-link"
+                data-product="${btoa(unescape(encodeURIComponent(JSON.stringify(product))))}">
+                    <h5 class="card-title">${truncatedName}</h5></a>
 
         {% if current_user %}
             <button class="chat_btn btn btn-outline-secondary btn-sm" 
@@ -285,8 +262,6 @@ function createProductCard(product, delay) {
                 id="pin_${product.id}" disabled>
                 <i class="bi bi-paperclip"></i>
             </button>
-
-
         {% endif %}
             <p class="card-price">
                 ${displayPrice(product.price, product.is_dollar)}
@@ -296,6 +271,28 @@ function createProductCard(product, delay) {
 
     return productCard;
 }
+
+function decodeHtmlEntities(text) {
+    let textarea = document.createElement("textarea");
+    textarea.innerHTML = text;
+    return textarea.value;
+}
+
+document.addEventListener("click", function (event) {
+    let link = event.target.closest(".product-link");
+    if (!link) return;
+
+    event.preventDefault();
+
+    try {
+        let jsonData = decodeURIComponent(escape(atob(link.dataset.product))); // Decode Base64
+        let product = JSON.parse(jsonData);  // Parse JSON safely
+        updateProductDetail(product);
+    } catch (error) {
+        console.error("JSON Parsing Error:", error);
+    }
+});
+
 
 function createImageCarousel2(productId, imageUrls) {
     let indicators = "";
