@@ -79,7 +79,6 @@
             document.cookie = `refresh_token=${data.refresh_token}; path=/`;
             window.location.href = "/"; // Redirect on success
         } else {
-            console.log(data)
             console.log(data.detail)
             showMessage(data.detail, 'danger')
         }

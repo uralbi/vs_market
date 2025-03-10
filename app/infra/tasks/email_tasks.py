@@ -63,7 +63,7 @@ def send_notification_email(self, to_email: str, body: str):
     message = EmailMessage()
     message["From"] = SMTP_USERNAME
     message["To"] = to_email
-    message["Subject"] = "Account Notification"
+    message["Subject"] = "iBer.kg: Уведомление"
 
     # Plain text fallback
     message.set_content(f"{body}")
@@ -72,7 +72,7 @@ def send_notification_email(self, to_email: str, body: str):
     html_content = f"""
     <html>
         <body>
-            <h2>You got Nofification from Our Platform!</h2>
+            <h2>Уведомление отiBer.kg!</h2>
             <p>{body}</p>
         </body>
     </html>

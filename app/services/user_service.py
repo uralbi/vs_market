@@ -69,11 +69,9 @@ class UserService:
         """Retrieves a user by ID."""
         return self.repo.get_user_by_id(user_id)
         
-
     def get_user_by_username(self, username: str) -> UserModel:
         """Retrieves a user by username."""
         return self.db.query(UserModel).filter(UserModel.username == username).first()
-    
     
     def update_username(self, user: UserModel, new_username: str):
         """Update user's username with uniqueness check."""
@@ -87,14 +85,12 @@ class UserService:
             self.db.rollback()
             raise HTTPException(status_code=500, detail="Ошибка при обновлении имени пользователя")
 
-        
-        
     def update_password(self, user: UserModel, new_password: str):
         """Update user's password with hashing."""
         user.hashed_password = get_password_hash(new_password)
         self.db.commit()
         self.db.refresh(user)
-        body = "Your Password is Changed!"
+        body = "Ваш пароль изменен!"
         send_notification_email.delay(user.email, body)
 
     def update_email(self, user: UserModel, new_email: str):
@@ -128,7 +124,7 @@ class UserService:
         user = self.repo.get_user_by_id(user_id)
         if not user:
             return HTTPException(status_code=404, detail="User Not Found")
-        message_body = f"Your account ({user.email}) has been deactivated."
+        message_body = f"Ваш аккаунт iBer.kg ({user.email}) деактивирован."
         send_notification_email.delay(user.email, message_body)
         return self.repo.deactivate_user(user_id)
     
@@ -136,7 +132,7 @@ class UserService:
         user = self.repo.get_user_by_id(user_id)
         if not user:
             return HTTPException(status_code=404, detail="User Not Found")
-        message_body = f"Your account ({user.email}) has been Activated."
+        message_body = f"Ваш аккаунт iBer.kg ({user.email}) активирован."
         send_notification_email.delay(user.email, message_body)
         return self.repo.activate_user(user_id)
     
@@ -160,5 +156,8 @@ class UserService:
         return self.repo.remove_from_favorites(product, user)
     
     def update_user_role(self, user_id: int, user_role: UserRole):
+        user = self.repo.get_user_by_id(user_id)
+        body = f"Ваш статус изменен на: {user_role.value}"
+        send_notification_email.delay(user.email, body)
         return self.repo.update_user_role(user_id, user_role)
         

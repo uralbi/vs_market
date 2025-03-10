@@ -29,7 +29,7 @@
     async function openPurchaseModal() {
         let token = getAccessTokenFromCookie();
         if (!token) {
-            showMessage("Войдите в свой аккаунт!", "warning")
+            showMessage("Войдите в Аккаунт!", "warning")
             return
         }
         movieId = new URLSearchParams(window.location.search).get("id");
@@ -204,7 +204,7 @@
         
         if (!signedHlsUrl) {
             buyBtn.style.display = "block";
-            showMessage("Ошибка при получении потока. Купите доступ.", "warning");
+            showMessage("Купите доступ.", "warning");
             return;
         }
 
@@ -230,10 +230,11 @@
                             buyBtn.style.display = "block";
                             showMessage(`${msg.detail}`, "warning");
                         } else {
-                            showMessage("Ошибка загрузки HLS-потока. Проверьте сеть.", "warning");
+                            showMessage("Ошибка загрузки видео. Проверьте сеть.", "warning");
                         }
                     } catch (e) {
-                        showMessage(e, "warning");
+                        console.log(e)
+                        showMessage("Ошибка загрузки", "warning");
                     }
                 }
             });

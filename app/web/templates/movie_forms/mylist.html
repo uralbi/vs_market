@@ -126,7 +126,8 @@
             
                     if (!response.ok) {
                         let error = await response.json()
-                        showMessage(error.detail, "danger")
+                        console.log(error.detail)
+                        showMessage("Ошибка при удалении", "danger")
                     } else {
                         showMessage("Фильм удален", "success")
                         setTimeout(() => {
@@ -136,7 +137,7 @@
                     
                 } catch (error) {
                     console.log("error in deletion:", error.message)
-                    showMessage(error.message, "warning")
+                    showMessage("Ошибка при удалении", "warning")
                 }
             });
         }
