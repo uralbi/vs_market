@@ -110,14 +110,13 @@ h1 {
     top: 10px;
     right: 10px;
 }
+
 .product-card {
     margin: 6px;
     float: left;
     width: 200px;
     height: 240px !important;
     border: solid 1px gray;
-    /* box-shadow: 2px 2px 4px var(--link-color3),
-                -1px -1px 6px #ffffff; */
     transition: all 0.5s;
     border-radius: 6px;
 }
@@ -195,9 +194,11 @@ h1 {
     overflow: hidden;
     height: 160px;
 }
+
 .product-card .card-img-top img{
     margin: 0px;
     width: 100%;
+    min-height: 160px;
 }
 
 #favorite-products {
@@ -486,7 +487,10 @@ h1 {
     float: left;
     justify-content: start;
     }
-    
+
+#SearchDetailContainer .product-card{
+    width: 180px;
+}
 /* NAVIGATION */
 .navigation .nav-link i {
     color: #b2bdef;
