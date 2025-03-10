@@ -31,26 +31,12 @@
             <p id="productPrice" class="product_price"></p>
             <p id="productDescription" class="product_description"></p>
 
-            <div class="prodcut_ent_Name" id="entityName"></div>
-            <div class="prodcut_ent_Address" id="entityAddress"></div>
-            <div class="prodcut_ent_Phone" id="entityPhone"></div>
-            <div class="prodcut_ent_WhatsApp" id="entityWhatsApp"></div>
+            <div class="product_ent_Name" id="entityName"></div>
+            <div class="product_ent_Address" id="entityAddress"></div>
+            <div class="product_ent_Phone" id="entityPhone"></div>
+            <div class="product_ent_WhatsApp" id="entityWhatsApp"></div>
 
-            <div class="mt-3"> 
-                {% if current_user %}
-                <a href="#" id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></a>
-                
-                {% if product_id in current_user.favorite_products | get_ids | list %}
-                    <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-primary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
-                {% else %}
-                    <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})"><i class="bi bi-paperclip"></i></button>
-                {% endif %}
-
-                
-                {% else %}
-                <button disabled id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></button>
-                <button id="pin_{{product_id}}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites({{product_id}})" disabled><i class="bi bi-paperclip"></i></button>
-                {% endif  %}
+            <div class="mt-3" id="productBtns"> 
             </div>
         </div>
     </div>
@@ -62,11 +48,10 @@
 <script>
 
     let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
+    let curr_user = {{ current_user.id if current_user else "null" }};
     let cach_data;
 
-    if (user_favs.includes(0)) {
-        console.log('58 in user favs', user_favs)
-    }
+    if (user_favs.includes(0)) { console.log('0 in user favs', user_favs) }
 
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -124,31 +109,52 @@
     
     function updateProductDetail(product){
         document.getElementById("productName").textContent = product.name;
-            document.getElementById("productCategory").textContent = product.category;
-            document.getElementById("productPrice").innerHTML = displayPrice_org(product.price, product.is_dollar);
-            document.getElementById("productDescription").innerHTML = product.description;
-            
-            if (!product.activated) {
-                let elem = document.getElementById("is_activated_product").textContent = "Не опубликован!"
-            }
-            
-            // Display all product images in Bootstrap Carousel
-            const imageContainer = document.getElementById("productImageContainer");
-            if (product.image_urls.length > 0) {
-                imageContainer.innerHTML = createImageCard(product.image_urls);
-            } else {
-                imageContainer.innerHTML = `<img src="/static/default-product.jpg" 
-                class="img-fluid rounded shadow" alt="Product Image">`;
-            }
-    
-            // Update chat link
-            document.getElementById("chatSeller").dataset.receiverId = product.owner_id;
-            document.getElementById("chatSeller").dataset.productId = product.id;
+        document.getElementById("productCategory").textContent = product.category;
+        document.getElementById("productPrice").innerHTML = displayPrice_org(product.price, product.is_dollar);
+        document.getElementById("productDescription").innerHTML = product.description;
+        
+        if (!product.activated) {
+            let elem = document.getElementById("is_activated_product").textContent = "Не опубликован!"
+        }
 
-            if (product.owner_id == "{{current_user.id}}") {
-                document.getElementById("chatSeller").classList.add('d-none')
-            }
-            loadEntityInfo(product.owner_id)
+        let primary = "secondary";
+        if (user_favs.includes(product.id)) {
+            primary = "primary"
+        }
+
+         let btns = document.getElementById("productBtns")
+         if (curr_user) {
+            btns.innerHTML = `
+                <button id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> 
+                    <i class="bi bi-chat-left-text"></i></button>
+                <button id="pin_${product.id}" class="btn btn-sm btn-outline-${primary}" onclick="addToFavorites(${product.id})">
+                    <i class="bi bi-paperclip"></i></button> 
+                `;
+         }else {
+            btns.innerHTML = `
+                <button disabled id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></button>
+                <button id="pin_${product.id}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites(${product.id})" disabled><i class="bi bi-paperclip"></i></button>
+                `;
+         }
+         // btns.innerHTML = `   <button>test</button> `;
+
+        // Display all product images in Bootstrap Carousel
+        const imageContainer = document.getElementById("productImageContainer");
+        if (product.image_urls.length > 0) {
+            imageContainer.innerHTML = createImageCard(product.image_urls);
+        } else {
+            imageContainer.innerHTML = `<img src="/static/default-product.jpg" 
+            class="img-fluid rounded shadow" alt="Product Image">`;
+        }
+
+        // Update chat link
+        document.getElementById("chatSeller").dataset.receiverId = product.owner_id;
+        document.getElementById("chatSeller").dataset.productId = product.id;
+
+        if (product.owner_id == "{{current_user.id}}") {
+            document.getElementById("chatSeller").classList.add('d-none')
+        }
+        loadEntityInfo(product.owner_id)
     }
 
     function createImageCard(imageUrls) {
@@ -199,19 +205,23 @@
         }
     }
 
-    document.querySelectorAll(".chat_link_btn").forEach(button => {
-        button.addEventListener("click", async function () {
-            try{ await authenticatedRequest('me') }
-            catch(error){
-                showMessage("Войдите чтоб написать продавцу.", "warning")
-                return
-            }
-            const receiverId = this.getAttribute("data-receiver-id");
-            const productId = this.getAttribute("data-product-id");
-            window.location.href = `/messages/users?user_id={{current_user.id}}&receiver_id=${receiverId}&product_id=${productId}`;
-        });
+    document.addEventListener("click", async function (event) {
+        let button = event.target.closest(".chat_link_btn");
+        if (!button) return; // Exit if the clicked element is not a chat button
+    
+        try {
+            await authenticatedRequest('me');
+        } catch (error) {
+            showMessage("Войдите чтоб написать продавцу.", "warning");
+            return;
+        }
+    
+        const receiverId = button.getAttribute("data-receiver-id");
+        const productId = button.getAttribute("data-product-id");
+    
+        window.location.href = `/messages/users?user_id={{current_user.id}}&receiver_id=${receiverId}&product_id=${productId}`;
     });
-
+    
 document.addEventListener("DOMContentLoaded", 
     loadProductDetails  );
 
@@ -230,6 +240,11 @@ function createProductCard(product, delay) {
     ? productName.substring(0, maxLength) 
     : productName;
     
+    let primary = "secondary";
+    if (user_favs.includes(product.id)) {
+        primary = "primary"
+    }
+
     productCard.innerHTML = `
         <div class="card-img-top">
             ${createImageCarousel2(product.id, imageUrls)}
@@ -246,12 +261,12 @@ function createProductCard(product, delay) {
                 <i class="bi bi-chat-left-text"></i>
             </button>
 
-            <button class="btn btn-sm btn-outline-secondary pin_btn"
+            <button class="btn btn-sm btn-outline-${primary} pin_btn"
                 id="pin_${product.id}" 
                 onclick="addToFavorites(${product.id})">
                 <i class="bi bi-paperclip"></i>
             </button>
-            {% else %}
+        {% else %}
 
             <button class="chat_btn btn btn-outline-secondary btn-sm" 
                 data-aos-delay="10" disabled>
