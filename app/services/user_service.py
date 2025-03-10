@@ -113,7 +113,7 @@ class UserService:
 
     def send_activation_email(self, email: str):
         acc_token = create_access_token({"sub": email})
-        verification_link = f"{settings.DOMAIN}/api/auth/verify-email?token={acc_token}"
+        verification_link = f"{settings.DOMAIN}/activated?token={acc_token}"
         send_verification_email.delay(email, verification_link)
     
     def get_favorites(self, user_id: int) -> List[ProductDTO]:
@@ -129,12 +129,14 @@ class UserService:
         return self.repo.deactivate_user(user_id)
     
     def activate_user(self, user_id: int):
+        """ User activation by Admin with activate notification """
         user = self.repo.get_user_by_id(user_id)
         if not user:
             return HTTPException(status_code=404, detail="User Not Found")
+        query = self.repo.activate_user(user_id)
         message_body = f"Ваш аккаунт iBer.kg ({user.email}) активирован."
         send_notification_email.delay(user.email, message_body)
-        return self.repo.activate_user(user_id)
+        return query
     
     def get_all_users(self, limit: int, offset: int, 
                       email: Optional[str]=None, is_active: Optional[bool]=None) -> List[UserModel]:

@@ -205,12 +205,10 @@ async def login(user: UserLoginDTO, db: Session = Depends(get_db)):
         "token_type": "bearer"
     }
 
-
 @router.post("/register")
 def register(user_data: UserRegistrationDTO, db: Session = Depends(get_db)):
     user_service = UserService(db)
     return user_service.register_user(user_data)
-
 
 @router.get("/verify-email")
 async def verify_email(token: str = Query(...), db: Session = Depends(get_db)):
