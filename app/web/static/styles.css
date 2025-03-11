@@ -81,7 +81,12 @@ body a:hover {
     min-width: 200px;
     min-height: 180px;
   }
-
+.my-navbar .nav-link {
+    display: inline-flex;
+  }
+  .my-navbar .nav-link i {
+    margin: 0px 6px;
+  }
 h1 {
     font-size: 24px !important;
     margin-bottom: 0;
@@ -579,7 +584,34 @@ h1 {
     border-radius: 4px;
   }
 
-.dark-mode .product-card {
+.dark-mode .product_description {
+    border-top: solid 4px  #42477a;
+    border-bottom: solid 4px  #42477a;
+}
+
+.dark-mode .product_description::-webkit-scrollbar {
+    width: 10px; /* Vertical scrollbar */
+    height: 10px; /* Horizontal scrollbar */
+}
+
+/* Scrollbar track (background) */
+.dark-mode .product_description::-webkit-scrollbar-track {
+    background: #000000;
+    border: solid 0.2px #5a5d7f;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding: 0 1px;
+}
+
+/* Scrollbar thumb (draggable part) */
+.dark-mode .product_description::-webkit-scrollbar-thumb {
+    background: #a6a8ba;
+    border-radius: 10px;
+}
+
+/* Scrollbar thumb on hover */
+.dark-mode .product_description::-webkit-scrollbar-thumb:hover {
+    background: #cecfdb;
 }
 
 .dark-mode .form-control {

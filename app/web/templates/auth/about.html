@@ -69,12 +69,12 @@
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-products"> <i class="bi bi-box-seam-fill"></i> 
                   <span class="tooltip-text">Объявления</span> </button>
                 </li>
-
+            {% if current_user.role.value == "ADMIN" or current_user.role.value == "CREATOR" %}
               <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-movies"> <i class="bi bi-collection-play-fill"></i> 
                   <span class="tooltip-text">Мои Видео</span> </button>
               </li>
-            
+            {% endif %}
               <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-fav-products"><i class="bi bi-bookmarks-fill"></i>
                   <span class="tooltip-text">Сохранненные</span> </button>
