@@ -22,12 +22,12 @@ def admin_page(request: Request, context: dict = Depends(global_context)):
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("auth/admin.html", {**context, "title": "iBer"})
+    return templates.TemplateResponse("auth/admin.html", {**context, "title": "Aiber Admin"})
 
 @router.get("/password-change-form", name="pass_request_page")
 def pass_request_page(request: Request, context: dict = Depends(global_context)):
     """Serve the Admin page"""
-    return templates.TemplateResponse("auth/pass_request.html", {**context, "title": "iBer"})
+    return templates.TemplateResponse("auth/pass_request.html", {**context, "title": "Aiber Update"})
     
 @router.get("/activated", name="activation_page")
 def activation_page(request: Request, db: Session = Depends(get_db)):
@@ -55,12 +55,12 @@ def activation_page(request: Request, db: Session = Depends(get_db)):
         user.is_active = True
         db.commit()
     
-    return templates.TemplateResponse("auth/activated.html", {"title": "iBer", "status": status})
+    return templates.TemplateResponse("auth/activated.html", {"title": "Aiber Auth", "status": status})
 
 @router.get("/login", name="login_page")
 def about_page(request: Request, context: dict = Depends(global_context)):
     """Serve the Login page"""
-    return templates.TemplateResponse("auth/login.html", {**context, "title": "iBer"})
+    return templates.TemplateResponse("auth/login.html", {**context, "title": "Aiber Login"})
 
 @router.get("/about")
 def contact_page(request: Request, context: dict = Depends(global_context)):
@@ -69,9 +69,9 @@ def contact_page(request: Request, context: dict = Depends(global_context)):
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
 
-    return templates.TemplateResponse("auth/about.html", {**context, "title": "iBer"})
+    return templates.TemplateResponse("auth/about.html", {**context, "title": "Aiber Profile"})
 
 @router.get("/register", name="register_page")
 def register_page(request: Request, context: dict = Depends(global_context)):
     """Serves the registration page."""
-    return templates.TemplateResponse("auth/register.html", {**context, "title": "iBer"})
+    return templates.TemplateResponse("auth/register.html", {**context, "title": "Aiber Auth"})

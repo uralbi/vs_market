@@ -19,25 +19,25 @@ def stream_movie_page(request: Request, context: dict = Depends(global_context))
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("movie_forms/update.html", {**context, })
+    return templates.TemplateResponse("movie_forms/update.html", {**context, "title": "Aiber Update"})
 
 @router.get("/search")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
     """ Movie Search page """
 
-    return templates.TemplateResponse("movie_forms/search.html", {**context, })
+    return templates.TemplateResponse("movie_forms/search.html", {**context, "title": "Aiber Search"})
 
 @router.get("/preview")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
     """ Movie View page """
 
-    return templates.TemplateResponse("movie_forms/preview.html", {**context, })
+    return templates.TemplateResponse("movie_forms/preview.html", {**context, "title": "Aiber Preview"})
 
 @router.get("/stream")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
     """ Movie View page """
 
-    return templates.TemplateResponse("movie_forms/stream.html", {**context, })
+    return templates.TemplateResponse("movie_forms/stream.html", {**context, "title": "Aiber Stream"})
 
 @router.get("/upload")
 def upload_page(request: Request, context: dict = Depends(global_context)):
@@ -45,4 +45,4 @@ def upload_page(request: Request, context: dict = Depends(global_context)):
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("movie_forms/upload.html", {**context, })
+    return templates.TemplateResponse("movie_forms/upload.html", {**context, "title": "Aiber Post"})

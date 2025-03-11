@@ -18,7 +18,7 @@ router = APIRouter(
 def get_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Product Detail page """
 
-    return templates.TemplateResponse("product_forms/detail.html", {**context, "product_id": product_id,})
+    return templates.TemplateResponse("product_forms/detail.html", {**context, "product_id": product_id,"title": "Aiber Item"})
 
 @router.get("/messages")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
@@ -31,7 +31,7 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
     chat_service = ChatService(db)
     other_id = chat_service.get_other_user_id(room_id, user_id)
     
-    return templates.TemplateResponse("chat.html", {**context, "other_id": other_id})
+    return templates.TemplateResponse("chat.html", {**context, "other_id": other_id, "title": "Aiber Chat"})
 
 @router.get("/messages/users")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
@@ -53,13 +53,13 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
         subject = prod.name
     chat_service = ChatService(db)
     room = chat_service.get_or_create_chat_room(user_id, receiver_id, subject)
-    return templates.TemplateResponse("chat.html", {**context, "other_id": receiver_id, "room_id": room.id, 'product': subject })
+    return templates.TemplateResponse("chat.html", {**context, "other_id": receiver_id, "room_id": room.id, 'product': subject, "title": "Aiber Chat"})
 
 
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):
     """ Serve the product listing page """
-    return templates.TemplateResponse("index.html", {**context, "title": "iMarket"})
+    return templates.TemplateResponse("index.html", {**context, "title": "Aiber Main"})
 
 @router.get("/update-product/{product_id}")
 def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
@@ -75,4 +75,4 @@ def create_product_page(request: Request, context: dict = Depends(global_context
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("product_forms/create.html", {**context, "title": "Create Product"})
+    return templates.TemplateResponse("product_forms/create.html", {**context, "title": "Aiber Post"})
