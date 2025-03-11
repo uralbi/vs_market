@@ -28,7 +28,7 @@ This is a high-performance **marketplace and video streaming platform** built us
 - **Backend:** FastAPI (Python)  
 - **Database:** PostgreSQL  
 - **Authentication:** JWT-based authentication  
-- **Asynchronous Processing:** Celery + Redis  
+- **Asynchronous Processing:** Celery + Redis  [Comming: Kafka, installed and producer is ready]
 - **WebSockets:** Django Channels for real-time chat  
 - **Deployment:** AWS EC2 (Ubuntu)  
 
