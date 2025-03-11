@@ -4,7 +4,7 @@ from app.api.routes import users, entiities, products, favorites, chat, video
 from app.api.websockets import chat_ws2
 from app.web.routes import web_routes, web_product_routes, web_v_routes
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.domain.security.signed_url import create_encryption_keyinfo
 from contextlib import asynccontextmanager
 from app.infra.redis_fld.redis_config import set_eviction_policy
 
@@ -21,6 +21,8 @@ async def lifespan(app: FastAPI):
     yield                                       
 
 app = FastAPI(lifespan=lifespan)
+
+create_encryption_keyinfo()
 
 BLOCKED_IPS = {"192.168.1.100", "203.0.113.42"} 
 

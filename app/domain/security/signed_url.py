@@ -6,9 +6,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 SECRET_KEY = os.getenv("SECRET_KEY_URL") 
 TOKEN_ENC_EXPIRY = 600  # 🔥 Key expires in 10 minutes
 TOKEN_EXPIRY = 60
+DOMAIN = os.getenv("DOMAIN")
 
 def generate_signature(movie_id: int, filename: str) -> str:
     """
@@ -29,14 +31,15 @@ def generate_signature(movie_id: int, filename: str) -> str:
 
 
 def create_encryption_keyinfo():
-    key_url = "http://127.0.0.1:8000/api/movies/encryption_key"
+    key_url = f"{DOMAIN}/api/movies/encryption_key"
     key_path = os.path.abspath("app/domain/security/encryption.key") 
     keyinfo_path = os.path.abspath("app/domain/security/encryption.keyinfo")
     if not os.path.exists(key_path):
         os.system(f"openssl rand 16 > {key_path}")
     iv_hex = os.urandom(16).hex()  
     with open(keyinfo_path, "w") as f:
-        f.write(f"{key_url}\n{key_path}\n{iv_hex}\n")  # Use a 16-byte IV
+        f.write(f"{key_url}\n{key_path}\n{iv_hex}\n") # Use a 16-byte IV
+    print('Encryption key is generated')
         
 
 def generate_signed_key_url(movie_id: int) -> str:
@@ -49,7 +52,7 @@ def generate_signed_key_url(movie_id: int) -> str:
     signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).digest()
     encoded_signature = base64.urlsafe_b64encode(signature).decode()
 
-    return f"http://127.0.0.1:8000/api/movies/encryption_key?exp={expiry_time}&sig={encoded_signature}"
+    return f"{DOMAIN}/api/movies/encryption_key?exp={expiry_time}&sig={encoded_signature}"
 
 
 def update_variant_playlists_with_signed_urls(hls_directory: str, movie_id: int):
