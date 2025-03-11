@@ -7,6 +7,7 @@ from app.core.config import settings
 logging.config.dictConfig(settings.LOGGING)
 logger = logging.getLogger(__name__)
 
+DOMAIN = os.getenv("DOMAIN")
 
 def get_video_resolution(input_video_path: str):
     """
@@ -48,7 +49,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
         str: Path to the master `.m3u8` playlist.
     """
     keyinfo_path = "app/domain/security/encryption.keyinfo"
-    key_url = "http://127.0.0.1:8000/api/movies/encryption_key"
+    key_url = f"{DOMAIN}/api/movies/encryption_key"
     Path(output_dir).mkdir(parents=True, exist_ok=True)  # Ensure output directory exists
     filename = Path(input_video_path).stem  # Extract filename without extension
     width, height = get_video_resolution(input_video_path)
@@ -83,21 +84,21 @@ def convert_to_hls(input_video_path: str, output_dir: str):
             "-vf", f"scale={variant['resolution']}",  # Resize video
             "-c:v", "libx264",
             "-preset", "fast",
-            "-crf", "23",   # Optimized quality-to-file-size ration
+           # "-crf", "23",   # Optimized quality-to-file-size ration cant use with -b:v (use one)
             "-b:v", variant["bitrate"],
             "-maxrate", str(int(variant["bitrate"].replace("k", "")) * 1.5) + "k",  # Prevent bitrate spikes
             "-bufsize", "5000k",
-            "-g", "50", # GOP size (FPS * HLS segment duration)
+            #"-g", "50", # GOP size (FPS * HLS segment duration)
             "-threads", "auto",
-            "keyint_min", "50", # Ensures keyframes are not too frequent
-            "-sc_threshold", "0",  # Prevents unnecessary scene changes affecting file size
+            #"keyint_min", "50", # Ensures keyframes are not too frequent
+            #"-sc_threshold", "0",  # Prevents unnecessary scene changes affecting file size
             "-c:a", "aac",
             "-b:a", "128k",
             "-ac", "2",
             "-f", "hls",
             "-hls_time", "10",
             "-hls_playlist_type", "vod",
-             "-hls_flags", "independent_segments",  # Ensures keyframe alignment across variants
+            #"-hls_flags", "independent_segments",  # Ensures keyframe alignment across variants
             "-hls_key_info_file", keyinfo_path, # Use AES-128 encryption
             "-hls_segment_filename", variant_ts_files,
             variant_output_m3u8
@@ -139,10 +140,13 @@ def generate_thumbnail(video_path: str, filename: str, time: int = 20) -> str:
     ]
 
     try:
-        subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return thumbnail_path
-    except subprocess.CalledProcessError:
-        return None
+        result = subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if os.path.exists(thumbnail_path):
+            return thumbnail_path
+        else:
+            return f"Thumbnail not created: {thumbnail_path}"
+    except subprocess.CalledProcessError as e:
+        return f"Error thumbnail: {e.stderr.decode()}"
 
 
 def get_video_duration(video_path: str) -> float:

@@ -57,10 +57,11 @@ def generate_thumbnail_task(movie_id: int, video_path: str, filename: str, time:
 
     db: Session = SessionLocal()
     try:
-        thumbnail_path = generate_thumbnail(video_path, filename, 5)        
-        movie_service = MovieService(db)
-        movie_service.update_movie_thumbnail(movie_id, thumbnail_path)
-        return {"message": f"Thumbnail is updated for movie {movie_id}",}
+        thumbnail_path = generate_thumbnail(video_path, filename, 5)
+        if thumbnail_path:       
+            movie_service = MovieService(db)
+            movie_service.update_movie_thumbnail(movie_id, thumbnail_path)
+            return {"message": f"Thumbnail is updated for movie {movie_id}",}
     except Exception as e:
         db.rollback()
         return {"error": f"Thumbnail generation failed {e}"}

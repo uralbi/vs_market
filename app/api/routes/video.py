@@ -320,13 +320,16 @@ async def upload_movie(
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+        buffer.flush()
 
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        raise HTTPException(status_code=500, detail="File upload failed. Please try again.")
+    
     mov_service = MovieService(db) # Create movie entry in the database
     movie = mov_service.create_movie(title, description, price, file_path, is_public, owner_id=user.id)
     
     process_video_hls.delay(file_path, HLS_FOLDER, movie.id) # Trigger HLS conversion via Celery
-    
-    generate_thumbnail_task.delay(movie.id, str(file_path), f"movie_{movie.id}")
+    generate_thumbnail_task.delay(movie.id, str(file_path), f"th_{filename}")
 
     return {"message": "Upload successful, processing started!", "movie_id": movie.id, "file_path": file_path}
 
