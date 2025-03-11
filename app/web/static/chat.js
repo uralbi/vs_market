@@ -51,7 +51,7 @@ async function InitializeChat(room_id, access_token){
     if (hostName === '127.0.0.1'){
         back_host = '127.0.0.1:8000'
         } else {
-        back_host = '3.127.61.187'
+        back_host = 'ai-ber.com'
         }
 
     recieverId = user2Id;

@@ -96,7 +96,7 @@
                 const movieCard = document.createElement("tr");        
                 movieCard.innerHTML = `
                     <th scope="row"><a href="#"><img src="${movie.thumbnail_path}" alt="Movie Image"></a></th>
-                    <td><a href="/movies/stream?id=${movie.id}">${movie.title}</a></td>
+                    <td><a href="/movies/stream?id=${movie.id}">${movie.title}</a><br> <small>${(movie.duration / 60).toFixed(0)} мин</small> </td>
                     <td class="is_active"> ${movie.is_public? "Активный":"Не активный"} </td>
                     <td> ${movie.price} сом </td>
                     <td><a class="btn btn-sm btn-outline-primary my_item_update_btn" href="/movies/update?id=${movie.id}"><i class="bi bi-pencil-square"></i></a></td>
