@@ -35,5 +35,6 @@ This is a high-performance **marketplace and video streaming platform** built us
 ## **Installation and Setup**
 ### **1. Clone the Repository**
 ```sh
-git clone https://github.com/yourusername/fastapi-market-platform.git
-cd fastapi-market-platform
+git clone https://github.com/uralbi/vs_market.git
+pip install poetry
+poetry install
