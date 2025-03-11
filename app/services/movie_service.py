@@ -43,11 +43,7 @@ class MovieService:
             return False
 
         if movie.thumbnail_path:
-            thumb_path = movie.thumbnail_path.replace("/media", "/media/movies/thumbs")
-            print("orig:", movie.thumbnail_path)
-            print('after:', thumb_path)
-            # before thumb: /media/movie_22.jpg
-            # after thubm: /media/movies/thumbs/movie_22.jpg
+            thumb_path = movie.thumbnail_path.replace("/media", "media/movies/thumbs").strip()
             if os.path.exists(thumb_path):
                 os.remove(thumb_path)
                 
