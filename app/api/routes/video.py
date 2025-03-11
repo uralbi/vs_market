@@ -23,6 +23,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 load_dotenv()
+DOMAIN = os.getenv("DOMAIN")
 
 router = APIRouter(
     prefix="/api/movies",
@@ -455,7 +456,7 @@ async def stream_hls(movie_id: int, token: str = Security(token_scheme), db: Ses
     
     master_playlist_path = f"{base_filename}_master.m3u8" # disk path
 
-    base_url = f"http://127.0.0.1:8000/api/movies/master/{movie_id}"
+    base_url = f"{DOMAIN}/api/movies/master/{movie_id}"
     signed_master_url = f"{base_url}/{master_playlist_path}?exp={int(time.time()) + 600}&sig={generate_signature(movie_id, master_playlist_path)}"
     return JSONResponse({"hls_url": signed_master_url})
 
@@ -518,7 +519,7 @@ async def serve_hls_segment(movie_id: int, segment_filename: str,
 
                 elif line.endswith(".ts"):  # ✅ Sign `.ts` segment files
                     signed_ts_url = (
-                        f"http://127.0.0.1:8000/api/movies/segment/{movie_id}/{line}"
+                        f"{DOMAIN}/api/movies/segment/{movie_id}/{line}"
                         f"?exp={int(time.time()) + 600}&sig={generate_signature(movie_id, line)}&fld={fld}"
                     )
                     updated_playlist.write(signed_ts_url + "\n")

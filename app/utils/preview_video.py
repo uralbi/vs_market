@@ -1,10 +1,13 @@
-import subprocess, os, tempfile
-from fastapi import FastAPI, HTTPException
-from app.services.movie_service import MovieService
-from app.infra.database.models import MovieModel
-from app.domain.security.signed_url import generate_signed_url
+import os
+from fastapi import HTTPException
 from pathlib import Path
+import logging.config
+from app.core.config import settings
 
+logging.config.dictConfig(settings.LOGGING)
+logger = logging.getLogger(__name__)
+
+DOMAIN = os.getenv("DOMAIN")
 
 def filter_m3u8(movie):
     """
@@ -38,7 +41,7 @@ def filter_m3u8(movie):
         "#EXT-X-MEDIA-SEQUENCE:0", "#EXT-X-PLAYLIST-TYPE:VOD",
         ]
 
-    key_url = "http://127.0.0.1:8000/api/movies/encryption_key"
+    key_url = f"{DOMAIN}/api/movies/encryption_key"
     new_lines.append(f'#EXT-X-KEY:METHOD=AES-128,URI="{key_url}"')
     
     current_time = 0  
