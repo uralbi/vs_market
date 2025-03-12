@@ -12,6 +12,7 @@ cookies.txt
 reqs.txt
 reqs2.txt
 tests/
+app/utils/dsreqs.py
 app/web/static/uploads/*
 app/logs/*
 !app/logs/

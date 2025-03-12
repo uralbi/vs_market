@@ -1,6 +1,6 @@
 :root {
     --title-color: rgb(76, 76, 76);
-    --price-color: rgb(161 47 11);
+    --price-color: rgb(177, 87, 59);
     --dark-bg-color: #2c315c;
     --dark-bg-color2: #1f2349;
     --light-bg-color: #e3e5ed;
@@ -341,21 +341,16 @@ h1 {
 .product_price small {
     color: green; }
 .product_description{
-    /* white-space: pre-line; */
     border-top: solid 4px #d8dcef;
     max-height: 300px;
     overflow-y: scroll;
     padding: 10px 6px;
     border-bottom: solid 4px #d8dcef;
-    /* box-shadow: 0px 0px 18px -10px #3f477b; */
     border-radius: 6px; 
     overflow-x: hidden;}
-
 .product_description .detail-text-points {
     padding: 8px 0;
-    font-size: 0.9em;
-}
-
+    font-size: 0.9em;}
 .product_description li {
     background: none;
     padding: 2px 12px;
@@ -426,7 +421,7 @@ h1 {
  }
 .dark-mode {
     background-color: #080912 !important;
-    color: rgb(112, 121, 138) !important; }
+    color: rgb(159, 165, 177) !important; }
 .dark-mode .card-body {
     background-color: #13152d !important;
     border-radius: 4px;
@@ -474,7 +469,7 @@ h1 {
     background-color: #333 !important;
     color: rgb(152, 152, 152); }
 .dark-mode .card textarea::placeholder{
-    color: rgb(123, 123, 123); }
+    color: rgb(123, 123, 123);}
 .dark-mode a {
     color: rgb(113, 130, 207) !important; }
 .dark-mode .pin_btn:hover, .dark-mode .chat_btn:hover{
@@ -484,8 +479,8 @@ h1 {
 .dark-mode a:hover {
     color: rgb(173, 183, 227) !important; }
 .dark-mode .list-group-item {
-    background-color: #333;
-    color: rgb(184, 183, 183); }
+    color: rgb(150, 142, 142) !important;
+    border-color: #2a2c47 !important;   }
 .dark-mode input {
     background-color: #333; /* Darker background */
     color: rgb(122, 118, 118);

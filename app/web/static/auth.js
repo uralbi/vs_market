@@ -169,12 +169,14 @@ function displayPrice(price, isDollar) {
 
 function displayPrice_org(price, isDollar) {
     const exchangeRate = 87.8;
+    const formatNumber = num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
     if (isDollar) {
         let som = price * exchangeRate;
-        return `$${price} <br> <small> ${som.toFixed(2)} c.</small>`;
+        return `$ ${formatNumber(price)} <br> <small> ${formatNumber(som.toFixed(0))} c.</small>`;
     } else {
         let usd = price / exchangeRate;
-        return `${price} c.<br><small> $${usd.toFixed(2)} </small>`;
+        return `${formatNumber(price)} c.<br><small> $${formatNumber(usd.toFixed(0))} </small>`;
     }
 }
 
