@@ -60,7 +60,6 @@ async def search_products(
     # Store result in Redis (expires in 1 hour 3600 secs 1 min 60 sec)
     serialized_results = [r.model_dump(mode="json") for r in results]
     await redis_client.setex(cache_key, 1800, json.dumps(serialized_results))
-
     return results
 
 @router.get("/sse_products")

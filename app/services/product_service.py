@@ -117,6 +117,7 @@ class ProductService:
                 name=product.name,
                 description=product.description,
                 price=product.price,
+                is_dollar=product.is_dollar,
                 category=product.category,
                 created_at=str(product.created_at),
                 owner_id=product.owner_id,

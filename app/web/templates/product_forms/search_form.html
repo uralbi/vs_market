@@ -52,9 +52,9 @@
 
         let timer = 0;
         products.forEach(product => {
-
+            console.log(product.price, product.is_dollar)
             let productCard = createProductCard(product, timer);
-            timer += 100;
+            timer += 10;
             productContainer.appendChild(productCard);
         });
     }
