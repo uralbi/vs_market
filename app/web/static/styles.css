@@ -55,12 +55,21 @@ body a:hover {
     margin-top: var(--bs-dropdown-spacer);
     opacity: 0.96;
     min-width: 200px;
-    min-height: 180px; }
+    min-height: 180px;
+     }
 
 .navbar-nav a { 
     display: flex;
     align-items: center;
     justify-content: center;}
+
+.message-item a {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    width: 300px;
+    }
+
 .my-navbar .nav-link i { 
     margin: 0px 6px; }
 h1 {

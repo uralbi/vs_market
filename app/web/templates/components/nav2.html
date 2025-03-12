@@ -49,13 +49,8 @@
               <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
                 <li class="dropdown-header">
                    У вас {{unread_rooms}} сообщений.
-                   
-                  <a href="#"><span class="badge bg-success p-2 ms-2">Посмотреть</span></a> 
-                  
                 </li>
-                <li>
                   <hr class="dropdown-divider">
-                </li>
                 
                 {% for room in rooms%}
                   
@@ -67,13 +62,11 @@
                         {% for msg in room[2] %}
                           <p> - {{msg}}</p>
                         {% endfor %}
-                         
                       </div>
                     </a>
                   </li>
-                  <li>
                     <hr class="dropdown-divider">
-                  </li>
+
                 {% endfor %}
       
                     </ul>

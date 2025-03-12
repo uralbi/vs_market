@@ -57,5 +57,5 @@ def global_context(request: Request, db: Session = Depends(get_db)):
                     messages.append(msg[2])
                     lasttime = msg[3]
                 rooms.append([rids['room_id'], rids['username'], messages, lasttime])
-        
+    rooms.sort(key=lambda x: x[3], reverse=True)
     return {"request": request, "current_user": user, 'unread_rooms': count, "rooms": rooms}
