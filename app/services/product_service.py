@@ -24,7 +24,7 @@ class ProductService:
             raise HTTPException(status_code=404, detail="User not found!")
         elif not user.is_active:
             raise HTTPException(status_code=404, detail="User not activated!")
-                
+        
         new_product = self.product_repo.create_product(user.id, product_data) 
 
         return new_product

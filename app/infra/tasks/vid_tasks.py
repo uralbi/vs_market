@@ -15,7 +15,7 @@ logging.config.dictConfig(settings.LOGGING)
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, rate_limit="1/m", autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 60})
 def process_video_hls(self, video_path: str, output_dir: str, movie_id: int):
     """
     Celery task to convert an uploaded video to HLS format asynchronously.

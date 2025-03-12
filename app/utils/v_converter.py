@@ -78,6 +78,7 @@ def convert_to_hls(input_video_path: str, output_dir: str):
         variant_ts_files = os.path.join(output_dir, f"{filename}_{variant['name']}_%03d.ts")
 
         command = [
+            "nice", "-n", "15",
             "ffmpeg",
             "-hwaccel", "auto",
             "-i", input_video_path,  

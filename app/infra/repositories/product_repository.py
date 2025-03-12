@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException
 from app.infra.database.models import ProductModel, ProductImageModel
 from app.domain.dtos.product import ProductCreateDTO, ProductDTO
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import text
@@ -17,11 +18,14 @@ class ProductRepository:
         new_product = ProductModel(
             owner_id=user_id,
             **product_data.model_dump(exclude_unset=True)
-        )
-        self.db.add(new_product)
-        self.db.commit()
-        self.db.refresh(new_product)
-        
+        )    
+        try:
+            self.db.add(new_product)
+            self.db.commit()
+            self.db.refresh(new_product)
+        except IntegrityError as e:
+            self.db.rollback()
+            raise HTTPException(status_code=400, detail="У вас уже есть объявление с таким названием.")
         return new_product
 
     def get_all_products(self, limit: int, offset: int) -> List[ProductDTO]:
