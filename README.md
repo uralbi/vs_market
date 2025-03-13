@@ -3,10 +3,10 @@
 ## **Server: AWS EC2, Ubuntu**
 
 ### **Check Website:**  
-<a href="http://3.127.61.187/" target="_blank">http://3.127.61.187/</a>  
+<a href="https://ai-ber.com" target="_blank">ai-ber.com</a>  
 
 ### **API Documentation:**  
-<a href="http://3.127.61.187/docs#/" target="_blank">http://3.127.61.187/docs#/</a>  
+<a href="https://ai-ber.com/docs#/" target="_blank">ai-ber.com/docs#/</a>  
 
 ## **Overview**
 This is a high-performance **marketplace and video streaming platform** built using **FastAPI**. The platform allows users to engage in e-commerce transactions, upload and monetize videos, and interact through real-time chat.

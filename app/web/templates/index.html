@@ -170,6 +170,25 @@ function createProductCard(product, delay) {
     return productCard;
 }
 
+function timeLapse(timestamp = new Date().toISOString()) {
+    const dateObj = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - dateObj) / 1000);
+
+    if (diffInSeconds < 300) return "менее 5 мин назад"; // <5 min
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин назад`; // Minutes
+    if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours} ${getHourWord(hours)} назад`; // Hours
+    }
+    if (diffInSeconds < 2592000) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `${days} ${getDayWord(days)} назад`; // Days
+    }
+
+    return formatYearMonth(timestamp); // Fallback to Year-Month if >30 days
+}
+
 </script>
 
 {% endblock %}
