@@ -231,13 +231,15 @@ h1 {
     border: none; }
 .card-body .pin_btn {
     position: absolute;
-    font-size: 1.1em;       bottom: 4px;
+    font-size: 1.1em;       
+    bottom: 4px;
     left: 4px;
     padding: 1px 6px;
     font-size: 1.2em; }
 .card-body .chat_btn{
     padding: 2px 7px;
-    font-size: 1.1em;       position: absolute;
+    font-size: 1.1em;       
+    position: absolute;
     left: 38px;
     bottom: 4px; }
 .my-products {
@@ -279,7 +281,7 @@ h1 {
     background: rgba(111, 83, 83, 0.5);
     background-color: white;}
 #SearchContainer {
-    margin: 20px 0; }
+    margin: 10px 0 20px 0; }
 .search_form button {
     padding: 0px 12px;
     font-size: 12px; }
@@ -457,7 +459,7 @@ h1 {
     color: rgb(112, 121, 138);
     border: solid 1px #ccc; }
 .dark-mode .card {
-    background-color: var(--dark-bg-color2) !important; }
+    background-color: var(--dark-bg-color2); }
 .dark-mode .text-muted {
     color: #7d7f9c !important;     }
 .dark-mode .card p, .dark-mode .card h4, 
@@ -897,3 +899,147 @@ button:hover .tooltip-text {
     width: 90%;
     position: relative;
     font-size: 0.7em; }
+.change_view_btn {
+    color: gray;
+    font-size: 1.2em;
+    display: inline-block;
+}
+.change_view_btn:hover {
+    color: var(--dark-bg-color);
+    font-weight: bold;
+} 
+
+.product-card-list {
+    margin: 6px 0px;
+    width: 100%;
+}
+.product-card-list .card-body {
+    padding: 6px;
+}
+.product-card-list .card-title{
+    padding: 0;
+    font-weight: bold;
+}
+.product-card-list .card-text{
+    height: 70px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.product-card-list .carousel {
+    padding: 6px;
+}
+
+.product-card-list .carousel-control-prev, .product-card-list .carousel-control-next {
+    background: rgb(179 190 219 / 48%);
+}
+.product-card-list .card-price {
+    position: relative;
+    font-weight: bold;
+    min-width: 100px;
+    margin: 0px;
+    color: var(--price-color) !important;
+}
+.product-card-list .card-price small {
+    color: gray;
+}
+.product-card-list .chat_btn, .product-card-list .pin_btn {
+    position: relative;
+    left: unset;
+    right: unset;
+    display: inline-block;
+}
+.product-card-list h5 {
+    margin: 0px;
+    font-size: 1.2em;
+}
+
+.product-card-list img{
+    height: 190px;
+    width: auto;
+    margin: auto;
+    display: flex;
+    align-self: center;
+}
+.product-card-list .product_create_lapse{
+    position: relative;
+    right: unset;
+    top: unset;
+    display: inline-block;
+    border-radius: 4px;
+    margin: 0px;
+    color: var(--form-label-color);
+    background: none;
+}
+
+.product-card-list .list-group {
+    display: none;
+}
+
+.dark-mode .product-card-list .card-text {
+    color:  #828591;
+}
+.dark-mode .product-card-list .carousel-control-prev, .dark-mode .product-card-list .carousel-control-next {
+    background: rgb(21 24 53 / 49%);
+}
+@media (max-width: 770px) {
+    .product-card-list img {
+        height: 220px; }
+    }
+@media (max-width: 430px) {
+    .product-card-list img {
+        height: 340px;
+    }
+    .product-card-list { width: 100%; }
+}
+
+.product-card-compact {
+    height: 52px !important;
+    margin: 6px 0;
+    line-height: 1.3;
+    overflow: hidden;
+    padding: 6px;
+    color: rgb(61 74 97) !important;
+}
+
+.product-card-compact .card-price{
+    color: rgb(27, 56, 110);
+}
+
+.product-card-compact .card-price small{
+    color: gray;
+}
+
+.product-card-compact .card-title{
+    padding: 0px;
+    height: 55px;
+    font-size: 1em;
+    overflow: hidden;
+    color: rgb(61 74 97);
+}   
+
+.product-card-compact .col {
+    margin: 0;
+}
+
+.dark-mode .product-card-compact {
+    background-color: #222845;
+}
+
+#change_view_2 {
+    display: flex;
+    align-items: center;  /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    width: 100px;
+}
+
+#change_view_2 .change_view_btn{
+    margin: -16px 20px 0 0;
+}
+
+#change_view_2 i{
+    font-size: 2em;
+}
+
+.dark-mode .change_view_btn:hover {
+    color: white;
+}

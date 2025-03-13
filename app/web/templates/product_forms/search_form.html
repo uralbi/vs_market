@@ -1,23 +1,53 @@
-<div class="mt-3">
-    <div class="input-group search_form">
-        <input type="text" id="searchQuery" class="form-control" placeholder="Поиск ..." aria-label="Search products">
-        <button class="btn btn-primary" type="button" onclick="searchProducts()">Поиск</button>
+
+
+<div class="d-flex justify-content-between">
+    <div class="w-100">
+        <div class="input-group search_form">
+            <input type="text" id="searchQuery" class="form-control" placeholder="Поиск ..." aria-label="Search products">
+            <button class="btn btn-primary" type="button" onclick="searchProducts()">Поиск</button>
+        </div>
+        <p id='searchError' class="small text-danger"></p>
     </div>
-    <p id='searchError' class="small text-danger"></p>
+    <div id="change_view_2" class=""> <button class="change_view_btn"><i class="bi bi-view-list"></i> </button></div>
 </div>
+
 
 <div id="SearchContainer" class="clearfix"></div>
 
 <script>
 
+    let searchData = []; // Store fetched products
+    let viewMode = parseInt(getCookie("viewMode")) || 0;
+
+    document.querySelector("#change_view_2").addEventListener("click", function () {
+        viewMode = (viewMode + 1) % 3; // Cycle through 0, 1, 2
+        setCookie("viewMode", viewMode, 7); // Save in cookies
+
+        updateViewButton();
+        
+        if (searchData.length > 0){updateProductList()};
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
         // Add keypress event listener to the search input field
+        updateViewButton();
         document.getElementById("searchQuery").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 searchProducts();
             }
         });
     });
+
+    function updateViewButton() {
+        let btn = document.querySelector("#change_view_2");
+        if (btn) {
+            btn.innerHTML = viewMode === 0
+                ? '<button class="change_view_btn"><i class="bi bi-grid"></i> </button>' 
+                : viewMode === 1
+                ? '<button class="change_view_btn"><i class="bi bi-list"></i> </button>' 
+                : '<button class="change_view_btn"><i class="bi bi-view-list"></i> </button>' 
+        }
+    }
 
     async function searchProducts() {
         let query = document.getElementById("searchQuery").value.trim();
@@ -33,30 +63,74 @@
         
         if (!response.ok) {
             let errorData = await response.json();
-            document.getElementById("searchError").innerText = errorData.detail;
+            console.log('error in search:', errorData)
             return;
         }
-    
-        let products = await response.json();
-        updateProductList(products);
+        searchData = await response.json();
+        updateProductList();
     }
     
-    function updateProductList(products) {
+    function updateProductList() {
         let productContainer = document.getElementById("SearchContainer");
         productContainer.innerHTML = "";  // Clear previous results
     
-        if (products.length === 0) {
-            productContainer.innerHTML = `<p class="text-primary m-0">По вашему запросу нет объявлений.</p>`;
+        if (searchData.length === 0) {
+            showMessage("По вашему запросу объявлений не найдено", "warning")
             return;
         }
 
         let timer = 0;
-        products.forEach(product => {
-            console.log(product.price, product.is_dollar)
-            let productCard = createProductCard(product, timer);
+        searchData.forEach(product => {
+            let productCard = 
+            viewMode === 0 ? createProductCard_list(product) : 
+            viewMode === 1 ? createProductCard(product) :
+            createProductCard_compact(product);
+
             timer += 10;
             productContainer.appendChild(productCard);
         });
+
+    }
+
+    function createProductCard_compact(product, delay) {
+        let productCard = document.createElement("div");
+        productCard.classList.add("product-card-compact", "card");
+        productCard.setAttribute("data-aos", "fade-in");
+        productCard.setAttribute("data-aos-delay", delay);
+        let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
+        // let productName = `${product.name.substring(0,40)} <span class="card-text"> ${product.description} </span>`;
+        let productName = product.name;
+        let query = document.getElementById("searchQuery").value.trim();
+        let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
+        
+        let primary = "secondary";
+        if (user_favs.includes(product.id)) {
+            primary = "primary"
+        }
+        productCard.innerHTML = `
+            
+                <div class="row">
+                    <div class="col-8 col-sm-3">
+                        <a href="/product/${product.id}?query=${queryParam}"> 
+                            <p class="card-title">${productName} </p>
+                        </a>
+                    </div>
+                    <div class="col-4 col-sm-2">
+                    
+                        <p class="card-price">
+                            ${displayPrice_org(product.price, product.is_dollar)}
+                        </p>
+                     
+                    </div>
+                    <div class="col-0 col-sm-6">
+                     <p class="card-text">${product.description} </p>
+                    </div>
+                </div>
+           
+             <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
+        `;
+        
+        return productCard;
     }
 
 </script>

@@ -5,189 +5,264 @@
 <div class="pagetitle">
     <h1>Поиск объявлений</h1>
     <nav>
-      <ol class="breadcrumb">
+        <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Главная</a></li>
         <li class="breadcrumb-item">Поиск</li>
-      </ol>
+        </ol>
     </nav>
-  </div>
-
+</div>
 
 {% include "product_forms/search_form.html" %}
 
-
-<h1> Новые объявления</h1>
-
-<div id="productContainer" class="clearfix">
+<div class="d-flex justify-content-start">
+    <h1> Новые объявления</h1>
+    <div id="change_view_1" class="ms-3"> <button class="change_view_btn"><i class="bi bi-view-list"></i> </button></div>
 </div>
-
+<div id="productContainer" class="clearfix"></div>
 
 <script>
 
-async function fetchProducts() {
-    try {
-        let response = await fetch("/api/products/list");  // Fetch from API
-        let products = await response.json();
+    let productsData = []; // Store fetched products
+    let isListView = getCookie("isListView") === "true";
 
+    document.querySelector("#change_view_1").addEventListener("click", function () {
+        isListView = !isListView; // Toggle view mode
+        setCookie("isListView", isListView, 7);
+
+        this.innerHTML = isListView
+            ? '<button class="change_view_btn"><i class="bi bi-grid"></i> </button>'
+            : '<button class="change_view_btn"><i class="bi bi-view-list"></i> </button>';
+        
+        renderProducts(); // Re-render products with new view
+    });
+
+    function renderProducts() {
         let productContainer = document.getElementById("productContainer");
-        productContainer.innerHTML = "";  // Clear loading text
-
-        if (products.length === 0) {
-            productContainer.innerHTML = "<p>No products found.</p>";
-            return;
-        }
+        productContainer.innerHTML = ""; // Clear previous view
+    
         let timer = 0;
-        products.forEach(product => {
-            let productCard = createProductCard(product, timer);
+        productsData.forEach(product => {
+            let productCard = isListView 
+                ? createProductCard_list(product, timer) 
+                : createProductCard(product, timer);
             timer += 10;
             productContainer.appendChild(productCard);
         });
-
-        // AOS.refresh();
-        
+    
         if (typeof AOS !== "undefined") {
             AOS.refresh();
-        } else {
-            console.warn("AOS is not defined. Retrying...");
-            setTimeout(() => {
-                if (typeof AOS !== "undefined") {
-                    AOS.refresh();
-                } else {
-                    console.error("AOS is still not defined.");
-                }
-            }, 500);  // Wait and retry after 500ms
         }
-        
-    } catch (error) {
-        console.error("Error fetching products:", error);
-        document.getElementById("productContainer").innerHTML = "<p>Error loading products.</p>";
     }
-}
 
-fetchProducts();
+    async function fetchProducts() {
+        try {
+            let response = await fetch("/api/products/list");  // Fetch from API
+            productsData = await response.json(); 
+            if (productsData.length === 0) {
+                productContainer.innerHTML = "<p>No products found.</p>";
+                return;
+            }
+            renderProducts();
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            document.getElementById("productContainer").innerHTML = "<p>Error loading products.</p>";
+        }
+    }
 
-let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
-let curr_user = {{ current_user.id if current_user else "null" }};
+    fetchProducts();
 
-if (user_favs.includes(0)) {
-    console.log('58 in user favs', user_favs)
-}
+    let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
+    let curr_user = {{ current_user.id if current_user else "null" }};
 
-function createImageCarousel(productId, imageUrls) {
-    let indicators = "";
-    let slides = "";
+    if (user_favs.includes(0)) {
+        console.log('58 in user favs', user_favs)
+    }
 
-    imageUrls.forEach((imgUrl, index) => {
-        const activeClass = index === 0 ? "active" : "";
-        indicators += `
-            <button type="button" data-bs-target="#carousel_${productId}" data-bs-slide-to="${index}" class="${activeClass}" aria-label="Slide ${index + 1}"></button>
-        `;
-        slides += `
-            <div class="carousel-item ${activeClass}">
-                <img src="/${imgUrl}" class="d-block rounded" alt="Product Image">
+    function createImageCarousel(productId, imageUrls) {
+        let indicators = "";
+        let slides = "";
+
+        imageUrls.forEach((imgUrl, index) => {
+            const activeClass = index === 0 ? "active" : "";
+            indicators += `
+                <button type="button" data-bs-target="#carousel_${productId}" data-bs-slide-to="${index}" class="${activeClass}" aria-label="Slide ${index + 1}"></button>
+            `;
+            slides += `
+                <div class="carousel-item ${activeClass}">
+                    <img src="/${imgUrl}" class="d-block rounded" alt="Product Image">
+                </div>
+            `;
+        });
+
+        return `
+            <div id="carousel_${productId}" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">${indicators}</div>
+                <div class="carousel-inner">${slides}</div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carousel_${productId}" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carousel_${productId}" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
         `;
-    });
-
-    return `
-        <div id="carousel_${productId}" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-indicators">${indicators}</div>
-            <div class="carousel-inner">${slides}</div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel_${productId}" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel_${productId}" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
-    `;
-}
-
-function createProductCard(product, delay) {
-    let productCard = document.createElement("div");
-    productCard.classList.add("product-card", "card");
-    productCard.setAttribute("data-aos", "fade-in");
-    productCard.setAttribute("data-aos-delay", delay);
-    let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
-    //let productName = `${product.name} <span class="card-text"> - ${product.description} </span>`;
-    let productName = product.name;
-    let maxLength = 18;
-    let truncatedName = product.name.length > maxLength 
-    ? productName.substring(0, maxLength) 
-    : productName;
-
-    let query = document.getElementById("searchQuery").value.trim();
-    let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
-
-    let primary = "secondary";
-    if (user_favs.includes(product.id)) {
-        primary = "primary"
-    }
-    productCard.innerHTML = `
-        <div class="card-img-top image-card-top d-flex align-items-center">
-            ${createImageCarousel(product.id, imageUrls)}
-        </div>
-
-        <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
-
-        <div class="card-body">
-            <a href="/product/${product.id}?query=${queryParam}">
-                <h5 class="card-title">${truncatedName}</h5>
-            </a>
-    
-            ${curr_user ? `
-                <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                    data-aos-delay="10"
-                    onclick="openChat(${product.owner_id}, ${product.id})">
-                    <i class="bi bi-chat-left-text"></i>
-                </button>
-    
-                <button class="btn btn-sm btn-outline-${primary} pin_btn"
-                    id="pin_${product.id}" 
-                    onclick="addToFavorites(${product.id})">
-                    <i class="bi bi-paperclip"></i>
-                </button>
-            ` : `
-                <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                    data-aos-delay="10" disabled>
-                    <i class="bi bi-chat-left-text"></i>
-                </button>
-    
-                <button class="btn btn-sm btn-outline-secondary pin_btn"
-                    id="pin_${product.id}" disabled>
-                    <i class="bi bi-paperclip"></i>
-                </button>
-            `}
-    
-            <p class="card-price">
-                ${displayPrice(product.price, product.is_dollar)}
-            </p>
-        </div>
-    `;
-    
-    return productCard;
-}
-
-function timeLapse(timestamp = new Date().toISOString()) {
-    const dateObj = new Date(timestamp);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - dateObj) / 1000);
-
-    if (diffInSeconds < 300) return "менее 5 мин назад"; // <5 min
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин назад`; // Minutes
-    if (diffInSeconds < 86400) {
-        const hours = Math.floor(diffInSeconds / 3600);
-        return `${hours} ${getHourWord(hours)} назад`; // Hours
-    }
-    if (diffInSeconds < 2592000) {
-        const days = Math.floor(diffInSeconds / 86400);
-        return `${days} ${getDayWord(days)} назад`; // Days
     }
 
-    return formatYearMonth(timestamp); // Fallback to Year-Month if >30 days
-}
+    function createProductCard(product, delay) {
+        let productCard = document.createElement("div");
+        productCard.classList.add("product-card", "card");
+        productCard.setAttribute("data-aos", "fade-in");
+        productCard.setAttribute("data-aos-delay", delay);
+        let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
+        //let productName = `${product.name} <span class="card-text"> - ${product.description} </span>`;
+        let productName = product.name;
+        let maxLength = 18;
+        let truncatedName = product.name.length > maxLength 
+        ? productName.substring(0, maxLength) 
+        : productName;
+
+        let query = document.getElementById("searchQuery").value.trim();
+        let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
+
+        let primary = "secondary";
+        if (user_favs.includes(product.id)) {
+            primary = "primary"
+        }
+        productCard.innerHTML = `
+            <div class="card-img-top image-card-top d-flex align-items-center">
+                ${createImageCarousel(product.id, imageUrls)}
+            </div>
+
+            <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
+
+            <div class="card-body">
+                <a href="/product/${product.id}?query=${queryParam}">
+                    <h5 class="card-title">${truncatedName}</h5>
+                </a>
+        
+                ${curr_user ? `
+                    <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                        data-aos-delay="10"
+                        onclick="openChat(${product.owner_id}, ${product.id})">
+                        <i class="bi bi-chat-left-text"></i>
+                    </button>
+        
+                    <button class="btn btn-sm btn-outline-${primary} pin_btn"
+                        id="pin_${product.id}" 
+                        onclick="addToFavorites(${product.id})">
+                        <i class="bi bi-paperclip"></i>
+                    </button>
+                ` : `
+                    <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                        data-aos-delay="10" disabled>
+                        <i class="bi bi-chat-left-text"></i>
+                    </button>
+        
+                    <button class="btn btn-sm btn-outline-secondary pin_btn"
+                        id="pin_${product.id}" disabled>
+                        <i class="bi bi-paperclip"></i>
+                    </button>
+                `}
+        
+                <p class="card-price">
+                    ${displayPrice(product.price, product.is_dollar)}
+                </p>
+            </div>
+        `;
+        
+        return productCard;
+    }
+
+    function createProductCard_list(product, delay) {
+        let productCard = document.createElement("div");
+        productCard.classList.add("product-card-list", "card");
+        productCard.setAttribute("data-aos", "fade-in");
+        productCard.setAttribute("data-aos-delay", delay);
+        let imageUrls = product.image_urls && product.image_urls.length > 0 ? product.image_urls : ["/static/no-image.png"];
+        //let productName = `${product.name} <span class="card-text"> - ${product.description} </span>`;
+        let productName = product.name;
+        let query = document.getElementById("searchQuery").value.trim();
+        let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
+
+        let primary = "secondary";
+        if (user_favs.includes(product.id)) {
+            primary = "primary"
+        }
+        productCard.innerHTML = `
+            <div class="row g-0">
+                <div class="col-sm-3">
+                    ${createImageCarousel(product.id, imageUrls)}
+                </div>
+
+                <div class="col-sm-9">
+                    <div class="card-body">
+                        <div class="card-list-title d-flex-column">
+                            <a class="card-title d-flex justify-content-between" href="/product/${product.id}?query=${queryParam}">
+                                <h5>${productName.substring(0,50)}</h5>
+                                <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
+                            </a>
+                            <p class="card-price">
+                                ${displayPrice_org(product.price, product.is_dollar)}
+                            </p>
+                            
+                        </div>
+                        <div class="card-text">
+                            ${product.description}
+                            
+                        </div>
+                
+                        ${curr_user ? `
+                            <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                                data-aos-delay="10"
+                                onclick="openChat(${product.owner_id}, ${product.id})">
+                                <i class="bi bi-chat-left-text"></i>
+                            </button>
+                
+                            <button class="btn btn-sm btn-outline-${primary} pin_btn"
+                                id="pin_${product.id}" 
+                                onclick="addToFavorites(${product.id})">
+                                <i class="bi bi-paperclip"></i>
+                            </button>
+                        ` : `
+                            <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                                data-aos-delay="10" disabled>
+                                <i class="bi bi-chat-left-text"></i>
+                            </button>
+                
+                            <button class="btn btn-sm btn-outline-secondary pin_btn"
+                                id="pin_${product.id}" disabled>
+                                <i class="bi bi-paperclip"></i>
+                            </button>
+                        `}
+                
+                        
+                    </div>
+                </div>
+            </div>
+        `;
+        return productCard;
+    }
+
+    function timeLapse(timestamp = new Date().toISOString()) {
+        const dateObj = new Date(timestamp);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - dateObj) / 1000);
+
+        if (diffInSeconds < 300) return "менее 5 мин назад"; // <5 min
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин назад`; // Minutes
+        if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `${hours} ${getHourWord(hours)} назад`; // Hours
+        }
+        if (diffInSeconds < 2592000) {
+            const days = Math.floor(diffInSeconds / 86400);
+            return `${days} ${getDayWord(days)} назад`; // Days
+        }
+
+        return formatYearMonth(timestamp); // Fallback to Year-Month if >30 days
+    }
 
 </script>
 

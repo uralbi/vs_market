@@ -1,4 +1,70 @@
 
+function displayPrice(price, isDollar) {
+    const exchangeRate = 87.8;
+    
+    function formatLargeNumbers(value, isUSD = false) {
+        if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
+        if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + (isUSD ? " млн" : " млн");
+        if (value >= 100_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        if (value >= 10_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
+        return value.toFixed(1);
+    }
+
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `${formatLargeNumbers(price, false)} c.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
+    }
+}
+
+function displayPrice_org(price, isDollar) {
+    const exchangeRate = 87.8;
+    const formatNumber = num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `$ ${formatNumber(price)} <br> <small> ${formatNumber(som.toFixed(0))} c.</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `${formatNumber(price)} c.<br><small> $${formatNumber(usd.toFixed(0))} </small>`;
+    }
+}
+
+function displayPrice_org_list(price, isDollar) {
+    const exchangeRate = 87.8;
+    const formatNumber = num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+    if (isDollar) {
+        let som = price * exchangeRate;
+        return `$ ${formatNumber(price)} <small>( ${formatNumber(som.toFixed(0))} c. )</small>`;
+    } else {
+        let usd = price / exchangeRate;
+        return `${formatNumber(price)} c. <small>( $${formatNumber(usd.toFixed(0))} )</small>`;
+    }
+}
+
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + "; path=/" + expires;
+}
+
+function getCookie(name) {
+    let nameEQ = name + "=";
+    let ca = document.cookie.split(";");
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+    }
+    return null;
+}
+
 async function addToFavorites(productId) {
     try { 
         await authenticatedRequest('me'); 

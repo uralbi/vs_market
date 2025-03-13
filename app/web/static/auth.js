@@ -147,38 +147,7 @@ async function logout() {
 }
 
 
-function displayPrice(price, isDollar) {
-    const exchangeRate = 87.8;
-    
-    function formatLargeNumbers(value, isUSD = false) {
-        if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
-        if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + (isUSD ? " млн" : " млн");
-        if (value >= 100_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
-        if (value >= 10_000) return (value / 1_000).toFixed(1) + (isUSD ? " тыс" : " тыс");
-        return value.toFixed(1);
-    }
 
-    if (isDollar) {
-        let som = price * exchangeRate;
-        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
-    } else {
-        let usd = price / exchangeRate;
-        return `${formatLargeNumbers(price, false)} c.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
-    }
-}
-
-function displayPrice_org(price, isDollar) {
-    const exchangeRate = 87.8;
-    const formatNumber = num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-
-    if (isDollar) {
-        let som = price * exchangeRate;
-        return `$ ${formatNumber(price)} <br> <small> ${formatNumber(som.toFixed(0))} c.</small>`;
-    } else {
-        let usd = price / exchangeRate;
-        return `${formatNumber(price)} c.<br><small> $${formatNumber(usd.toFixed(0))} </small>`;
-    }
-}
 
 
 function getTimeDifference(updatedAt) {
