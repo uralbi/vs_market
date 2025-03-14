@@ -1,24 +1,29 @@
-<nav class="my-navbar navbar navbar-expand-md py-1">
+<nav class="my-navbar navbar navbar-expand-sm py-1">
   <div id="status_messages" class="text-center alert fade show" role="alert"></div>
   <div class="container-fluid">
     <div class="row flex-grow-1 align-items-center w-100">
       
       <!-- Brand Logo -->
       <div class="col-4">
-        <div class="nav_brand_img">
+        <div class="nav_brand_img d-flex">
           <img src="{{ url_for('static', path='/icons/logo_ws.png') }}"/>
           Aiber
         </div>
       </div>
 
       <!-- Search Bar -->
-      <div class="col-4 d-flex justify-content-center">
+      <div class="col-2 d-flex justify-content-center">
       </div>
 
       <!-- Navbar Toggler -->
-      <div class="col-4 d-flex justify-content-end">
+      <div class="col-6 d-flex justify-content-end">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <i class="bi bi-list"></i>
+
+          {% if current_user and unread_rooms >0 %}
+               <span class="badge-number">{{unread_rooms}}</span>
+          {% endif %}
+
         </button>
       </div>
 
@@ -37,6 +42,10 @@
         </li>-->
 
         {% if current_user %}
+
+        <li><a class="nav-link dropdown-item" href="/about"> 
+        <i class="bi bi-person-square"></i> {{current_user.username|title}} </a> </li> 
+
         {% if unread_rooms > 0 %}
 
           <li class="nav-item dropdown">
@@ -47,7 +56,7 @@
               </a>
       
               <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                <li class="dropdown-header">
+                <li class="dropdown-header py-3">
                    У вас {{unread_rooms}} сообщений.
                 </li>
                   <hr class="dropdown-divider">
@@ -75,27 +84,16 @@
               {% endif %}
           {% endif %}
 
-
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {% if current_user %}
-          <i class="bi bi-person-circle"></i> {{current_user.username|title}} </a>
-          {% else %}
-            <i class="bi bi-activity"></i> Действия
-          {% endif %}
-          </a>
+            <i class="bi bi-activity"></i></a>
           <ul class="dropdown-menu">
             {% if not current_user or current_user == 'None'%}
           <li> <a class="nav-link dropdown-item" href="/login"><i class="bi bi-box-arrow-in-down-right"></i> Войти </a> </li>
           <li> <a class="nav-link dropdown-item" href="/register"><i class="bi bi-pencil-square"></i> Регистрация</a> </li>
           {% else %}
-          <li><a class="nav-link dropdown-item" href="/about"> 
-            <i class="bi bi-person-square"></i> Профиль </a> </li>  
-          <div class="dropdown-divider"></div>
-          
           <li> <a class="nav-link dropdown-item" role=button id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Выйти</a> </li>
           {% endif %}
-          
           <li><a class="nav-link dropdown-item" role="button" onclick="toggleTheme()" > 
             <i id="themeIcon" class="bi bi-lightbulb-fill"></i> Свет </a></li>
           </ul>
