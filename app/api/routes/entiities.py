@@ -32,9 +32,8 @@ def update_entity(
 
     entity_service = EntityService(db)
     entity = entity_service.get_entity_by_user_id(user.id)
-
     if not entity:
-        raise HTTPException(status_code=404, detail="No entity found")
+        raise HTTPException(status_code=404, detail="Вы не создали профайл!")
     entity_service.update_entity(entity, entity_data)
     
     return {"message": "Entity updated successfully", "updated_fields": entity_data.model_dump(exclude_none=True)}

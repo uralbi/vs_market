@@ -48,8 +48,9 @@
                 window.location.reload();
             }, 2000);
         } catch (error) {
-            showMessage("Ошибка при обновлении", "warning");
             console.log(error)
+            let message = error.toString().replace("Error: ", "")
+            showMessage(message, "warning");
         }
     }
 

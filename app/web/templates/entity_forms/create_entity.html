@@ -80,7 +80,8 @@
             setTimeout(() => {
                 window.location.reload(); }, 2000); 
             } else {
-            showMessage(`Ошибка при сохранении Профиля: ${result.detail}`, "warning")
+            let messages = result.detail[0].msg.replace("Value error, ", "")
+            showMessage(messages, "warning");
         }
     });
 </script>

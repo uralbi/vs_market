@@ -90,15 +90,15 @@
         });
     
         let result = await response.json();
-
-        if (result.message == "Entity updated successfully") { 
+        console.log(result)
+        if (result.message) { 
             document.getElementById("updateEntityForm").reset();
             showMessage("Профиль обновлен", "success")
             setTimeout(() => {
                 window.location.reload();
             }, 2000); }
-            else if (result.detail[0].type == "value_error") {
-                showMessage("Номера указаны не верно", "warning")
-            }
-    });
+        else {
+            showMessage(result.detail || "Произошла ошибка", "warning")
+        }
+        });
     </script>

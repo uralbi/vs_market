@@ -10,7 +10,7 @@ def validate_phone(value: str) -> str | None:
         pr = phonenumbers.format_number(phone_number, num_format=9)
 
         if len(str(phone_number.national_number)) < 6:
-            raise ValueError("Invalid phone number")
+            raise ValueError("Неверный формат номера")
         
         if phone_number.country_code != 996:
             pr = f"+{phone_number.country_code}-{pr}"
@@ -20,4 +20,4 @@ def validate_phone(value: str) -> str | None:
             pr = f"0-{pr}"
         return pr
     except Exception:
-        raise ValueError("Invalid phone number")
+        raise ValueError("Неверный формат номера")
