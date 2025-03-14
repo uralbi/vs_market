@@ -57,7 +57,7 @@ body a:hover {
     min-width: 200px;
     min-height: 180px;
      }
-@media (max-width: 744px) {
+@media (max-width: 572px) {
     .my-navbar .dropdown-menu[data-bs-popper] {
         min-height: 0;
          }
@@ -408,19 +408,57 @@ h1 {
     padding: 10px;
     margin: 10px 0; }
 #SearchDetailContainer {
-    margin-bottom: 80px;
+    position: relative;
+    margin-bottom: 10px;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: auto;
+    /* grid-auto-columns: minmax(180px, auto); */
     height: auto;
-    overflow-x: scroll;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 100%;
     padding: 10px 16px;
     border-bottom: solid 1px gray;
-    float: left;
-    justify-content: start; }
+    justify-content: start;
+    /* perspective: 800px;  */
+
+    /* Firefox scrollbar styling */
+    scrollbar-width: auto; /* "auto" (default) | "thin" (narrower) | "none" (hidden) */
+    scrollbar-color: #28a745 #ffffff; /* thumb color | track color */
+}
+
 #SearchDetailContainer .product-card{
-    width: 180px; }
+    width: 180px;
+    /* transform: rotateY(35deg); */
+}
+
+#SearchDetailContainer::-webkit-scrollbar {
+    height: 8px;
+}
+
+#SearchDetailContainer::-webkit-scrollbar-track {
+    background: #ffffff; 
+    border-radius: 10px;
+}
+
+#SearchDetailContainer::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #28a745, #218838); 
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+
+#SearchDetailContainer::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34); 
+}
+
+.search_qty {
+    position: absolute;
+    top: -5px;
+    left: 22px;
+    color: var(--link-color3);
+    font-size: 0.8em;
+}
 /* NAVIGATION */
 .navigation .nav-link i {
     color: #b2bdef;

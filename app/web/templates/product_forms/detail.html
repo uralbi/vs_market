@@ -15,6 +15,8 @@
 
 <div class="row">
 
+    <div id="SearchDetailContainer"></div>
+
     <div class="col-md-6">
         <div id="productImageContainer" class="text-center">
             <img id="productImage" src="" class="img-fluid rounded shadow" alt="Product Image">
@@ -44,7 +46,7 @@
     
 </div>
 
-<div id="SearchDetailContainer"></div>
+
 
 <script>
 
@@ -95,6 +97,10 @@
             let productContainer = document.getElementById("SearchDetailContainer");
             let timer = 0;
             cach_data = data.cached_data
+            let spanel = document.createElement("div")
+            let items_qty = cach_data.length
+            spanel.innerHTML = `<span class="search_qty">Количество результатов поиска: ${items_qty} </span>`
+            productContainer.appendChild(spanel)
             if (cach_data) {
                 cach_data.forEach(product => {
                     let productCard = createProductCard(product, timer);
