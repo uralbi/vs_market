@@ -241,42 +241,44 @@
         </div>
       </div>
 
+      {% if current_user.role.value == "ADMIN" %}
+      <div class="col my-3">
+        <h5>Управление</h5>
+          <div class="card">
+            <div class="card-body pt-3">
+  
+              <ul class="nav nav-tabs nav-tabs-bordered">
+                
+                <li class="nav-item">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-clear"> <i class="bi bi-chevron-bar-up"></i></button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-user-management"> <i class="bi bi-people"></i> </button>
+                </li>
+  
+              </ul>
+  
+              <div class="tab-content pt-2">
+                
+                <div class="tab-pane fade profile-edit pt-3" id="profile-clear">
+                </div>
+
+                <div class="tab-pane fade profile-edit pt-3" id="profile-user-management">
+                  <h5> Пользователи </h5>
+                  {% include "entity_forms/users.html" %}
+                </div>
+  
+              </div>
+  
+            </div>
+          </div>
+      </div>
+    {% endif %}
+
       </div>
 
-      {% if current_user.role.value == "ADMIN" %}
-        <div class="col my-3">
-          <h5>Управление</h5>
-            <div class="card">
-              <div class="card-body pt-3">
-    
-                <ul class="nav nav-tabs nav-tabs-bordered">
-                  
-                  <li class="nav-item">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-clear"> <i class="bi bi-chevron-bar-up"></i></button>
-                  </li>
 
-                  <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-user-management"> <i class="bi bi-people"></i> </button>
-                  </li>
-    
-                </ul>
-    
-                <div class="tab-content pt-2">
-                  
-                  <div class="tab-pane fade profile-edit pt-3" id="profile-clear">
-                  </div>
-
-                  <div class="tab-pane fade profile-edit pt-3" id="profile-user-management">
-                    <h5> Пользователи </h5>
-                    {% include "entity_forms/users.html" %}
-                  </div>
-    
-                </div>
-    
-              </div>
-            </div>
-        </div>
-      {% endif %}
   </section>
 
 
@@ -374,7 +376,7 @@
     }
     
     async function deleteChatRoom(chatRoomId) {
-        showConfirmationModal("Подтвердите удаление чат", async () => { 
+        showConfirmationModal("Подтвердите удаление чата.", async () => { 
             let token = getAccessTokenFromCookie();
             try {
                 const response = await fetch(`/chat/rooms/${chatRoomId}`, {

@@ -35,6 +35,13 @@
         room_id = "{{room_id}}"
     }
     const productName = "{{product}}"
+
+    document.getElementById("messageInput").addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+          event.preventDefault(); // Prevents new line in input
+          document.getElementById("sendMessageBtn").click(); // Triggers button click
+      }
+    });
 </script>
 <script src="{{ url_for('static', path='/chat.js') }}" defer></script>
 

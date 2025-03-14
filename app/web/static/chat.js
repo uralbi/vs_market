@@ -118,6 +118,7 @@ document.getElementById("sendMessageBtn").addEventListener("click", sendMessage)
 function displayMessage(sender, message, type, timestamp = new Date().toISOString()) {
     const chatBox = document.getElementById("chatBox");
     const formattedTime = formatTimestamp(timestamp);
+    const timeSince = timeLapse(timestamp)
     const msgElement = document.createElement("div");
     msgElement.classList.add("chat-message", type);
     const msgText = document.createElement("p");
@@ -125,7 +126,7 @@ function displayMessage(sender, message, type, timestamp = new Date().toISOStrin
     const msgSpan = document.createElement("span");
     msgSpan.textContent = `${message}`;
     const timeElement = document.createElement("small");
-    timeElement.textContent = formattedTime;
+    timeElement.textContent = `${timeSince}`;
     timeElement.classList.add("timestamp");
     msgText.appendChild(msgSpan);
     msgElement.appendChild(msgText);

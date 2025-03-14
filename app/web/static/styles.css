@@ -307,9 +307,9 @@ h1 {
 #chatBox div p {
     margin: 0; }
 #chatBox .msg_sent .timestamp{ 
-    margin: 0 6px 0 0; }
+    margin: 0; }
 #chatBox .msg_received .timestamp{ 
-    margin: 0 0 0 36px;}
+    margin: 0 0 0 56px;}
 #chatBox .msg_received span {
     font-weight: 300;
     margin: 0 6px;
@@ -317,17 +317,39 @@ h1 {
     border-radius: 6px;
     border: solid 0.6px rgb(125, 177, 237);
     color: rgb(54, 139, 236); }
+
+#chatBox .msg_received p {
+    max-width: 80%;
+    margin-right: auto;
+    display: flex;
+    text-align: left;
+    justify-content: left;
+    border-radius: 6px;
+    margin-bottom: -6px;
+     }
+
 #chatBox .msg_sent span {
     font-weight: 300;
-    margin: 0 6px;
-    padding: 4px 16px;
-    border-radius: 6px;
-    border: solid 0.6px rgb(93, 166, 93);
-    color: rgb(26, 108, 59); }#chatBox .msg_sent {
+    margin: 0;
+    padding: 0 6px;
+    color: rgb(26, 108, 59);
+    border: solid 1px rgb(171, 203, 184); 
+    border-radius: 6px;}
+#chatBox .msg_sent {
     position: relative;
     align-items: right;
     text-align: end;
     color: rgb(21, 21, 212); }
+
+#chatBox .msg_sent p {
+    max-width: 70%;
+    margin-left: auto;
+    display: flex;
+    text-align: right;
+    justify-content: right;
+    border-radius: 6px;
+    margin-bottom: -6px;
+}
 .timestamp {
     font-size: 10px;
     font-style: italic;
