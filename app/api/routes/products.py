@@ -26,7 +26,6 @@ router = APIRouter(
     tags=['Products']
 )
 
-
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 @router.get("/search", response_model=List[ProductDTO])
@@ -163,12 +162,19 @@ def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depen
 
 
 @router.get("/list", response_model=List[ProductDTO])
-def get_products_list(db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
+async def get_products_list(db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
     """
     Get a list of recent products.
     """
+    cache_key = f"products:list:{limit}:{offset}"
+    cached_results = await redis_client.get(cache_key)
+    if cached_results:
+        return json.loads(cached_results)
     product_service = ProductService(db)
-    return product_service.get_all_products(limit, offset)
+    results = product_service.get_all_products(limit, offset)
+    serialized_results = [r.model_dump(mode="json") for r in results]
+    await redis_client.setex(cache_key, 300, json.dumps(serialized_results))
+    return results
 
 
 @router.put("/update/{product_id}", response_model=ProductDTO)

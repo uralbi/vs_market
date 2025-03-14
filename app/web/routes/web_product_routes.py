@@ -22,7 +22,6 @@ def get_product_page(request: Request, product_id: int, context: dict = Depends(
 
 @router.get("/messages")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
-    """ Serve the product listing page """
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
@@ -35,7 +34,7 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
 
 @router.get("/messages/users")
 def message_page(request: Request, context: dict = Depends(global_context), db: Session = Depends(get_db)):
-    """ Serve the product listing page """
+    """ Serve the Chat Page """
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
@@ -59,7 +58,7 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):
     """ Serve the product listing page """
-    return templates.TemplateResponse("index.html", {**context, "title": "Aiber Main"})
+    return templates.TemplateResponse("index.html", {**context, "title": "Aiber"})
 
 @router.get("/update-product/{product_id}")
 def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
