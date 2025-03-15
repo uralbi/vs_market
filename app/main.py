@@ -56,7 +56,7 @@ async def serve_audio(filename: str, request: Request):
     """
     file_path = f"app/web/static/mp3/{filename}"
     referer = request.headers.get("referer")
-    if not referer or DOMAIN not in referer:  
+    if not referer:  
         raise HTTPException(status_code=403, detail="Access denied")
 
     return FileResponse(file_path, media_type="audio/mpeg", filename=filename, headers={
