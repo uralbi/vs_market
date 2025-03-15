@@ -1090,7 +1090,7 @@ button:hover .tooltip-text {
 }
 
 .product-card-compact {
-    height: 52px !important;
+    height: 48px !important;
     margin: 6px 0;
     line-height: 1.3;
     overflow: hidden;
@@ -1098,6 +1098,11 @@ button:hover .tooltip-text {
     color: rgb(61 74 97) !important;
 }
 
+.product-card-compact p, .product-card-compact a {
+    margin: 0 !important;
+    font-size: 0.9em;
+  }
+  
 .product-card-compact .card-price{
     color: rgb(27, 56, 110);
 }
