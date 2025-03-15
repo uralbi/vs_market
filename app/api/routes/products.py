@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form, Query, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from typing import List
@@ -10,16 +10,17 @@ from app.services.image_service import ImageService
 from app.services.fav_service import FavService
 from app.infra.kafka.kafka_producer import send_kafka_message
 from app.infra.redis_fld.redis_config import redis_client
+from app.utils.speach import TT
 import asyncio, json, os
-
+from fastapi.responses import FileResponse
 from app.domain.security.auth_user import user_authorization
-
+from pydantic import BaseModel
 import logging
 import logging.config
 from app.core.config import settings
 logging.config.dictConfig(settings.LOGGING)
 logger = logging.getLogger(__name__)
-
+import time
 
 router = APIRouter(
     prefix='/api/products',
@@ -27,6 +28,26 @@ router = APIRouter(
 )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+class TextRequest(BaseModel):
+    product_id: int
+    product_text: str
+    
+@router.post("/speak/")
+async def generate_audio(request: TextRequest):
+    """
+    Generate or reuse a speech file for the given product.
+    """
+    if not request.product_text.strip():
+        raise HTTPException(status_code=400, detail="Text cannot be empty")
+    sp = TT()
+    filename = f"{request.product_id}_descr.mp3"
+    folder_path = "app/web/static/mp3"
+    folder_file = os.path.join(folder_path, filename)
+    file_path = await sp.playtext(request.product_text, folder_file)
+    file_url = f"/play-audio/{filename}"
+    return JSONResponse(content={"audio_url": file_url})
+
 
 @router.get("/search", response_model=List[ProductDTO])
 async def search_products(
@@ -108,7 +129,6 @@ async def delete_product(
 
     return {"message": "Product deleted successfully"}
 
-    
 @router.post("/create", response_model=ProductDTO)
 async def create_product(
     name: str = Form(...),
@@ -150,7 +170,6 @@ async def create_product(
         
     return new_product
 
-
 @router.get("/mylist", response_model=List[ProductDTO])
 def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
     """
@@ -159,7 +178,6 @@ def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depen
     user = user_authorization(token, db) 
     product_service = ProductService(db)
     return product_service.get_user_products(user.id, limit, offset)
-
 
 @router.get("/list", response_model=List[ProductDTO])
 async def get_products_list(db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
@@ -175,7 +193,6 @@ async def get_products_list(db: Session = Depends(get_db), limit: int = 100, off
     serialized_results = [r.model_dump(mode="json") for r in results]
     await redis_client.setex(cache_key, 300, json.dumps(serialized_results))
     return results
-
 
 @router.put("/update/{product_id}", response_model=ProductDTO)
 async def update_product(
@@ -228,7 +245,6 @@ async def update_product(
 
     return updated_product
 
-
 @router.get("/{product_id}", response_model=dict)
 async def get_product(product_id: int, request: Request, db: Session = Depends(get_db), query: str = Query(None) ):
     """Fetch product details by ID."""
@@ -265,7 +281,6 @@ async def get_product(product_id: int, request: Request, db: Session = Depends(g
         product.image_urls = [img.image_url for img in product_model.images]
     
     return {"product": product.model_dump(), "cached_data": cached_data}
-
 
 @router.post("/my/{product_id}", response_model=ProductDTO)
 def get_product(product_id: int, db: Session = Depends(get_db), token: str = Depends(token_scheme),):

@@ -459,6 +459,47 @@ h1 {
     color: var(--link-color3);
     font-size: 0.8em;
 }
+.play-audio-btn i {
+    pointer-events: none;
+    color: var(--link-color3);
+}
+#productTT {
+    position: absolute;
+    margin: -48px 0px 0 117px;
+    font-size: 1.3em;
+}
+#productTT audio {
+    position: absolute;
+    margin: -26px 0 0 0;
+    padding: 0;
+    height: 23px;
+    width: 260px;
+    border-radius: 6px;
+}
+
+audio { outline: none;
+        }
+
+audio[id^="audio-player-"] {
+    margin-top: 10px;
+    display: block;
+}
+
+/* Hide download button (Only works in some browsers) */
+audio::-webkit-media-controls-enclosure {
+    overflow: hidden;
+}
+
+/* Hide the extra buttons */
+audio::-webkit-media-controls-panel {
+    background-color: var(--link-color4);
+}
+
+/* Custom Play/Pause button color */
+audio::-webkit-media-controls-play-button {
+    background-color: #4CAF50; /* Green */
+}
+
 /* NAVIGATION */
 .navigation .nav-link i {
     color: #b2bdef;

@@ -32,8 +32,8 @@
             <p id="productTime" class="product_category"></p>
             <p id="productCategory" class="product_category"></p>
             <p id="productPrice" class="product_price"></p>
+            <div id="productTT"></div>
             <p id="productDescription" class="product_description"></p>
-
             <div class="product_ent_Name" id="entityName"></div>
             <div class="product_ent_Address" id="entityAddress"></div>
             <div class="product_ent_Phone" id="entityPhone"></div>
@@ -53,6 +53,7 @@
     let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
     let curr_user = {{ current_user.id if current_user else "null" }};
     let cach_data;
+    let productDesc;
 
     if (user_favs.includes(0)) { console.log('0 in user favs', user_favs) }
 
@@ -115,12 +116,18 @@
     }
     
     function updateProductDetail(product){
+        productDesc = product.description
         document.getElementById("productName").textContent = product.name;
         document.getElementById("productTime").textContent = timeLapse(product.created_at);
         document.getElementById("productCategory").textContent = product.category;
         document.getElementById("productPrice").innerHTML = displayPrice_org(product.price, product.is_dollar);
         document.getElementById("productDescription").innerHTML = product.description;
-        
+        document.getElementById("productTT").innerHTML = `
+        <button class="play-audio-btn" data-product-id="${product.id}"> <i class="bi bi-volume-up"></i> </button>
+        <audio id="audio-player-${product.id}" controls style="display: none;"></audio>   `;
+
+
+
         if (!product.activated) {
             let elem = document.getElementById("is_activated_product").textContent = "Не опубликован!"
         }
@@ -351,5 +358,55 @@ function createImageCarousel2(productId, imageUrls) {
 }
 </script>
 
+<script>
+    
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("play-audio-btn")) {
+            playProductAudio(event.target);
+        }
+    });
+    
+    async function playProductAudio(button) {
+        const productId = button.getAttribute("data-product-id");
+        let productDescription = productDesc.split('<div class="detail-text-points">')[0].trim();
+
+        let loadingMsg = document.querySelector('.play-audio-btn')
+        loadingMsg.innerHTML = `<small class="text-secondary"> <i class="bi bi-cloud-arrow-down"></i><small>`
+
+        try {
+            const response = await fetch("/api/products/speak/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ product_id: productId, product_text: productDescription }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to fetch audio");
+            }
+    
+            const data = await response.json();
+            const audioUrl = data.audio_url; // ✅ Get the correct file URL
+    
+            let audioPlayer = document.querySelector(`#audio-player-${productId}`);
+            if (!audioPlayer) {
+                audioPlayer = document.createElement("audio");
+                audioPlayer.id = `audio-player-${productId}`;
+                audioPlayer.controls = true;
+                audioPlayer.setAttribute("controlsList", "nodownload");
+                audioPlayer.setAttribute("oncontextmenu", "return false;"); 
+                button.after(audioPlayer);
+            }
+    
+            audioPlayer.src = audioUrl;
+            audioPlayer.style.display = "block";
+            audioPlayer.play();
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+    
+    
+    
+</script>
 
 {% endblock %}

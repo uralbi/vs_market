@@ -21,3 +21,4 @@ media/movies/thumbs/*
 !media/movies/thumbs/
 restart_srvs.py
 app/domain/security/encryption.keyinfo
+app/web/static/mp3/

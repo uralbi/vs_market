@@ -1,7 +1,6 @@
 
-function displayPrice(price, isDollar) {
-    const exchangeRate = 87.8;
-    
+const exchangeRate = 87.8;
+function displayPrice(price, isDollar) {    
     function formatLargeNumbers(value, isUSD = false) {
         if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + (isUSD ? " млрд" : " млрд");
         if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + (isUSD ? " млн" : " млн");
@@ -12,15 +11,14 @@ function displayPrice(price, isDollar) {
 
     if (isDollar) {
         let som = price * exchangeRate;
-        return `$${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
+        return `$ ${formatLargeNumbers(price, true)} <br> <small> ${formatLargeNumbers(som, false)} c.</small>`;
     } else {
         let usd = price / exchangeRate;
-        return `${formatLargeNumbers(price, false)} c.<br><small> $${formatLargeNumbers(usd, true)} </small>`;
+        return `${formatLargeNumbers(price, false)} c.<br><small> $ ${formatLargeNumbers(usd, true)} </small>`;
     }
 }
 
 function displayPrice_org(price, isDollar) {
-    const exchangeRate = 87.8;
     const formatNumber = num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
     if (isDollar) {
@@ -28,12 +26,11 @@ function displayPrice_org(price, isDollar) {
         return `$ ${formatNumber(price)} <br> <small> ${formatNumber(som.toFixed(0))} c.</small>`;
     } else {
         let usd = price / exchangeRate;
-        return `${formatNumber(price)} c.<br><small> $${formatNumber(usd.toFixed(0))} </small>`;
+        return `${formatNumber(price)} c.<br><small> $ ${formatNumber(usd.toFixed(0))} </small>`;
     }
 }
 
 function displayPrice_org_list(price, isDollar) {
-    const exchangeRate = 87.8;
     const formatNumber = num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
     if (isDollar) {
