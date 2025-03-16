@@ -51,7 +51,6 @@ async def generate_audio(request: TextRequest):
     file_url = f"/play-audio/{filename}"
     return JSONResponse(content={"audio_url": file_url})
 
-
 @router.get("/search", response_model=List[ProductDTO])
 async def search_products(
     db: Session = Depends(get_db),
@@ -251,12 +250,9 @@ async def update_product(
 @router.get("/{product_id}", response_model=dict)
 async def get_product(product_id: int, request: Request, db: Session = Depends(get_db), query: str = Query(None) ):
     """Fetch product details by ID."""
-
     product = None
     cached_data = None
-    
     token = request.headers.get("Authorization").replace("Bearer ", "")
-    
     user = None
     if token != 'null':
         try:
@@ -264,22 +260,18 @@ async def get_product(product_id: int, request: Request, db: Session = Depends(g
         except Exception as e:
             logger.info(f"Trying get product detail with invalid token, Error: {e}")
             user = None
-    
     if query:
-        cache_key = f"search:{query}:100:0"
+        cache_key = f"search:{query.lower()}:100:0"
         cached_results = await redis_client.get(cache_key)
         if cached_results:
             cached_data = json.loads(cached_results)
             if str(product_id) in cached_data:
-                product = ProductDTO(**cached_data[str(product_id)])  # Get product from cache
-    
+                product = ProductDTO(**cached_data[str(product_id)]) 
     if not product:
         product_service = ProductService(db)
         product_model = product_service.get_product_by_id(product_id, user)
-
         if not product_model:
             raise HTTPException(status_code=404, detail="Product not found")
-        
         product = ProductDTO.model_validate(product_model)
         product.image_urls = [img.image_url for img in product_model.images]
     
@@ -288,16 +280,11 @@ async def get_product(product_id: int, request: Request, db: Session = Depends(g
 @router.post("/my/{product_id}", response_model=ProductDTO)
 def get_product(product_id: int, db: Session = Depends(get_db), token: str = Depends(token_scheme),):
     """Fetch product details by ID."""
-    
     user = user_authorization(token, db)
-    
     product_service = ProductService(db)
     product = product_service.get_product_by_id(product_id, user)
-
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-
     product_dto = ProductDTO.model_validate(product)
     product_dto.image_urls = [img.image_url for img in product.images]
-    
     return product_dto

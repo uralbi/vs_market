@@ -10,7 +10,6 @@
     --link-color4: #bec8f3;
     --form-bg-color: #e5e7ed;
     --form-label-color: #7182cf;
-
     --main-bg-color: #e6eeef;
     --main-shadow-color: #cad3d4;
     --nav-bg: rgb(5, 48, 54);
@@ -20,6 +19,9 @@
 body {
     background: #f6f9ff !important;
     padding-bottom: 120px; }
+hr {
+    color: #a1a6cd !important;
+}
 body a {
     text-decoration: none; 
     color: var(--link-color1); }
@@ -170,6 +172,14 @@ h1 {
     padding: 5px 0;
     height: 120px;
     overflow-y: scroll; }
+
+.product_btns {
+    position: absolute;
+    display: inline-block;
+    right: 10px;
+    margin: -30px 0 0 0;
+}
+
 @media (max-width: 744px) {
     .product-card {
         width: 168px;
@@ -334,7 +344,9 @@ h1 {
     padding: 0 6px;
     color: rgb(26, 108, 59);
     border: solid 1px rgb(171, 203, 184); 
-    border-radius: 6px;}
+    border-radius: 6px;
+    width: 100%;
+    word-wrap: break-word; }
 #chatBox .msg_sent {
     position: relative;
     align-items: right;
@@ -362,8 +374,8 @@ h1 {
 .product_price {
     color: var(--price-color);
     margin-top: 16px;
-    border-bottom: solid 0.1px #b9bac4;
-    padding-bottom: 6px;
+    margin-bottom: 0px;
+    padding: 0px;
     font-weight: bold; }
 .product_category {
     display: inline;
@@ -396,6 +408,11 @@ h1 {
     padding: 0px 12px;
     border:none;
     border-top: solid 1x whitesmoke;
+}
+.productDetailBtns {
+    position: absolute;
+    right: 10px;
+    margin: -35px 0 0 0;
 }
 
 .product_description p {
@@ -465,7 +482,7 @@ h1 {
 }
 #productTT {
     position: absolute;
-    margin: -48px 0px 0 117px;
+    margin: -30px 0px 0 117px;
     font-size: 1.3em;
 }
 #productTT audio {
@@ -474,28 +491,27 @@ h1 {
     padding: 0;
     height: 23px;
     width: 250px;
-    border-radius: 6px;
+    border-radius: 14px;
+    font-size: 0.9em;
+    box-shadow: 0 0 4px #dbe2f0;
 }
-
-audio { outline: none;
-        }
+@media (max-width: 500px) {
+    #productTT audio {
+        width: 180px; }
+    }
+audio {  outline: none; }
 
 audio[id^="audio-player-"] {
     margin-top: 10px;
     display: block;
 }
 
-/* Hide download button (Only works in some browsers) */
-audio::-webkit-media-controls-enclosure {
-    overflow: hidden;
-}
-
-/* Hide the extra buttons */
 audio::-webkit-media-controls-panel {
-    background-color: var(--link-color4);
-}
+    background-color: #dbe2f0; }
 
-/* Custom Play/Pause button color */
+.dark-mode audio::-webkit-media-controls-panel {
+    background-color: #5a657c; }
+
 audio::-webkit-media-controls-play-button {
     background-color: #4CAF50; /* Green */
 }
@@ -1086,7 +1102,7 @@ button:hover .tooltip-text {
 }
 
 .product-card-list img{
-    height: 190px;
+    height: 149px;
     width: auto;
     margin: auto;
     display: flex;

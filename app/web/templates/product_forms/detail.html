@@ -2,7 +2,6 @@
 
 {% block content %}
 
-
 <div class="pagetitle">
     <h1>Объявление</h1>
     <nav>
@@ -14,49 +13,37 @@
   </div>
 
 <div class="row">
-
     <div id="SearchDetailContainer"></div>
-
     <div class="col-md-6">
         <div id="productImageContainer" class="text-center">
             <img id="productImage" src="" class="img-fluid rounded shadow" alt="Product Image">
         </div>
     </div>
-
     <div class="col-md-6">
         <div class="product_info_card">
             <h4 id="productName" class="product_name"></h4>
-
             <div id="is_activated_product" class="text-danger"></div>
-
             <p id="productTime" class="product_category"></p>
             <p id="productCategory" class="product_category"></p>
             <p id="productPrice" class="product_price"></p>
             <div id="productTT"></div>
+            <div class="productDetailBtns" id="productBtns"></div>
             <p id="productDescription" class="product_description"></p>
             <div class="product_ent_Name" id="entityName"></div>
             <div class="product_ent_Address" id="entityAddress"></div>
             <div class="product_ent_Phone" id="entityPhone"></div>
             <div class="product_ent_WhatsApp" id="entityWhatsApp"></div>
-
-            <div class="mt-3" id="productBtns"> 
-            </div>
         </div>
     </div>
-    
 </div>
 
-
-
 <script>
-
     let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
     let curr_user = {{ current_user.id if current_user else "null" }};
     let cach_data;
     let productDesc;
-
     if (user_favs.includes(0)) { console.log('0 in user favs', user_favs) }
-
+    
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('query');
@@ -100,7 +87,7 @@
             cach_data = data.cached_data
             let spanel = document.createElement("div")
             let items_qty = cach_data.length
-            spanel.innerHTML = `<span class="search_qty">Количество результатов поиска: ${items_qty} </span>`
+            spanel.innerHTML = `<span class="search_qty">Схожие объявления: ${items_qty} </span>`
             productContainer.appendChild(spanel)
             if (cach_data) {
                 cach_data.forEach(product => {
@@ -126,8 +113,6 @@
         <button class="play-audio-btn" data-product-id="${product.id}"> <i class="bi bi-volume-up"></i> </button>
         <audio id="audio-player-${product.id}" controls style="display: none;"></audio>   `;
 
-
-
         if (!product.activated) {
             let elem = document.getElementById("is_activated_product").textContent = "Не опубликован!"
         }
@@ -142,7 +127,7 @@
             btns.innerHTML = `
                 <button id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> 
                     <i class="bi bi-chat-left-text"></i></button>
-                <button id="pin_${product.id}" class="btn btn-sm btn-outline-${primary}" onclick="addToFavorites(${product.id})">
+                <button id="pin_${product.id}" class="fav_add_btn btn btn-sm btn-outline-${primary}" onclick="addToFavorites(${product.id})">
                     <i class="bi bi-paperclip"></i></button> 
                 `;
          }else {
@@ -404,9 +389,6 @@ function createImageCarousel2(productId, imageUrls) {
             console.error("Error:", error);
         }
     }
-    
-    
-    
 </script>
 
 {% endblock %}

@@ -124,7 +124,7 @@
         : productName;
 
         let query = document.getElementById("searchQuery").value.trim();
-        let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
+        let queryParam = query ? encodeURIComponent(query) : product.category ; // Ensure query is defined
 
         let primary = "secondary";
         if (user_favs.includes(product.id)) {
@@ -184,12 +184,13 @@
         //let productName = `${product.name} <span class="card-text"> - ${product.description} </span>`;
         let productName = product.name;
         let query = document.getElementById("searchQuery").value.trim();
-        let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
+        let queryParam = query ? encodeURIComponent(query) : product.category ; // Ensure query is defined
 
         let primary = "secondary";
         if (user_favs.includes(product.id)) {
             primary = "primary"
         }
+        const escapedText = product.description.replace(/<[^>]+>/g, "");
         productCard.innerHTML = `
             <div class="row g-0">
                 <div class="col-sm-3">
@@ -206,36 +207,41 @@
                             <p class="card-price">
                                 ${displayPrice_org(product.price, product.is_dollar)}
                             </p>
-                            
+                            <hr class="m-0">
+                            <div id="productTT">
+                                <button class="play-audio-btn" data-product-id="${product.id}" data-product-text="${escapedText}"> <i class="bi bi-volume-up"></i> </button>
+                                 <audio id="audio-player-${product.id}" controls style="display: none;"></audio>
+                            </div>
+                            <div class="product_btns">
+                            ${curr_user ? `
+                                <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                                    data-aos-delay="10"
+                                    onclick="openChat(${product.owner_id}, ${product.id})">
+                                    <i class="bi bi-chat-left-text"></i>
+                                </button>
+                    
+                                <button class="btn btn-sm btn-outline-${primary} pin_btn"
+                                    id="pin_${product.id}" 
+                                    onclick="addToFavorites(${product.id})">
+                                    <i class="bi bi-paperclip"></i>
+                                </button>
+                                ` : `
+                                    <button class="chat_btn btn btn-outline-secondary btn-sm" 
+                                        data-aos-delay="10" disabled>
+                                        <i class="bi bi-chat-left-text"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary pin_btn"
+                                        id="pin_${product.id}" disabled>
+                                        <i class="bi bi-paperclip"></i>
+                                    </button>
+                                `}
+                            </div>
                         </div>
                         <div class="card-text">
                             ${product.description}
-                            
                         </div>
                 
-                        ${curr_user ? `
-                            <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                                data-aos-delay="10"
-                                onclick="openChat(${product.owner_id}, ${product.id})">
-                                <i class="bi bi-chat-left-text"></i>
-                            </button>
-                
-                            <button class="btn btn-sm btn-outline-${primary} pin_btn"
-                                id="pin_${product.id}" 
-                                onclick="addToFavorites(${product.id})">
-                                <i class="bi bi-paperclip"></i>
-                            </button>
-                        ` : `
-                            <button class="chat_btn btn btn-outline-secondary btn-sm" 
-                                data-aos-delay="10" disabled>
-                                <i class="bi bi-chat-left-text"></i>
-                            </button>
-                
-                            <button class="btn btn-sm btn-outline-secondary pin_btn"
-                                id="pin_${product.id}" disabled>
-                                <i class="bi bi-paperclip"></i>
-                            </button>
-                        `}
+                        
                 
                         
                     </div>
@@ -264,6 +270,53 @@
         return formatYearMonth(timestamp); // Fallback to Year-Month if >30 days
     }
 
+</script>
+
+<script>
+    
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("play-audio-btn")) {
+            playProductAudio(event.target);
+        }
+    });
+    
+    async function playProductAudio(button) {
+        const productId = button.getAttribute("data-product-id");
+        const productText = button.getAttribute("data-product-text");
+        let productDescription = productText.split('<div class="detail-text-points">')[0].trim();
+
+        let loadingMsg = document.querySelector('.play-audio-btn')
+        loadingMsg.innerHTML = `<small class="text-secondary"> <i class="bi bi-cloud-arrow-down"></i><small>`
+
+        try {
+            const response = await fetch("/api/products/speak/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ product_id: productId, product_text: productDescription }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to fetch audio");
+            }
+    
+            const data = await response.json();
+            const audioUrl = data.audio_url; // ✅ Get the correct file URL
+    
+            let audioPlayer = document.querySelector(`#audio-player-${productId}`);
+            if (!audioPlayer) {
+                audioPlayer = document.createElement("audio");
+                audioPlayer.id = `audio-player-${productId}`;
+                audioPlayer.controls = true;
+                button.after(audioPlayer);
+            }
+    
+            audioPlayer.src = audioUrl;
+            audioPlayer.style.display = "block";
+            audioPlayer.play();
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
 </script>
 
 {% endblock %}
