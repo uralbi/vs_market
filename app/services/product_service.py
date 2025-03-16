@@ -7,6 +7,7 @@ from app.services.user_service import UserService
 from app.services.image_service import ImageService
 from typing import List
 from app.infra.repositories.product_repository import ProductRepository
+import os
 
 
 class ProductService:
@@ -68,6 +69,12 @@ class ProductService:
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
+        # Delete audio for the product:
+        audio_file = f"{product_id}_descr.mp3"
+        folder_path = "app/web/static/mp3"
+        folder_file = os.path.join(folder_path, audio_file)
+        if os.path.exists(folder_file):
+            os.remove(folder_file)
         # Delete product and related images from DB
         self.product_repo.delete_product(product.id, user)
         

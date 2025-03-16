@@ -18,9 +18,11 @@ from pydantic import BaseModel
 import logging
 import logging.config
 from app.core.config import settings
+from app.utils.misc import clean_html
+
 logging.config.dictConfig(settings.LOGGING)
 logger = logging.getLogger(__name__)
-import time
+
 
 router = APIRouter(
     prefix='/api/products',
@@ -40,11 +42,12 @@ async def generate_audio(request: TextRequest):
     """
     if not request.product_text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
+    prod_text = clean_html(request.product_text.strip())
     sp = TT()
     filename = f"{request.product_id}_descr.mp3"
     folder_path = "app/web/static/mp3"
     folder_file = os.path.join(folder_path, filename)
-    file_path = await sp.playtext(request.product_text, folder_file)
+    file_path = await sp.playtext(prod_text, folder_file)
     file_url = f"/play-audio/{filename}"
     return JSONResponse(content={"audio_url": file_url})
 
