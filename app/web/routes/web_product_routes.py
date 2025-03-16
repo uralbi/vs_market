@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.infra.database.db import get_db
@@ -7,13 +7,47 @@ from app.utils.context import global_context
 from app.services.chat_service import ChatService
 from app.services.product_service import ProductService
 from app.core.template_config import templates
+from app.infra.database.models import ProductModel
+import os
+from dotenv import load_dotenv
 
+DOMAIN = os.getenv("DOMAIN")
 
 router = APIRouter(    
     prefix='',
     tags=['Websites'])
 
-    
+
+@router.get("/sitemap.xml", response_class=Response, response_model=None)
+async def generate_sitemap(db=Depends(get_db)):
+    """
+    Dynamically generates sitemap.xml with product and category URLs using pagination.
+    """
+
+    base_url = DOMAIN
+    sitemap_urls = [
+        f"<url><loc>{base_url}/</loc></url>",
+    ]
+    prod_service = ProductService(db)
+    limit = 1000
+    offset = 0
+    while True:
+        products = prod_service.get_all_products(limit, offset)
+        if not products:
+            break  # Stop fetching if no more products
+        product_urls = [f"<url><loc>{base_url}/product/{p.id}</loc></url>" for p in products]
+        sitemap_urls.extend(product_urls)
+        offset += limit
+        
+    sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            {''.join(sitemap_urls)}
+        </urlset>
+        """
+
+    return Response(content=sitemap_content, media_type="application/xml")
+
+
 @router.get("/product/{product_id}")
 def get_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
     """ Product Detail page """
@@ -58,7 +92,7 @@ def message_page(request: Request, context: dict = Depends(global_context), db: 
 @router.get("/")
 def product_list_page(request: Request, context: dict = Depends(global_context)):
     """ Serve the product listing page """
-    return templates.TemplateResponse("index.html", {**context, "title": "Aiber"})
+    return templates.TemplateResponse("index.html", {**context, "title": "Aiber Объявления для всех"})
 
 @router.get("/update-product/{product_id}")
 def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):

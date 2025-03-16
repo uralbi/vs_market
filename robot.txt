@@ -1,0 +1,26 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /static/
+Disallow: /media/private/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Disallow: /login/
+Disallow: /register/
+Disallow: /profile/
+Disallow: /messages/
+Disallow: /favorites/
+Disallow: /notifications/
+Disallow: /password-reset/
+Disallow: /settings/
+
+Allow: /products/
+Allow: /categories/
+Allow: /search/
+Allow: /static/images/
+Allow: /static/css/
+Allow: /static/js/
+
+# Sitemap (important for SEO)
+Sitemap: https://ai-ber.com/sitemap.xml
