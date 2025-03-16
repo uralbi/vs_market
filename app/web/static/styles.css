@@ -470,10 +470,10 @@ h1 {
 }
 #productTT audio {
     position: absolute;
-    margin: -26px 0 0 0;
+    margin: -30px 0 0 0;
     padding: 0;
     height: 23px;
-    width: 260px;
+    width: 250px;
     border-radius: 6px;
 }
 
