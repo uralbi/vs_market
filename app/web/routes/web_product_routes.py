@@ -18,6 +18,38 @@ router = APIRouter(
     tags=['Websites'])
 
 
+@router.get("/robots.txt", response_class=Response)
+async def serve_robots_txt():
+    """
+    Serve robots.txt for SEO optimization.
+    """
+    robots_txt_content = f"""User-agent: *
+        Disallow: /admin/
+        Disallow: /api/
+        Disallow: /cart/
+        Disallow: /checkout/
+        Disallow: /account/
+        Disallow: /login/
+        Disallow: /register/
+        Disallow: /profile/
+        Disallow: /messages/
+        Disallow: /favorites/
+        Disallow: /notifications/
+        Disallow: /password-reset/
+        Disallow: /settings/
+
+        Allow: /products/
+        Allow: /categories/
+        Allow: /search/
+        Allow: /static/images/
+        Allow: /static/css/
+        Allow: /static/js/
+
+        Sitemap: {DOMAIN}/sitemap.xml
+        """
+
+    return Response(content=robots_txt_content, media_type="text/plain")
+
 @router.get("/sitemap.xml", response_class=Response, response_model=None)
 async def generate_sitemap(db=Depends(get_db)):
     """
