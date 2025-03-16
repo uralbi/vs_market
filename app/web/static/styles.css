@@ -482,7 +482,7 @@ h1 {
 }
 #productTT {
     position: absolute;
-    margin: -30px 0px 0 117px;
+    margin: -34px 0px 0 117px;
     font-size: 1.3em;
 }
 #productTT audio {
@@ -495,7 +495,7 @@ h1 {
     font-size: 0.9em;
     box-shadow: 0 0 4px #dbe2f0;
 }
-@media (max-width: 500px) {
+@media (max-width: 770px) {
     #productTT audio {
         width: 180px; }
     }
