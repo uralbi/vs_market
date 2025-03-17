@@ -494,7 +494,7 @@ color: var(--form-label-color);
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: auto;
-    /* grid-auto-columns: minmax(180px, auto); */
+    
     height: auto;
     overflow-x: auto;
     overflow-y: hidden;
@@ -502,7 +502,9 @@ color: var(--form-label-color);
     padding: 10px 16px;
     border-bottom: solid 1px gray;
     justify-content: start;
-    /* perspective: 800px;  */
+
+    grid-auto-columns: minmax(140px, auto);
+    perspective: 600px; 
 
     /* Firefox scrollbar styling */
     scrollbar-width: auto; /* "auto" (default) | "thin" (narrower) | "none" (hidden) */
@@ -511,9 +513,18 @@ color: var(--form-label-color);
 
 #SearchDetailContainer .product-card{
     width: 180px;
-    /* transform: rotateY(35deg); */
+    transform: rotateY(35deg);
 }
 
+#SearchDetailContainer .search-cards .card-img-top{ 
+    height: 110px;
+}
+#SearchDetailContainer .search-cards .card-img-top img{ 
+    min-height: 90px;
+}
+#SearchDetailContainer .search-cards .product_create_lapse {
+    top: 93px;
+}
 #SearchDetailContainer::-webkit-scrollbar {
     height: 8px;
 }
