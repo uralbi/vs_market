@@ -59,6 +59,7 @@ async def generate_sitemap(db=Depends(get_db)):
     base_url = DOMAIN
     sitemap_urls = [
         f"<url><loc>{base_url}/</loc></url>",
+        f"<url><loc>{base_url}/contacts</loc></url>",
     ]
     prod_service = ProductService(db)
     limit = 1000

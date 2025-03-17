@@ -25,9 +25,10 @@ class ChatRepository:
         if not chat_room:
             chat_room = ChatRoom(user1_id=user1_id, user2_id=user2_id, subject=subject)
             self.db.add(chat_room)
-            self.db.commit()
-            self.db.refresh(chat_room)
-
+        else:
+            chat_room.subject = subject
+        self.db.commit()
+        self.db.refresh(chat_room)
         return chat_room
 
     def save_message(self, chat_room_id: int, sender_id: int, content: str) -> Message:

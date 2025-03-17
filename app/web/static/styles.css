@@ -523,10 +523,14 @@ audio::-webkit-media-controls-play-button {
     margin-right: 2px; }
 .navigation .nav-link {
     color: #b2bdef; }
-.nav_brand_img {
+.nav_brand_img a{
     height: 30px;
     color: var(--link-color4);
     align-items: center;  }
+.nav_brand_img a:hover{
+    transform: scale(1.1);
+    transition: 0.5s;
+}
 .nav_brand_img img{
     margin: 2px 6px;
     height: 100%; }

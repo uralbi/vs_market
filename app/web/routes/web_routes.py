@@ -57,6 +57,11 @@ def activation_page(request: Request, db: Session = Depends(get_db)):
     
     return templates.TemplateResponse("auth/activated.html", {"title": "Aiber Auth", "status": status})
 
+@router.get("/contacts", name="contact_page")
+def contact_page(request: Request, context: dict = Depends(global_context)):
+    """Serve the Login page"""
+    return templates.TemplateResponse("auth/contact.html", {**context, "title": "Aiber Contacts"})
+
 @router.get("/login", name="login_page")
 def about_page(request: Request, context: dict = Depends(global_context)):
     """Serve the Login page"""

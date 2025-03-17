@@ -40,7 +40,6 @@ class ChatConsumer:
 
     async def receive_message(self, websocket: WebSocket, user_id: int, subject: str, db):
         """Listens for messages, saves them, and forwards them to the receiver."""
-        print("message is received")
         try:
             while True:
                 data = await websocket.receive_json()
