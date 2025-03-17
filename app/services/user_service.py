@@ -22,7 +22,7 @@ class UserService:
     def register_user(self, user_data: UserRegistrationDTO) -> User:
         """Registers a new user, handling unique constraint errors."""
         
-        # ✅ Check if email already exists
+        # Check if email already exists
         existing_user = self.db.query(UserModel).filter(UserModel.email == user_data.email).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Такой аккаунт уже существует!")

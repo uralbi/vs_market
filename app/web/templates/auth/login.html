@@ -12,7 +12,7 @@
 
       <div class="py-4 logo d-flex align-items-center justify-content-center">
           <img src="{{ url_for('static', path='/icons/logo.png') }}" alt="Aiber logo">
-          <span class="d-none d-lg-block">Aiber</span>
+          <span class="">Aiber</span>
       </div>
 
       <div class="card mb-3">
@@ -25,26 +25,24 @@
           </div>
 
           <form id="loginForm" class="row g-3 needs-validation" novalidate>
-        
-            <div class="col-12">
-              <label for="email" class="form-label">Эл. почта</label>
-              <div class="input-group has-validation">
-                <input type="email" name="email" class="form-control" id="email" required>
-              </div>
+            
+            <div class="form__group field">
+              <input type="input" class="form__field" placeholder="" name="email" id="email" required />
+              <label for="name" class="form__label">Эл. почта</label>
             </div>
 
-            <div class="col-12">
-              <label for="password" class="form-label">Пароль</label>
-              <input type="password" name="password" class="form-control" id="password" required>
+            <div class="form__group field">
+              <input type="password" class="form__field" placeholder="" name="password" id='password' required />
+              <label for="name" class="form__label">Пароль</label>
             </div>
 
             <div class="col-12">
               <button class="btn btn-primary w-100" type="submit">Войти</button>
             </div>
             
-            <div class="col-12">
-              <p class="small m-0"><a class="btn btn-sm btn-outline-primary p-0 px-2 my-2" href="{{ url_for('register_page') }}">Создать аккаунт</a></p>
-              <p class="small m-0"><a class="btn btn-sm btn-outline-success p-0 px-2" href="{{ url_for('pass_request_page') }}">Восстановить Пароль</a></p>
+            <div class="col-12 text-end">
+              <p class="small my-2"><a class="p-0 px-2" href="{{ url_for('register_page') }}">Создать аккаунт</a></p>
+              <p class="small my-1"><a class="p-0 px-2" href="{{ url_for('pass_request_page') }}">Восстановить Пароль</a></p>
             </div> 
 
           </form>

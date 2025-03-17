@@ -7,11 +7,8 @@
 
       <div class="py-4 logo d-flex align-items-center justify-content-center">
           <img src="{{ url_for('static', path='/icons/logo.png') }}" alt="Aiber logo">
-          <span class="d-none d-lg-block">Aiber</span>
+          <span class="">Aiber</span>
       </div>
-
-      <div id="registerMessage" class="fade show p-2" role="alert">
-    </div>
 
       <div class="card mb-3">
 
@@ -24,31 +21,27 @@
 
           <form id="registerForm" class="row g-3 needs-validation" novalidate>
             
-            <div class="col-12">
-                <label class="form-label" for="username">Имя пользователя:</label>
-                <div class="input-group has-validation">
-                    <input class="form-control" type="text" id="username" name="username" required>
-                </div>
-              </div>
-
-            <div class="col-12">
-              <label for="email" class="form-label">Эл. почта</label>
-              <div class="input-group has-validation">
-                <input type="email" name="email" class="form-control" id="email" required>
-              </div>
+            <div class="form__group field">
+              <input type="input" class="form__field" placeholder="" name="username" id="username" required />
+              <label for="name" class="form__label">Имя пользователя</label>
             </div>
 
-            <div class="col-12">
-              <label for="password" class="form-label">Пароль</label>
-              <input type="password" name="password" class="form-control" id="password" required>
+            <div class="form__group field">
+              <input type="email" class="form__field" placeholder="" name="email" id="email" required />
+              <label for="name" class="form__label">Эл. почта</label>
+            </div>
+
+            <div class="form__group field">
+              <input type="password" class="form__field" placeholder="" name="password" id='password' required />
+              <label for="name" class="form__label">Пароль</label>
             </div>
 
             <div class="col-12">
               <button class="btn btn-primary w-100" type="submit">Регистрация</button>
             </div>
             
-            <div class="col-12">
-                <p class="py-3"> Есть аккаунт? <a href="{{ url_for('login_page') }}">Войти</a></p>
+            <div class="col-12 text-end">
+                <p class="small py-3"> Есть аккаунт? <a href="{{ url_for('login_page') }}">Войти</a></p>
             </div> 
 
           </form>
@@ -77,17 +70,13 @@
         });
 
         let result = await response.json();
-
+        console.log(result.detail[0].type)
         if (response.ok) {
-            document.getElementById("registerMessage").innerText = "Вы зарегистрированы! Проверьте почту, чтоб активировать!";
-            document.getElementById("registerMessage").classList.add("alert");
-            document.getElementById("registerMessage").classList.remove("alert-warning");
-            document.getElementById("registerMessage").classList.add("alert-success");
-            document.getElementById("registerForm").reset(); 
+            document.getElementById("registerForm").reset();
+            showMessage("Вы зарегистрированы! Проверьте почту, чтоб активировать!", "success")
+
         } else {
-            document.getElementById("registerMessage").innerHTML = `<i class="bi bi-exclamation-triangle me-1"></i> ${result.detail}`;
-            document.getElementById("registerMessage").classList.add("alert");
-            document.getElementById("registerMessage").classList.add("alert-warning");
+            showMessage("Не верные данные", "warning")
         }
 
     });

@@ -303,10 +303,74 @@ h1 {
     padding: 0 6px;}
 .search_form button {
     padding: 0px 12px;
-    font-size: 12px; }
+    font-size: 12px; 
+    background: var(--form-label-color);
+    border: none; }
 .search_form {
     margin: 0px; 
     padding: 6px;}
+
+.form__group {
+    position: relative;
+    padding: 15px 0 0;
+    margin-top: 10px;
+    }
+    
+.form__field {
+    font-family: inherit;
+    width: 100%;
+    border: 0;
+    border-bottom: solid 1px rgb(217, 217, 217);
+    border-radius: 0;
+    outline: 0;
+    font-size: 1.1em;
+    padding: 6px;
+    background: transparent;
+    color: black;
+    transition: 0.2s;
+    transform: scaleX(0);
+    transform-origin: left;
+    transform-origin: 0 0;
+    transform: translate3d(0,0,0)
+}
+    
+.form__field::placeholder {
+    color: transparent;
+}
+    
+.form__field:placeholder-shown ~ .form__label {
+    font-size: 1rem;
+    cursor: text;
+    top: 20px;
+}
+
+.form__label {
+position: absolute;
+top: -3px;
+display: block;
+transition: 0.2s;
+font-size: 1em;
+color: var(--form-label-color);
+}
+    
+.form__field:focus ~ .form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    font-weight:400;    
+    padding-bottom: 6px;  
+    border-width: 3px;
+    border-image-slice: 1;
+    color: var(--form-label-color);
+    }
+
+.form__field:focus {
+    transform: scaleX(1);
+    border-bottom: solid 1px var(--link-color3);
+}
+
 #SearchContainer .query-card {
     box-shadow: 1px 1px 6px rgb(210, 195, 182); }
 #chatBox {
