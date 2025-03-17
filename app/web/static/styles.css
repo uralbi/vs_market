@@ -503,17 +503,17 @@ color: var(--form-label-color);
     border-bottom: solid 1px gray;
     justify-content: start;
 
-    grid-auto-columns: minmax(140px, auto);
-    perspective: 600px; 
+    /* grid-auto-columns: minmax(140px, auto); */
+    /* perspective: 600px;  */
 
-    /* Firefox scrollbar styling */
+    /* Firefox scrollbar styling */ 
     scrollbar-width: auto; /* "auto" (default) | "thin" (narrower) | "none" (hidden) */
     scrollbar-color: #28a745 #ffffff; /* thumb color | track color */
 }
 
 #SearchDetailContainer .product-card{
     width: 180px;
-    transform: rotateY(35deg);
+    /* transform: rotateY(35deg); */
 }
 
 #SearchDetailContainer .search-cards .card-img-top{ 
