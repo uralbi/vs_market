@@ -511,10 +511,19 @@ color: var(--form-label-color);
     scrollbar-color: #28a745 #ffffff; /* thumb color | track color */
 }
 
-#SearchDetailContainer .product-card{
+#SearchDetailContainer .product-card {
     width: 180px;
     /* transform: rotateY(35deg); */
 }
+
+@media (max-width: 744px) {
+    #SearchDetailContainer .product-card {
+        width: 168px;
+        height: 180px !important;}
+    #SearchDetailContainer .product-card .card-body{
+            height:auto;
+        }
+    }
 
 #SearchDetailContainer .search-cards .card-img-top{ 
     height: 110px;
