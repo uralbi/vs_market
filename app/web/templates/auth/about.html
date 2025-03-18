@@ -359,9 +359,11 @@
                 listItem.innerHTML = `
                     <a href="/messages?room_id=${room.chat_room_id}" class="">
                     
-                        От ${room.other_username}  <small class="text text-secondary">(${room.subject.substring(0, 20)})</small>
+
                         <span class="my_badge_unread"> 
-                        ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-danger"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
+                        ${room.has_unread_messages ? `<i class="bi bi-envelope-arrow-down text-primary"></i>`: `<i class="bi bi-check2-circle text-success"></i>`} </span>
+                        <i class="bi bi-person"></i> ${room.other_username} 
+                        <small class="text text-secondary">(${room.subject.substring(0, 20)})</small>
                     </a>
                     <button class="btn btn-outline-danger btn-sm float-end" onclick="deleteChatRoom(${room.chat_room_id})">
                         <i class="bi bi-trash3"></i> 

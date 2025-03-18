@@ -122,7 +122,7 @@ function displayMessage(sender, message, type, timestamp = new Date().toISOStrin
     const msgElement = document.createElement("div");
     msgElement.classList.add("chat-message", type);
     const msgText = document.createElement("p");
-    msgText.textContent = type === "msg_sent" ? "" : `${sender}`;
+    msgText.textContent = type === "msg_sent" ? "" : ``; // ${sender}
     const msgSpan = document.createElement("span");
     msgSpan.textContent = `${message}`;
     const timeElement = document.createElement("small");
@@ -186,7 +186,7 @@ async function loadOtherUser(room_id) {
         user2Id = other_data.other_user_id
         user2username = other_data.other_username
         userName = other_data.other_username
-        document.getElementById("chat_username").innerHTML =  `Ник: ${user2username} <span id="user_status_${user2Id}></span>` 
+        document.getElementById("chat_username").innerHTML =  `<i class="bi bi-person-circle"></i> ${user2username} <span id="user_status_${user2Id}></span>` 
     } catch (error) {
         console.error("Error fetching other user:", error);
     }

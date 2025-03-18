@@ -51,11 +51,10 @@ body a:hover {
 .my-navbar .dropdown-item:hover {
     background: #216069; }
 .my-navbar .dropdown-menu[data-bs-popper] {
-    background: #151938;
+    background: #181b30;
     top: -187px;
     left: -120px;
     margin-top: var(--bs-dropdown-spacer);
-    opacity: 0.96;
     min-width: 200px;
     min-height: 180px;
      }
@@ -195,6 +194,9 @@ h1 {
     .product-card { width: 46%; }
     }
 /* PROFILE PAGE */
+.tab-content>.active {
+    overflow: hidden;
+}
 .profile-info table {
     height: 100%;; }
 .my_badge_unread {
@@ -283,6 +285,9 @@ h1 {
     text-align: center; }
 .table thead tr {
     background: #dbdee7; }
+.table tr:nth-child(even) {
+    background-color: #f3f4fa;
+}
 .card-body .my_item_update_btn, .card-body .my_item_del_btn {
     padding: 0 20px; }
 .filter .icon {
@@ -383,15 +388,18 @@ color: var(--form-label-color);
 #chatBox .msg_sent .timestamp{ 
     margin: 0; }
 #chatBox .msg_received .timestamp{ 
-    margin: 0 0 0 56px;}
+    margin: 0 0 0 6px;}
 #chatBox .msg_received span {
     font-weight: 300;
     margin: 0 6px;
     padding: 4px 16px;
     border-radius: 6px;
     border: solid 0.6px rgb(125, 177, 237);
-    color: rgb(54, 139, 236); }
+    color: rgb(40 100 169); }
 
+.dark-mode .msg_received span {
+    color: #9fb2c7 !important;
+}
 #chatBox .msg_received p {
     max-width: 80%;
     margin-right: auto;
@@ -409,7 +417,7 @@ color: var(--form-label-color);
     color: rgb(26, 108, 59);
     border: solid 1px rgb(171, 203, 184); 
     border-radius: 6px;
-    width: 100%;
+    width: auto; /*  was 100% */
     word-wrap: break-word; }
 #chatBox .msg_sent {
     position: relative;
@@ -429,7 +437,7 @@ color: var(--form-label-color);
 .timestamp {
     font-size: 10px;
     font-style: italic;
-    color: rgb(177, 177, 177);
+    color: rgb(139 138 138);
     text-align: right; }
 /* Product Detail Page */
 
@@ -628,7 +636,9 @@ audio::-webkit-media-controls-play-button {
 .my_list_group {
     padding: 4px 6px;
     list-style: none;
-    border-radius: 4px; }
+    border-radius: 4px;
+    margin: 2px 0;
+    background: #eff1f6; }
 /* Dark Mode Styling */
 .dark-mode h1 {
     color: var(--link-color4) !important; }
@@ -667,7 +677,9 @@ audio::-webkit-media-controls-play-button {
 .dark-mode .form-label { text-shadow: 0 0 2px black; }
 .dark-mode .form-control:focus { background: #1a1a1a !important; }
 .dark-mode .list-group-item    { background: none !important; }
-.dark-mode .my_list_group { background-color: var(--dark-bg-color2) }dark-mode p, .dark-mode h2, .dark-mode h4, .dark-mode h5, .dark-mode h3, .dark-mode h6 {
+.dark-mode .my_list_group { background-color: var(--dark-bg-color2);
+    margin: 2px 0px; }
+.dark-mode p, .dark-mode h2, .dark-mode h4, .dark-mode h5, .dark-mode h3, .dark-mode h6 {
     color:#a2a4b5 !important; }
 .dark-mode select {
     background-color: #333;
@@ -819,7 +831,7 @@ audio::-webkit-media-controls-play-button {
     font-weight: 200;
 }
 .messages .message-item:hover {
-    background-color: #f6f9ff;
+    background-color: #27385b;
 }
 .nav-item {
     position: relative;
@@ -843,9 +855,9 @@ audio::-webkit-media-controls-play-button {
 .navbar-nav .badge-number {
     position: absolute;
     font-weight: normal;
-    font-size: 16px;
+    font-size: 12px;
     padding: 4px 8px;
-    margin: -25px -10px 1px 1px;
+    margin: -20px 84px 1px 1px;
     background: #11153a73 !important;
 }
 
@@ -1114,8 +1126,7 @@ button {
     text-shadow: none;
   }
 .dark-mode .dropdown-menu {
-    background-color: #080912;
-    opacity: 0.96; }
+    background-color: #080912; }
 button:hover .tooltip-text {
     visibility: visible;
     opacity: 0.8; }
