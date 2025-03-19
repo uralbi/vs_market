@@ -200,8 +200,7 @@
             document.getElementById("entityWhatsApp").innerHTML = `Востап : ${entity.entity_whatsapp}`;
         } else {
             let errorData = await response.json();
-            console.log("Error Response:", errorData);
-            document.getElementById("userInfo").innerText = "Error loading user data.";
+            console.log(errorData.detail);
         }
     }
 

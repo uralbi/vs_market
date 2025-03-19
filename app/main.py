@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-create_encryption_keyinfo()
+# create_encryption_keyinfo() 
 
 BLOCKED_IPS = {"192.168.1.100", "203.0.113.42"} 
 

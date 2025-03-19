@@ -135,3 +135,7 @@ class ProductService:
     def deactivate_user_products(self, user_id):
         # todo remove from favorites.
         return self.product_repo.deactivate_user_products(user_id)
+    
+    def get_items_category(self, category:str):
+        products = self.product_repo.get_items_category(category)
+        return self._map_products_with_images(products)

@@ -266,7 +266,8 @@ async def get_product(product_id: int, request: Request, db: Session = Depends(g
         if cached_results:
             cached_data = json.loads(cached_results)
             if str(product_id) in cached_data:
-                product = ProductDTO(**cached_data[str(product_id)]) 
+                product = ProductDTO(**cached_data[str(product_id)])
+    
     if not product:
         product_service = ProductService(db)
         product_model = product_service.get_product_by_id(product_id, user)
@@ -274,7 +275,14 @@ async def get_product(product_id: int, request: Request, db: Session = Depends(g
             raise HTTPException(status_code=404, detail="Product not found")
         product = ProductDTO.model_validate(product_model)
         product.image_urls = [img.image_url for img in product_model.images]
-    
+        
+    if not cached_data:
+        category_items = product_service.get_items_category(product.category)
+        cache_key = f"search:{query.lower()}:{100}:{0}"        
+        serialized_results = [r.model_dump(mode="json") for r in category_items]
+        await redis_client.setex(cache_key, 1800, json.dumps(serialized_results))
+        cached_data = serialized_results
+        
     return {"product": product.model_dump(), "cached_data": cached_data}
 
 @router.post("/my/{product_id}", response_model=ProductDTO)

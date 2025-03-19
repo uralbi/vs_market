@@ -171,3 +171,9 @@ class ProductRepository:
         self.db.query(ProductModel).filter(ProductModel.owner_id == user_id).update({"activated": False})
         self.db.commit()
         return {"message": "Products are deactivated"}
+
+    def get_items_category(self, category: str):
+        cat_products = self.db.query(ProductModel).filter(
+            ProductModel.activated == True).filter(
+                ProductModel.category == category)
+        return cat_products
