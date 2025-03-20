@@ -27,7 +27,7 @@
         let token = getAccessTokenFromCookie();
         if (!token) { return; }
     
-        showConfirmationModal("Подтверждение. \n (Восстановление пароля возможна только через почту)", async() => { 
+        showConfirmationModal("Подтверждение. \n (Смена почты требует подтверждения через текущий e-mail.)", async() => { 
 
             let data = {
                 new_email: document.getElementById("new_email").value.trim(),
@@ -47,4 +47,54 @@
     }
 
     document.getElementById("updateEmailForm").addEventListener("submit", updateEmail);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("updateEmailForm");
+        const emailInput = document.getElementById("new_email");
+        const passwordInput = document.getElementById("password_email");
+    
+        function validateEmail(email) {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return emailPattern.test(email);
+        }
+    
+        function validateEmailField() {
+            if (emailInput.value.trim() === "") {
+                emailInput.setCustomValidity("Эл. почта не может быть пустой.");
+            } else if (!validateEmail(emailInput.value)) {
+                emailInput.setCustomValidity("Введите корректный адрес электронной почты.");
+            } else {
+                emailInput.setCustomValidity("");
+            }
+        }
+    
+        function validatePasswordField() {
+            if (passwordInput.value.trim() === "") {
+                passwordInput.setCustomValidity("Пароль не может быть пустым.");
+            } else if (passwordInput.value.length < 6) {
+                passwordInput.setCustomValidity("Пароль должен содержать минимум 6 символов.");
+            } else {
+                passwordInput.setCustomValidity("");
+            }
+        }
+    
+        // Add event listeners to validate fields on input
+        emailInput.addEventListener("input", validateEmailField);
+        passwordInput.addEventListener("input", validatePasswordField);
+    
+        // Form submit validation
+        form.addEventListener("submit", function (event) {
+            validateEmailField();
+            validatePasswordField();
+    
+            if (!form.checkValidity()) {
+                event.preventDefault(); // Prevent form submission if invalid
+            }
+    
+            form.classList.add("was-validated");
+        });
+    });
     </script>
+    

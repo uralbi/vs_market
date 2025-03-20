@@ -21,6 +21,13 @@ class UserRoleDTO(BaseModel):
 class ChangePasswordDTO(BaseModel):
     old_password: str = Field(..., min_length=6)
     new_password: str = Field(..., min_length=6)
+    
+    @field_validator("old_password", "new_password")
+    @classmethod
+    def validate_password(cls, value):
+        if len(value) < 6:
+            raise ValueError("Пароль должен быть не менее 6 символов")
+        return value
 
 
 class UpdateUsernameDTO(BaseModel):

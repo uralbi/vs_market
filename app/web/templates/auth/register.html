@@ -19,7 +19,7 @@
             <p class="text-center small">Введите ваш имя пользователя, имейл и пароль</p>
           </div>
 
-          <form id="registerForm" class="row g-3 needs-validation" novalidate>
+          <form id="registerForm" class="row g-3 needs-validation">
             
             <div class="form__group field">
               <input type="input" class="form__field" placeholder="" name="username" id="username" required />
@@ -82,4 +82,49 @@
     });
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("registerForm");
+      const usernameInput = document.getElementById("username");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+  
+      // Custom Username Validation
+      usernameInput.addEventListener("input", function () {
+          if (usernameInput.value.length < 4) {
+              usernameInput.setCustomValidity("Имя пользователя должно содержать минимум 4 символа.");
+          } else {
+              usernameInput.setCustomValidity("");
+          }
+      });
+  
+      // Custom Email Validation
+      emailInput.addEventListener("input", function () {
+          if (emailInput.validity.typeMismatch) {
+              emailInput.setCustomValidity("Пожалуйста, введите корректный адрес электронной почты.");
+          } else {
+              emailInput.setCustomValidity("");
+          }
+      });
+  
+      // Custom Password Validation
+      passwordInput.addEventListener("input", function () {
+          if (passwordInput.value.length < 6) {
+              passwordInput.setCustomValidity("Пароль должен содержать минимум 6 символов.");
+          } else {
+              passwordInput.setCustomValidity("");
+          }
+      });
+  
+      // Form Submit Validation
+      form.addEventListener("submit", function (event) {
+          if (!form.checkValidity()) {
+              event.preventDefault(); // Prevent form submission if invalid
+          }
+          form.classList.add("was-validated");
+      });
+  });
+  </script>
+
+  
 {% endblock%}

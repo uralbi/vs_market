@@ -24,10 +24,10 @@
             <p class="text-center small">Введите ваш имейл и пароль</p>
           </div>
 
-          <form id="loginForm" class="row g-3 needs-validation" novalidate>
+          <form id="loginForm" class="row g-3 needs-validation">
             
             <div class="form__group field">
-              <input type="input" class="form__field" placeholder="" name="email" id="email" required />
+              <input type="email" class="form__field" placeholder="" name="email" id="email" required />
               <label for="name" class="form__label">Эл. почта</label>
             </div>
 
@@ -78,9 +78,41 @@
             window.location.href = "/"; // Redirect on success
         } else {
             console.log(data.detail)
-            showMessage(data.detail, 'danger')
+            showMessage("Неверные данные", 'warning')
         }
     });
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("loginForm");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+  
+      emailInput.addEventListener("input", function () {
+          if (emailInput.validity.typeMismatch) {
+              emailInput.setCustomValidity("Пожалуйста, введите корректный адрес электронной почты.");
+          } else {
+              emailInput.setCustomValidity("");
+          }
+      });
+  
+      passwordInput.addEventListener("input", function () {
+          if (passwordInput.validity.valueMissing) {
+              passwordInput.setCustomValidity("Пароль обязателен для заполнения.");
+          } else {
+              passwordInput.setCustomValidity("");
+          }
+      });
+  
+      form.addEventListener("submit", function (event) {
+          if (!form.checkValidity()) {
+              event.preventDefault();
+          }
+          form.classList.add("was-validated");
+      });
+  });
+  </script>
+
+  
 {% endblock %}

@@ -291,14 +291,10 @@
     async function loadUserInfo(user_id) {
         try {
             let response = await fetch(`/api/ent/${user_id}`, { method: "GET" });
-    
+            
             if (!response.ok) {
                 let errorData = await response.json();
-                console.log("No entity for this user");
                 document.getElementsByClassName("profile_card_body")[0].style.display = "none";
-                document.getElementsByClassName("my_profile_title")[0].innerHTML = `<a href="#createEntityForm"> Создать профиль видимый для всех</a> `
-                profile_card
-
                 return;
             } else {
 
@@ -314,7 +310,6 @@
     
         } catch (error) {
             console.error("Fetch error:", error);
-            document.getElementById("userInfo").innerText = "Network error.";
         }
     }
 
@@ -412,9 +407,12 @@
                 event.preventDefault();
                 // const confirmed = confirm("Подтвердите удаление.");
                 // if (!confirmed) return;
-                
+                if (!EntityID) {
+                  showMessage("У вас нет профайла", "warning")
+                  return
+                }
                 showConfirmationModal("Подтвердите удаление", async () => { 
-                
+                    
                     try {
                         let token = getAccessTokenFromCookie();
                         const response = await fetch(`/api/ent/${EntityID}`, {

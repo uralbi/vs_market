@@ -288,6 +288,9 @@ h1 {
 .table tr:nth-child(even) {
     background-color: #f3f4fa;
 }
+.dark-mode .table tr:nth-child(even) {
+    background-color: #1b1d38;
+}
 .card-body .my_item_update_btn, .card-body .my_item_del_btn {
     padding: 0 20px; }
 .filter .icon {
@@ -347,11 +350,12 @@ h1 {
     font-size: 1rem;
     cursor: text;
     top: 20px;
+    left: 14px;
 }
 
 .form__label {
 position: absolute;
-top: -3px;
+top: -10px;
 display: block;
 transition: 0.2s;
 font-size: 1em;
@@ -360,7 +364,7 @@ color: var(--form-label-color);
     
 .form__field:focus ~ .form__label {
     position: absolute;
-    top: 0;
+    top: -8px;
     display: block;
     transition: 0.2s;
     font-size: 1rem;
@@ -672,8 +676,9 @@ audio::-webkit-media-controls-play-button {
 .dark-mode .product_description::-webkit-scrollbar-thumb:hover {
     background: #cecfdb; }
 .dark-mode .form-control {
-    background-color: #333 !important;
-    color: rgb(112, 121, 138) !important; }
+    background-color: #2d2f45 !important;
+    color: rgb(112, 121, 138) !important;
+    border: solid 1px #656a97}
 .dark-mode .form-label { text-shadow: 0 0 2px black; }
 .dark-mode .form-control:focus { background: #1a1a1a !important; }
 .dark-mode .list-group-item    { background: none !important; }
@@ -711,17 +716,20 @@ audio::-webkit-media-controls-play-button {
     color: rgb(150, 142, 142) !important;
     border-color: #2a2c47 !important;   }
 .dark-mode input {
-    background-color: #333; /* Darker background */
     color: rgb(122, 118, 118);
-    border: 1px solid #555; /* Subtle border */ }
+    /* background-color: #333; 
+    border: 1px solid #555; */
+ } 
 .dark-mode input::placeholder {
     color: #bbb; /* Light gray placeholder */ }
 .dark-mode input:focus {
-    background-color: #444; /* Slightly lighter on focus */
     color: rgb(150, 149, 149);
-    border: 1px solid #888; /* Highlight border on focus */
-    outline: none; /* Remove default outline */
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Glow effect */ }
+    /* background-color: #444;
+   
+    border: 1px solid #888; 
+    outline: none; 
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);  */
+ }
 .dark-mode li {
     color: rgb(112, 121, 138); }
 .dark-mode .nav .messages .message-item:hover {
@@ -733,9 +741,9 @@ audio::-webkit-media-controls-play-button {
 .dark-mode .ql-snow{
     background-color: #101223; } 
 .dark-mode .ql-container {
-    background-color: #333;} 
+    background-color: #2d2f45;} 
 .dark-mode .ql-snow { 
-    border: 0.5px solid rgb(101, 101, 101) !important; }
+    border: 0.5px solid #656a97 !important}
 .dark-mode .ql-container {
     border-bottom-right-radius: 6px;
     border-bottom-left-radius: 6px;

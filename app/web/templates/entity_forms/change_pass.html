@@ -19,6 +19,45 @@
 </form>
 
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("changePasswordForm");
+      const old_password = document.getElementById("old_password");
+      const new_password = document.getElementById("new_password");
+  
+      function validatePasswordField(passwordField, minLength, message) {
+          if (passwordField.value.trim() === "") {
+              passwordField.setCustomValidity("Пароль не может быть пустым.");
+          } else if (passwordField.value.length < minLength) {
+              passwordField.setCustomValidity(message);
+          } else {
+              passwordField.setCustomValidity("");
+          }
+      }
+  
+      // Add event listener for input validation
+      old_password.addEventListener("input", function () {
+          validatePasswordField(old_password, 6, "Текущий пароль должен содержать минимум 6 символов.");
+      });
+  
+      new_password.addEventListener("input", function () {
+          validatePasswordField(new_password, 6, "Новый пароль должен содержать минимум 6 символов.");
+      });
+  
+      // Prevent form submission if passwords are invalid
+      form.addEventListener("submit", function (event) {
+          validatePasswordField(old_password, 6, "Текущий пароль должен содержать минимум 6 символов.");
+          validatePasswordField(new_password, 6, "Новый пароль должен содержать минимум 6 символов.");
+  
+          if (!form.checkValidity()) {
+              event.preventDefault(); // Prevent form submission if invalid
+          }
+          form.classList.add("was-validated");
+      });
+  });
+  </script>
+  
+
+<script>
     async function updatePassword(event) {
         event.preventDefault();
         let token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
@@ -37,10 +76,9 @@
         });
     
         let result = await response.json();
-        console.log(result)
-        showMessage(result.detail, "warning")
+        showMessage(result.detail[0].msg, "warning")
     }
-    
     
     document.getElementById("changePasswordForm").addEventListener("submit", updatePassword);
     </script>
+
