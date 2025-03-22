@@ -11,7 +11,7 @@ import os
 
 router = APIRouter(    
     prefix='/movies',
-    tags=['Videos'])
+    tags=['WEB Videos'])
 
 @router.get("/update")
 def stream_movie_page(request: Request, context: dict = Depends(global_context)):
