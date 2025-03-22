@@ -9,7 +9,7 @@
 <a href="https://ai-ber.com/docs#/" target="_blank">ai-ber.com/docs#/</a>  
 
 ## **Overview**
-This is a high-performance **marketplace and video streaming platform** built using **FastAPI**. The platform allows users to engage in e-commerce transactions, upload and monetize videos, and interact through real-time chat.
+This is a high-performance **marketplace and video streaming platform** (currently video features are disabled due to Budget) built using **FastAPI**. The platform allows users to engage in e-commerce transactions, upload and monetize videos, and interact through real-time chat.
 
 ## **Features**
 ### **Marketplace**
