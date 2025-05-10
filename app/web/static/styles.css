@@ -1312,3 +1312,7 @@ button:hover .tooltip-text {
 .pagetitle {
     padding: 6px;
 }
+
+.carousel-indicators [data-bs-target] {
+    margin-top: -8px;
+}

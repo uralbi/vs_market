@@ -26,7 +26,7 @@ class EntityService:
             entity_phone=entity_data.entity_phone,
             entity_address=entity_data.entity_address,
             entity_whatsapp=entity_data.entity_whatsapp,
-            created_at=datetime.now()
+            created_at=datetime.utcnow()
         )
 
         return self.entity_repo.create_entity(entity)

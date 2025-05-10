@@ -33,7 +33,7 @@ class MovieModel(Base):
     thumbnail_path = Column(String(500), nullable=True)         # Thumbnail image
     duration = Column(Float, nullable=True)                     # Duration in seconds
     is_public = Column(Boolean, default=True, nullable=False)   
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=datetime.utcnow)
     price = Column(Float, nullable=False, default=100)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("UserModel", back_populates="movies")
@@ -65,7 +65,7 @@ class OrderModel(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)
     status = Column(ENUM(OrderStatusEnum, name="order_status"), default=OrderStatusEnum.PENDING, nullable=False)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("UserModel", back_populates="orders")
     movie = relationship("MovieModel", back_populates="orders")
@@ -77,7 +77,7 @@ class MovieViewModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who watched
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie being watched
-    watched_at = Column(DateTime, default=datetime.now)  # Timestamp of watch
+    watched_at = Column(DateTime, default=datetime.utcnow)  # Timestamp of watch
     progress = Column(Float, default=0)  # Last watched time in seconds
 
     movie = relationship("MovieModel", back_populates="views")
@@ -112,7 +112,7 @@ class MovieLikeModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who liked
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Liked movie
-    liked_at = Column(DateTime, default=datetime.now)  # Timestamp
+    liked_at = Column(DateTime, default=datetime.utcnow)  # Timestamp
 
     movie = relationship("MovieModel", back_populates="likes")
 

@@ -221,7 +221,7 @@ def search_movies(query: str, db: Session = Depends(get_db)):
     # send_kafka_message(
     #     topic="movie_search",
     #     key="search",
-    #     message={"query": query, "timestamp": str(datetime.datetime.now())},
+    #     message={"query": query, "timestamp": str(datetime.datetime.utcnow())},
     # )
 
     movie_service = MovieService(db)

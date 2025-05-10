@@ -1,4 +1,4 @@
-from fastapi import Request, Depends
+from fastapi import Request, Depends, Response
 from app.services.user_service import UserService
 from app.services.chat_service import ChatService
 from sqlalchemy.orm import Session
@@ -7,7 +7,7 @@ from app.utils.auth import get_current_user
 from app.domain.security.auth_token import create_access_token, verify_refresh_token
 
 
-def global_context(request: Request, db: Session = Depends(get_db)):
+def global_context(request: Request, response: Response, db: Session = Depends(get_db)):
     """
     Provides global context to all Jinja2 templates.
     """
@@ -15,11 +15,11 @@ def global_context(request: Request, db: Session = Depends(get_db)):
     access_token = request.cookies.get("access_token")
     refresh_token = request.cookies.get("refresh_token")
     user_service = UserService(db)
-
     if access_token:
         try:
             user = get_current_user(access_token, user_service)
-        except Exception:
+        except Exception as e:
+            print("Error in getting user:", e)
             user = None
 
     # If access token is missing/invalid, try refreshing
@@ -27,7 +27,7 @@ def global_context(request: Request, db: Session = Depends(get_db)):
         try:
             refresh_payload = verify_refresh_token(refresh_token)
             new_access_token = create_access_token({"sub": refresh_payload["sub"]})
-            response = request.state.response  # Get FastAPI response object
+            # response = request.state.response  # Get FastAPI response object
             response.set_cookie(
                 key="access_token",
                 value=new_access_token,
@@ -36,7 +36,8 @@ def global_context(request: Request, db: Session = Depends(get_db)):
                 samesite="Strict"
             )
             user = get_current_user(new_access_token, user_service)
-        except Exception:
+        except Exception as e:
+            print('Error in refreshing token:', e)
             user = None
 
     # get count of chat_rooms where user's messages are not read 

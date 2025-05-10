@@ -68,7 +68,7 @@ async def search_products(
     # send_kafka_message(
     #     topic="product_search",
     #     key="search",
-    #     message={"query": query, "timestamp": str(datetime.datetime.now())},
+    #     message={"query": query, "timestamp": str(datetime.datetime.utcnow())},
     # )
     
     cache_key = f"search:{query}:{limit}:{offset}"
