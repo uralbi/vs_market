@@ -3,22 +3,18 @@
 {% block content %}
 
 <div class="pagetitle">
-    <h1>Поиск объявлений</h1>
-    <nav>
-        <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Главная</a></li>
-        <li class="breadcrumb-item">Поиск</li>
-        </ol>
-    </nav>
+    <h1 class="">Поиск объявлений</h1>
 </div>
 
-{% include "product_forms/search_form.html" %}
+<div id="SearchContainer" class="clearfix p-0"></div>
 
 <div class="d-flex justify-content-start ps-2">
-    <h1> Новые объявления</h1>
-    <div id="change_view_1" class="ms-3"> <button class="change_view_btn"><i class="bi bi-view-list"></i> </button></div>
+    <h1 class="fs-1"> Новые объявления</h1>
+    <div id="change_view_1" class="ms-3 mt-2"> <button class="change_view_btn"><i class="bi bi-view-list"></i> </button></div>
 </div>
 <div id="productContainer" class="clearfix"></div>
+
+{% include "product_forms/search_form.html" %}
 
 <script>
 

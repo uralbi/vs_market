@@ -1,6 +1,6 @@
 
 
-<div class="d-flex justify-content-between">
+<div class="d-flex justify-content-between search_form_input_field">
     <div class="w-100">
         <div class="input-group search_form">
             <input type="text" id="searchQuery" class="form-control" placeholder="Поиск ..." aria-label="Search products">
@@ -12,7 +12,6 @@
 </div>
 
 
-<div id="SearchContainer" class="clearfix p-0"></div>
 
 <script>
 
@@ -66,6 +65,9 @@
             console.log('error in search:', errorData)
             return;
         }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
         searchData = await response.json();
         updateProductList();
     }
