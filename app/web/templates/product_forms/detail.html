@@ -21,10 +21,10 @@
     </div>
     <div class="col-md-6">
         <div class="product_info_card">
-            <h4 id="productName" class="product_name"></h4>
             <div id="is_activated_product" class="text-danger"></div>
             <p id="productTime" class="product_category"></p>
             <p id="productCategory" class="product_category"></p>
+            <h4 id="productName" class="product_name"></h4>
             <p id="productPrice" class="product_price"></p>
             <div id="productTT"></div>
             <div class="productDetailBtns" id="productBtns"></div>
@@ -127,13 +127,13 @@
             btns.innerHTML = `
                 <button id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> 
                     <i class="bi bi-chat-left-text"></i></button>
-                <button id="pin_${product.id}" class="fav_add_btn btn btn-sm btn-outline-${primary}" onclick="addToFavorites(${product.id})">
+                <button id="pin_m${product.id}" class="btn btn-sm btn-${primary}" onclick="addToFavorites(${product.id})">
                     <i class="bi bi-paperclip"></i></button> 
                 `;
          }else {
             btns.innerHTML = `
-                <button disabled id="chatSeller" class="btn btn-sm btn-outline-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></button>
-                <button id="pin_${product.id}" class="btn btn-sm btn-outline-secondary" onclick="addToFavorites(${product.id})" disabled><i class="bi bi-paperclip"></i></button>
+                <button disabled id="chatSeller" class="btn btn-sm btn-success chat_link_btn" data-receiver-id data-product-id> <i class="bi bi-chat-left-text"></i></button>
+                <button id="pin_m${product.id}" class="btn btn-sm btn-primary" onclick="addToFavorites(${product.id})" disabled><i class="bi bi-paperclip"></i></button>
                 `;
          }
          // btns.innerHTML = `   <button>test</button> `;
@@ -255,25 +255,25 @@ function createProductCard(product, delay) {
                     <h5 class="card-title">${truncatedName}</h5></a>
 
         {% if current_user %}
-            <button class="chat_btn btn btn-outline-secondary btn-sm" 
+            <button class="chat_btn btn btn-outline-success btn-sm" 
                 data-aos-delay="10"
                 onclick="openChat(${product.owner_id}, ${product.id})">
                 <i class="bi bi-chat-left-text"></i>
             </button>
 
-            <button class="btn btn-sm btn-outline-${primary} pin_btn"
+            <button class="btn btn-sm btn-${primary} pin_btn"
                 id="pin_${product.id}" 
                 onclick="addToFavorites(${product.id})">
                 <i class="bi bi-paperclip"></i>
             </button>
         {% else %}
 
-            <button class="chat_btn btn btn-outline-secondary btn-sm" 
+            <button class="chat_btn btn btn-secondary btn-sm" 
                 data-aos-delay="10" disabled>
                 <i class="bi bi-chat-left-text"></i>
             </button>
 
-            <button class="btn btn-sm btn-outline-secondary pin_btn"
+            <button class="btn btn-sm btn-secondary pin_btn"
                 id="pin_${product.id}" disabled>
                 <i class="bi bi-paperclip"></i>
             </button>

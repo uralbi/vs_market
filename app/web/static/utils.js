@@ -77,16 +77,21 @@ async function addToFavorites(productId) {
     });
 
     let button = document.getElementById(`pin_${productId}`);
+    let buttonm = document.getElementById(`pin_m${productId}`);
 
     if (response.ok) {
         let resp = await response.json();
         if (resp.message.includes("добавлено")) {
-            button.classList.remove("btn-outline-secondary");
-            button.classList.add("btn-outline-primary");
+            button.classList.remove("btn-secondary");
+            button.classList.add("btn-primary");
+            buttonm.classList.remove("btn-secondary");
+            buttonm.classList.add("btn-primary");
             showMessage(resp.message, "primary");
         } else {
-            button.classList.remove("btn-outline-primary");
-            button.classList.add("btn-outline-secondary");
+            button.classList.remove("btn-primary");
+            button.classList.add("btn-secondary");
+            buttonm.classList.remove("btn-primary");
+            buttonm.classList.add("btn-secondary");
             showMessage(resp.message, "success");
         }
     } else {

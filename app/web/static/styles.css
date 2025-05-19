@@ -34,6 +34,7 @@ body a:hover {
     position: fixed !important;
     bottom: 0;
     background: var(--dark-bg-color2);
+    background: #13152d;
     z-index: 999; }
 .my-navbar a, .my-navbar p, .my-navbar li, .my-navbar ul {
     color: #909bce !important; }
@@ -327,6 +328,7 @@ h1 {
     min-width: 400px;
     background-color: rgba(189, 199, 211, 0.45);
     background-color: #1f2348;
+    background: linear-gradient(0deg,rgba(31, 35, 72, 1) 0%, rgba(31, 35, 72, 1) 0%, rgba(19, 21, 45, 1) 32%);
     border-top-left-radius: 8px;
 }
 
@@ -465,18 +467,20 @@ color: var(--form-label-color);
 /* Product Detail Page */
 
 .product_name {
-    color: var(--title-color); }
+    color: var(--title-color); 
+    margin: 10px 0 0 0;}
 .product_price {
     color: var(--price-color-dark);
-    margin-top: 16px;
+    margin-top: 10px;
     margin-bottom: 0px;
     padding: 0px;
-    font-weight: 100; }
+    font-weight: 100;
+    line-height: 1em; }
 .product_category {
     display: inline;
     border: solid 0.5px #8385a1;
     border-radius: 6px;
-    padding: 4px 14px;
+    padding: 1px 14px;
     margin: 0 0 6px 0;
     color: #8385a1; }
 .product_price small {
@@ -485,12 +489,14 @@ color: var(--form-label-color);
     font-style: italic;
     margin-left: 0; }
 .product_description{
-    border-top: solid 4px #d8dcef;
+    border-top: solid 4px #c9ced9;
+    border-bottom: solid 4px #c9ced9;
     max-height: 300px;
     overflow-y: scroll;
     padding: 10px 6px;
-    border-bottom: solid 4px #d8dcef;
-    border-radius: 6px; 
+    margin-top: 10px;
+    border-radius: 4px;
+    background: #f8f8f8;
     overflow-x: hidden;}
 .product_description .detail-text-points {
     padding: 8px 0;
@@ -521,7 +527,7 @@ color: var(--form-label-color);
         }
 
 .product_info_card {
-    padding: 10px; }
+    padding: 20px; }
 
 .item_detail_container, .product_info_card {
     /* box-shadow: -1px -1px 5px #caccdb, 1px 1px 5px #3a416f; */
@@ -604,10 +610,7 @@ color: var(--form-label-color);
     color: var(--link-color3);
     font-size: 0.8em;
 }
-.play-audio-btn i {
-    pointer-events: none;
-    color: var(--link-color3);
-}
+
 #productTT {
     position: absolute;
     margin: -34px 0px 0 117px;
@@ -615,14 +618,29 @@ color: var(--form-label-color);
 }
 #productTT audio {
     position: absolute;
-    margin: -30px 0 0 0;
+    /* margin: -30px 0 0 0; */
+    margin: -30px 0px 0px -20px;
     padding: 0;
-    height: 23px;
+    height: 28px;
     width: 250px;
     border-radius: 14px;
     font-size: 0.9em;
     box-shadow: 0 0 4px #dbe2f0;
 }
+
+.play-audio-btn i {
+    pointer-events: none;
+    color: #f2f3f8;
+    border: none;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: #8b97ce;
+}
+.play-audio-btn:hover > i {
+    background: #5767b0;
+    color: white;
+}
+
 @media (max-width: 770px) {
     #productTT audio {
         width: 180px; }
@@ -691,7 +709,8 @@ audio::-webkit-media-controls-play-button {
  }
  .dark-mode .product_description {
     border-top: solid 4px  #42477a;
-    border-bottom: solid 4px  #42477a; }
+    border-bottom: solid 4px  #42477a; 
+    background-color: #1a1d36;}
 .dark-mode .product_description::-webkit-scrollbar {
     width: 10px; /* Vertical scrollbar */
     height: 10px; /* Horizontal scrollbar */
@@ -961,8 +980,7 @@ audio::-webkit-media-controls-play-button {
 }
 
 .carousel-indicators {
-    margin-bottom: 10rem !important;
-    top: 0;
+    margin-bottom: -11px !important;
 }
 
 .carousel-indicators [data-bs-target] {
@@ -1200,9 +1218,7 @@ button:hover .tooltip-text {
     margin: 6px 0px;
     width: 100%;
 }
-.product-card-list .card-body {
-    padding: 6px;
-}
+
 .product-card-list .card-title{
     padding: 0;
     font-weight: bold;
@@ -1250,7 +1266,7 @@ button:hover .tooltip-text {
 }
 
 .product-card-list img{
-    height: 149px;
+    height: 169px;
     width: auto;
     margin: auto;
     display: flex;
@@ -1362,4 +1378,39 @@ button:hover .tooltip-text {
 
 .carousel-indicators [data-bs-target] {
     margin-top: -8px;
+}
+
+.dark-mode .btn-secondary {
+    background-color: #2a2e37 !important;
+    border-color: #2a2e37 !important;
+}
+.dark-mode .btn-secondary:hover {
+    background-color: #72747d !important; /* hover effect */
+}
+
+.btn-secondary {
+    background-color: #f0f4fd !important; /* your custom background */
+    border-color: #f0f4fd !important;
+    color: #939db2 !important;
+    font-size: 1.2em !important;
+    padding: 1px 7px !important;
+}
+
+.btn-secondary:hover {
+    background-color: #a1a6b9 !important; /* hover effect */
+    color: #eceef3 !important;
+}
+
+
+.btn-primary {
+    background-color: #8b97ce !important; /* your custom background */
+    border-color: #f0f4fd !important;
+    color: white !important;
+    font-size: 1.2em !important;
+    padding: 1px 7px !important;
+}
+
+.btn-primary:hover {
+    background-color: #5767b0 !important; /* hover effect */
+    color: white !important;
 }

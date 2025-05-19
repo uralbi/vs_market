@@ -1,5 +1,4 @@
 
-
 <div class="d-flex justify-content-between search_form_input_field">
     <div class="w-100">
         <div class="input-group search_form">
@@ -11,13 +10,9 @@
     <div id="change_view_2" class=""> <button class="change_view_btn"><i class="bi bi-view-list"></i> </button></div>
 </div>
 
-
-
 <script>
-
     let searchData = []; // Store fetched products
     let viewMode = parseInt(getCookie("viewMode")) || 0;
-
     document.querySelector("#change_view_2").addEventListener("click", function () {
         viewMode = (viewMode + 1) % 3; // Cycle through 0, 1, 2
         setCookie("viewMode", viewMode, 7); // Save in cookies
@@ -104,13 +99,11 @@
         let productName = product.name;
         let query = document.getElementById("searchQuery").value.trim();
         let queryParam = query ? encodeURIComponent(query) : '' ; // Ensure query is defined
-        
         let primary = "secondary";
         if (user_favs.includes(product.id)) {
             primary = "primary"
         }
         productCard.innerHTML = `
-            
                 <div class="row">
                     <div class="col-8 col-sm-3">
                         <a href="/product/${product.id}?query=${queryParam}"> 
@@ -118,20 +111,16 @@
                         </a>
                     </div>
                     <div class="col-4 col-sm-2">
-                    
                         <p class="card-price">
                             ${displayPrice_org(product.price, product.is_dollar)}
                         </p>
-                     
                     </div>
                     <div class="col-0 col-sm-6">
                      <p class="card-text p-0 m-0">${product.description}</p>
                     </div>
                 </div>
-           
              <div class="product_create_lapse">${timeLapse(product.created_at)}</div>
         `;
-        
         return productCard;
     }
 
