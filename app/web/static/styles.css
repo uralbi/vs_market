@@ -3,7 +3,8 @@
     --price-color: rgb(177, 87, 59);
     --price-color-dark: rgb(108 55 38);
     --dark-bg-color: #2c315c;
-    --dark-bg-color2: #1f2349;
+    --dark-bg-color2: #1a1f25;
+    --dark-tx-secondary: #566676;
     --light-bg-color: #e3e5ed;
     --link-color1: #5450bd;
     --link-color2: #434094;
@@ -154,7 +155,7 @@ h1 {
     line-height: 1;
     font-size: 14px; }
 .product-card .card-price small {
-    color: #9ba1af;
+    color: var(--dark-tx-secondary);
     font-style: italic;
     font-weight: normal; }
 .product-card .card-text {
@@ -484,7 +485,7 @@ color: var(--form-label-color);
     margin: 0 0 6px 0;
     color: #8385a1; }
 .product_price small {
-    color: #9ba1af;
+    color: var(--dark-tx-secondary);
     font-weight: 100;
     font-style: italic;
     margin-left: 0; }
@@ -563,7 +564,6 @@ color: var(--form-label-color);
 
 #SearchDetailContainer .product-card {
     width: 180px;
-    /* transform: rotateY(35deg); */
 }
 
 @media (max-width: 744px) {
@@ -704,13 +704,13 @@ audio::-webkit-media-controls-play-button {
     background-color: #080912 !important;
     color: rgb(159, 165, 177) !important; }
 .dark-mode .card-body {
-    background-color: #13152d !important;
+    /* background-color: #13152d !important; */
     border-radius: 4px;
  }
  .dark-mode .product_description {
-    border-top: solid 4px  #42477a;
-    border-bottom: solid 4px  #42477a; 
-    background-color: #1a1d36;}
+    border-top: solid 4px  #343e49;
+    border-bottom: solid 4px  #343e49; 
+    background-color: #1f262d;}
 .dark-mode .product_description::-webkit-scrollbar {
     width: 10px; /* Vertical scrollbar */
     height: 10px; /* Horizontal scrollbar */
@@ -747,7 +747,8 @@ audio::-webkit-media-controls-play-button {
     color: rgb(112, 121, 138);
     border: solid 1px #ccc; }
 .dark-mode .card {
-    background-color: var(--dark-bg-color2); }
+    background-color: #13152d; 
+    background-color: #1a1f25;}
 .dark-mode .text-muted {
     color: #7d7f9c !important;     }
 .dark-mode .card p, .dark-mode .card h4, 
@@ -810,7 +811,7 @@ audio::-webkit-media-controls-play-button {
 }
 .dark-mode .item_detail_container, .dark-mode .product_info_card {
     /* background: #191c35; */
-    background: #131528;
+    background: var(--dark-bg-color2);
     box-shadow: none;
 }
 .dark-mode .movie-card .card-body {
@@ -1246,10 +1247,12 @@ button:hover .tooltip-text {
     min-width: 100px;
     margin: 0px;
     color: var(--price-color) !important;
+    line-height: 1em;
 }
 .product-card-list .card-price small {
-    color: gray;
+    color: var(--dark-tx-secondary);
     font-weight: 100;
+    font-style: italic;
 }
 .product-card-list .chat_btn, .product-card-list .pin_btn {
     position: relative;
@@ -1295,7 +1298,7 @@ button:hover .tooltip-text {
 }
 @media (max-width: 770px) {
     .product-card-list img {
-        height: 90px; }
+        }
     }
 
 @media (max-width: 570px) {
