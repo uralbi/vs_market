@@ -630,8 +630,8 @@ color: var(--form-label-color);
     width: 250px;
     border-radius: 5px;
     font-size: 0.9em;
-    margin-top: -34px;
-    right: 6px;
+    margin-top: -33px;
+    right: 0px;
     background: #dbe2f0;
 }
 
