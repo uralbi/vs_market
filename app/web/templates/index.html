@@ -203,7 +203,7 @@
                             <p class="card-price">
                                 ${displayPrice_org(product.price, product.is_dollar)}
                             </p>
-                            <hr class="m-0">
+                            
                             <div id="productTT">
                                 <button class="play-audio-btn" data-product-id="${product.id}" data-product-text="${escapedText}"> <i class="bi bi-volume-up"></i> </button>
                                  <audio id="audio-player-${product.id}" controls style="display: none;"></audio>
@@ -233,7 +233,7 @@
                                 `}
                             </div>
                         </div>
-                        <div class="card-text">
+                        <div class="card-text mt-2">
                             ${product.description}
                         </div>
 
