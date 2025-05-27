@@ -613,9 +613,15 @@ color: var(--form-label-color);
 
 #productTT {
     position: absolute;
-    right: 76px;
-    margin-top: -37px;
+    right: 84px;
+    margin-top: -36px;
     font-size: 1.5em;
+}
+
+#productTT button{
+    margin: 0px;
+    padding: 0px;
+    border: none;
 }
 #productTT audio {
     position: absolute;
@@ -635,10 +641,10 @@ color: var(--form-label-color);
     border: none;
     padding: 1px 4px;
     border-radius: 4px;
-    background: #5653ad;
+    background: #75748f;
 }
 .play-audio-btn:hover > i {
-    background: #5f5bd7;
+    background: #8b88d1;
     color: white;
 }
 
