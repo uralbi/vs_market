@@ -27,7 +27,7 @@ def send_verification_email(self, to_email: str, verification_link: str):
     html_content = f"""
     <html>
         <body>
-            <h2>Добро пожаловать в iBer.kg !</h2>
+            <h2>Добро пожаловать в ai-ber.kg !</h2>
             <p> Для Активации нажмите на ссылку:</p>
             <a href="{verification_link}" style="display:inline-block;padding:10px 20px;color:#fff;background:#007bff;text-decoration:none;border-radius:5px;">Verify Email</a>
         </body>
@@ -63,7 +63,7 @@ def send_notification_email(self, to_email: str, body: str):
     message = EmailMessage()
     message["From"] = SMTP_USERNAME
     message["To"] = to_email
-    message["Subject"] = "iBer.kg"
+    message["Subject"] = "ai-ber.kg"
 
     # Plain text fallback
     message.set_content(f"{body}")
@@ -74,9 +74,9 @@ def send_notification_email(self, to_email: str, body: str):
         <body>
             <div class="card" style="width: 18rem; border: solid 1px #cccccc; padding: 10px; border-radius: 6px;">
                 <div class="card-body">
-                    <h5 class="card-title">iBer.kg</h5>
+                    <h5 class="card-title">ai-ber.kg</h5>
                     <p class="card-text">{body}</p>
-                    <a href="{DOMAIN}/login" style="border: solid 1px #d1d1e0; border-radius: 4px; padding: 2px 12px;">iBer.kg</a>
+                    <a href="{DOMAIN}/login" style="border: solid 1px #d1d1e0; border-radius: 4px; padding: 2px 12px;">ai-ber.kg</a>
                 </div>
             </div>
         </body>

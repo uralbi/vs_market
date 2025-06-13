@@ -121,7 +121,7 @@ class UserService:
         user = self.repo.get_user_by_id(user_id)
         if not user:
             return HTTPException(status_code=404, detail="User Not Found")
-        message_body = f"Ваш аккаунт iBer.kg ({user.email}) деактивирован."
+        message_body = f"Ваш аккаунт ai-ber.kg ({user.email}) деактивирован."
         send_notification_email.delay(user.email, message_body)
         return self.repo.deactivate_user(user_id)
     
@@ -131,7 +131,7 @@ class UserService:
         if not user:
             return HTTPException(status_code=404, detail="User Not Found")
         query = self.repo.activate_user(user_id)
-        message_body = f"Ваш аккаунт iBer.kg ({user.email}) активирован."
+        message_body = f"Ваш аккаунт  ({user.email}) активирован."
         send_notification_email.delay(user.email, message_body)
         return query
     

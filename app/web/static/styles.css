@@ -604,11 +604,13 @@ color: var(--form-label-color);
 }
 
 .search_qty {
-    position: absolute;
-    top: -5px;
-    left: 22px;
-    color: var(--link-color3);
+    position: relative;
+    top: 0px;
+    left: 12px;
+    margin: 0px;
+    color: var(--dark-tx-secondary);
     font-size: 0.8em;
+    font-weight: bold;
 }
 
 #productTT {

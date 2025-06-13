@@ -13,6 +13,7 @@
 </div>
 
 <div class="row">
+    <div id="search_res_qnty"></div>
     <div id="SearchDetailContainer"></div>
     <div class="col-md-6">
         <div id="productImageContainer" class="text-center">
@@ -79,16 +80,14 @@
             const data = await response.json();
             const product = data.product
             
-            // Populate product details
             updateProductDetail(product)
 
             let productContainer = document.getElementById("SearchDetailContainer");
+            let productresqnty = document.getElementById("search_res_qnty");
             let timer = 0;
             cach_data = data.cached_data
-            let spanel = document.createElement("div")
             let items_qty = cach_data.length
-            spanel.innerHTML = `<span class="search_qty">Схожие объявления: ${items_qty} </span>`
-            productContainer.appendChild(spanel)
+            productresqnty.innerHTML = `<span class="search_qty">СХОЖИЕ ОБЪЯВЛЕНИЯ: ${items_qty} </span>`
             if (cach_data) {
                 cach_data.forEach(product => {
                     let productCard = createProductCard(product, timer);
