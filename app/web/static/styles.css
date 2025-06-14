@@ -1460,6 +1460,7 @@ button:hover .tooltip-text {
     color: white !important;
     font-size: 1.2em !important;
     padding: 1px 7px !important;
+    margin: 5px 0;
 }
 
 .btn-primary:hover {

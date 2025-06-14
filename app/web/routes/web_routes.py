@@ -73,7 +73,6 @@ def contact_page(request: Request, context: dict = Depends(global_context)):
     curr_user = context.get("current_user")
     if not curr_user:
         return RedirectResponse(url="/", status_code=303)
-
     return templates.TemplateResponse("auth/about.html", {**context, "title": "Aiber Profile"})
 
 @router.get("/register", name="register_page")

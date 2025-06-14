@@ -63,9 +63,10 @@ async def serve_audio(filename: str, request: Request):
         "Content-Disposition": "inline",  # Prevents forcing download
         "Cache-Control": "no-store"
     })
-    
-# app.include_router(video.router)
-# app.include_router(web_v_routes.router)
+
+
+app.include_router(video.router)
+app.include_router(web_v_routes.router)
 app.include_router(chat.router)
 app.include_router(chat_ws2.router)
 app.include_router(favorites.router)
