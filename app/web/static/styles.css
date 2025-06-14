@@ -351,6 +351,7 @@ h1 {
     background-color: #13152db8;
     /* background: linear-gradient(0deg,rgba(31, 35, 72, 1) 0%, rgba(31, 35, 72, 1) 0%, rgba(19, 21, 45, 1) 32%); */
     border-top-left-radius: 8px;
+    z-index: 3;
 }
 .dark-mode .search_form_input_field {
     background-color: #232431a1;
