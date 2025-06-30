@@ -37,6 +37,7 @@
         productContainer.innerHTML = ""; // Clear previous view
     
         let timer = 0;
+        console.log(productsData)
         productsData.forEach(product => {
             let productCard = isListView 
                 ? createProductCard_list(product, timer) 

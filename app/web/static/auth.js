@@ -142,12 +142,10 @@ if (logoutBtn) {
 
 async function logout() {
     document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; samesite=strict";
+    document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; samesite=strict";
     await fetch(`${API_URL}/logout`, { method: "POST", credentials: "include" }); // Logout API to clear refresh token
     window.location.href = "/";
 }
-
-
-
 
 
 function getTimeDifference(updatedAt) {
@@ -202,7 +200,7 @@ function toggleTheme() {
     body.classList.toggle("dark-mode");
     
     const themeIcon = document.getElementById("themeIcon");
-    // ✅ Save the current mode in cookies
+    // Save the current mode in cookies
     if (body.classList.contains("dark-mode")) {
         setCookie("theme", "dark", 30);  // Save for 30 days
         themeIcon.classList.replace("bi-lightbulb-fill", "bi-lightbulb"); // Switch to moon icon
@@ -212,7 +210,7 @@ function toggleTheme() {
     }
 }
 
-// ✅ Load theme on page load
+// Load theme on page load
 document.addEventListener("DOMContentLoaded", () => {
     if (getCookie("theme") === "dark") {
         document.body.classList.add("dark-mode");

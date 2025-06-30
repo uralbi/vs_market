@@ -40,10 +40,10 @@ BLOCKED_IPS = {"192.168.1.100", "203.0.113.42"}
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,  # Only allow your domain
+    allow_origins=[origin.strip() for origin in settings.ALLOWED_ORIGINS],
     allow_credentials=True,
-    allow_methods=["GET"],  # Restrict allowed methods
-    allow_headers=["*"],    # Allow all headers
+    allow_methods=["*"], 
+    allow_headers=["*"],    
 )
 
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
