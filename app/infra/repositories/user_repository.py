@@ -43,6 +43,7 @@ class UserRepository(IUserRepository):
                 category=product.category,
                 created_at=product.created_at.isoformat(),
                 owner_id=product.owner_id,
+                is_dollar=product.is_dollar,
                 image_urls=[img.image_url for img in product.images]  # Include images
             )
             for product in favorite_products
