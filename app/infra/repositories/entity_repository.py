@@ -26,13 +26,13 @@ class EntityRepository:
 
         return db_entity
 
-    def get_entity_by_id(self, entity_id: int):
+    def get_entity_by_id(self, entity_id: str):
         """
         Fetch an entity by ID.
         """
         return self.db.query(EntityModel).filter(EntityModel.id == entity_id).first()
     
-    def get_entity_by_user_id(self, user_id: int):
+    def get_entity_by_user_id(self, user_id: str):
         """"
         Fetch an entity by user ID
         """

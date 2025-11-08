@@ -40,7 +40,7 @@
 
 <script>
     let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
-    let curr_user = {{ current_user.id if current_user else "null" }};
+    let curr_user = {{ current_user.id | tojson | safe if current_user else "null" }};
     let cach_data;
     let productDesc;
     if (user_favs.includes(0)) { console.log('0 in user favs', user_favs) }
@@ -48,7 +48,7 @@
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('query');
-        const productId = {{ product_id }}; // Ensure product_id is passed from template
+        const productId = {{ product_id | tojson | safe }}; // Ensure product_id is passed from template
     
         if (!productId) {
             alert("Invalid product ID");

@@ -32,7 +32,7 @@ router = APIRouter(
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 class TextRequest(BaseModel):
-    product_id: int
+    product_id: str
     product_text: str
     
 @router.post("/speak/")
@@ -107,7 +107,7 @@ def product_stream(db: Session = Depends(get_db)):
 
 @router.delete("/delete/{product_id}")
 async def delete_product(
-    product_id: int,
+    product_id: str,
     token: str = Depends(token_scheme),
     db: Session = Depends(get_db)):
     """
@@ -198,7 +198,7 @@ async def get_products_list(db: Session = Depends(get_db), limit: int = 100, off
 
 @router.put("/update/{product_id}", response_model=ProductDTO)
 async def update_product(
-        product_id: int,
+        product_id: str,
         name: str = Form(None),
         description: str = Form(None),
         price: float = Form(None),
@@ -248,7 +248,7 @@ async def update_product(
     return updated_product
 
 @router.get("/{product_id}", response_model=dict)
-async def get_product(product_id: int, request: Request, db: Session = Depends(get_db), query: str = Query(None) ):
+async def get_product(product_id: str, request: Request, db: Session = Depends(get_db), query: str = Query(None) ):
     """Fetch product details by ID."""
     product = None
     cached_data = None
@@ -286,7 +286,7 @@ async def get_product(product_id: int, request: Request, db: Session = Depends(g
     return {"product": product.model_dump(), "cached_data": cached_data}
 
 @router.post("/my/{product_id}", response_model=ProductDTO)
-def get_product(product_id: int, db: Session = Depends(get_db), token: str = Depends(token_scheme),):
+def get_product(product_id: str, db: Session = Depends(get_db), token: str = Depends(token_scheme),):
     """Fetch product details by ID."""
     user = user_authorization(token, db)
     product_service = ProductService(db)

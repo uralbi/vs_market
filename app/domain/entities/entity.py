@@ -4,8 +4,8 @@ from pydantic import BaseModel, ConfigDict
 
 class Entity(BaseModel):
 
-    id: int
-    creator_id: int
+    id: str
+    creator_id: str
     entity_name: str
     entity_phone: str
     entity_address: str

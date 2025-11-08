@@ -4,7 +4,7 @@ from typing import Optional
 
 
 class MovieDTO(BaseModel):
-    id: int
+    id: str
     title: str
     description: str
     price: int

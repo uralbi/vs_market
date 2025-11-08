@@ -82,7 +82,7 @@ async def generate_sitemap(db=Depends(get_db)):
 
 
 @router.get("/product/{product_id}")
-def get_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
+def get_product_page(request: Request, product_id: str, context: dict = Depends(global_context)):
     """ Product Detail page """
 
     return templates.TemplateResponse("product_forms/detail.html", {**context, "product_id": product_id,"title": "Aiber Item"})
@@ -128,7 +128,7 @@ def product_list_page(request: Request, context: dict = Depends(global_context))
     return templates.TemplateResponse("index.html", {**context, "title": "Aiber Объявления для всех"})
 
 @router.get("/update-product/{product_id}")
-def update_product_page(request: Request, product_id: int, context: dict = Depends(global_context)):
+def update_product_page(request: Request, product_id: str, context: dict = Depends(global_context)):
     """ Update product page """
     curr_user = context.get("current_user")
     if not curr_user:

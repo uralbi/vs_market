@@ -12,7 +12,7 @@ TOKEN_ENC_EXPIRY = 600  # 🔥 Key expires in 10 minutes
 TOKEN_EXPIRY = 60
 DOMAIN = os.getenv("DOMAIN")
 
-def generate_signature(movie_id: int, filename: str) -> str:
+def generate_signature(movie_id: str, filename: str) -> str:
     """
     Generates a secure HMAC-SHA256 signature for signed URLs.
 
@@ -42,7 +42,7 @@ def create_encryption_keyinfo():
     print('Encryption key is generated')
         
 
-def generate_signed_key_url(movie_id: int) -> str:
+def generate_signed_key_url(movie_id: str) -> str:
     """
     Generates a fresh signed URL for the encryption key.
     """
@@ -55,7 +55,7 @@ def generate_signed_key_url(movie_id: int) -> str:
     return f"{DOMAIN}/api/movies/encryption_key?exp={expiry_time}&sig={encoded_signature}"
 
 
-def update_variant_playlists_with_signed_urls(hls_directory: str, movie_id: int):
+def update_variant_playlists_with_signed_urls(hls_directory: str, movie_id: str):
     """
     Updates all variant .m3u8 playlists to contain signed URLs for .ts files.
     """
@@ -65,7 +65,7 @@ def update_variant_playlists_with_signed_urls(hls_directory: str, movie_id: int)
             update_m3u8_with_signed_urls(variant_m3u8_path, movie_id)
 
 
-def update_m3u8_with_signed_urls(m3u8_path: str, movie_id: int):
+def update_m3u8_with_signed_urls(m3u8_path: str, movie_id: str):
     """
     Reads the .m3u8 file, replaces .ts filenames with signed URLs.
     """
@@ -86,7 +86,7 @@ def update_m3u8_with_signed_urls(m3u8_path: str, movie_id: int):
         file.writelines(new_lines)
         
         
-def verify_signed_url(movie_id: int, segment_filename: str, exp: str, sig: str) -> bool:
+def verify_signed_url(movie_id: str, segment_filename: str, exp: str, sig: str) -> bool:
     
     if int(exp) < int(time.time()):
         return False
@@ -126,13 +126,13 @@ def verify_signed_enc_url(exp: str, sig: str) -> bool:
         return False
 
 
-def generate_signed_url(movie_id: int, segment_filename: str) -> str:
+def generate_signed_url(movie_id: str, segment_filename: str) -> str:
     expiry_time = int(time.time()) + TOKEN_EXPIRY
     encoded_signature = generate_signature(movie_id, segment_filename)
     return f"{segment_filename}?exp={expiry_time}&sig={encoded_signature}"
 
 
-def generate_signed_m3u8(master_m3u8_path: str, movie_id: int) -> str:
+def generate_signed_m3u8(master_m3u8_path: str, movie_id: str) -> str:
     """
     Reads the master `.m3u8` file and generates a fresh version with signed URLs.
     Ensures it never returns None.

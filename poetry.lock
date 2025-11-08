@@ -2589,6 +2589,18 @@ files = [
 ]
 
 [[package]]
+name = "ulid-py"
+version = "1.1.0"
+description = "Universally Unique Lexicographically Sortable Identifier"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "ulid-py-1.1.0.tar.gz", hash = "sha256:dc6884be91558df077c3011b9fb0c87d1097cb8fc6534b11f310161afd5738f0"},
+    {file = "ulid_py-1.1.0-py2.py3-none-any.whl", hash = "sha256:b56a0f809ef90d6020b21b89a87a48edc7c03aea80e5ed5174172e82d76e3987"},
+]
+
+[[package]]
 name = "urllib3"
 version = "2.3.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -2972,4 +2984,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "e0ff762b7edb693bda54ed0a42a2f43031f2929e3bca362a83e7fc8389f3f3fe"
+content-hash = "1d577f34a30ea00e5791f0f4a7a5cf1b595f404d9511750cab813bd7b2de0431"

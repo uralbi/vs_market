@@ -10,7 +10,7 @@ class UserRepository(IUserRepository):
     def __init__(self, db: Session):
         self.db = db
 
-    def get_user_by_id(self, user_id: int) -> UserModel:
+    def get_user_by_id(self, user_id: str) -> UserModel:
         return self.db.query(UserModel).filter(UserModel.id == user_id).first()
     
     def get_user_by_email(self, user_email: str) -> UserModel:
@@ -21,7 +21,7 @@ class UserRepository(IUserRepository):
         self.db.commit()
         return user
 
-    def get_favorite_products(self, user_id: int) -> List[ProductDTO]:
+    def get_favorite_products(self, user_id: str) -> List[ProductDTO]:
         """Retrieve favorite products for the user, including images."""
 
         stmt = (
@@ -55,12 +55,12 @@ class UserRepository(IUserRepository):
         """
         return self.db.query(UserModel)
 
-    def deactivate_user(self, user_id: int):
+    def deactivate_user(self, user_id: str):
         self.db.query(UserModel).filter(UserModel.id == user_id).update({"is_active": False})
         self.db.commit()
 
     
-    def activate_user(self, user_id: int):
+    def activate_user(self, user_id: str):
         query = self.db.query(UserModel).filter(UserModel.id == user_id).update({"is_active": True})
         self.db.commit()
         return query
@@ -77,7 +77,7 @@ class UserRepository(IUserRepository):
             self.db.commit()
             self.db.refresh(user)
     
-    def update_user_role(self, user_id: int, user_role):
+    def update_user_role(self, user_id: str, user_role):
         user = self.get_user_by_id(user_id)
         user.role = user_role
         self.db.commit()

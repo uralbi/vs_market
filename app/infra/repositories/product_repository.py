@@ -13,7 +13,7 @@ class ProductRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_product(self, user_id: int, product_data: ProductCreateDTO) -> ProductModel:
+    def create_product(self, user_id: str, product_data: ProductCreateDTO) -> ProductModel:
         """Create a new product with images."""
         new_product = ProductModel(
             owner_id=user_id,
@@ -48,7 +48,7 @@ class ProductRepository:
                     for product in products
                 ]
     
-    def get_user_products(self, owner_id:int, limit: int, offset: int) -> List[ProductDTO]:
+    def get_user_products(self, owner_id:str, limit: int, offset: int) -> List[ProductDTO]:
         """Retrieve all products with associated images."""
     
         products = (
@@ -69,13 +69,13 @@ class ProductRepository:
                     for product in products
                 ]
     
-    def get_product_by_id(self, product_id: int) -> ProductModel:
+    def get_product_by_id(self, product_id: str) -> ProductModel:
         """Fetch a product by id."""
         query = self.db.query(ProductModel).filter(ProductModel.id == product_id).options(joinedload(ProductModel.images))
         product = query.first()        
         return product
 
-    def delete_product(self, product_id: int, user):
+    def delete_product(self, product_id: str, user):
         """Delete a product and its images."""
         product = self.get_product_by_id(product_id)
         
@@ -98,7 +98,7 @@ class ProductRepository:
                 .order_by(ProductModel.created_at.desc()).first()
                 )
     
-    def update_product(self, product_id: int, updated_data: dict) -> Optional[ProductModel]:
+    def update_product(self, product_id: str, updated_data: dict) -> Optional[ProductModel]:
         """Update product details."""
         product = self.get_product_by_id(product_id)
         if not product:
@@ -111,7 +111,7 @@ class ProductRepository:
         self.db.refresh(product)
         return product
 
-    def update_product_images(self, product_id: int, image_urls: List[str], keep_existing: bool = True):
+    def update_product_images(self, product_id: str, image_urls: List[str], keep_existing: bool = True):
         """Replace images for a product."""
         new_images = image_urls[:10]
         
@@ -167,7 +167,7 @@ class ProductRepository:
             .all()
         )
     
-    def deactivate_user_products(self, user_id: int):
+    def deactivate_user_products(self, user_id: str):
         self.db.query(ProductModel).filter(ProductModel.owner_id == user_id).update({"activated": False})
         self.db.commit()
         return {"message": "Products are deactivated"}

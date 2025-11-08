@@ -69,7 +69,7 @@
     fetchProducts();
 
     let user_favs = {{ current_user.favorite_products | get_ids | tojson | safe }};
-    let curr_user = {{ current_user.id if current_user else "null" }};
+    let curr_user = {{ current_user.id | tojson | safe if current_user else "null" }};
 
     if (user_favs.includes(0)) {
         console.log('58 in user favs', user_favs)

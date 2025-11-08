@@ -9,12 +9,13 @@ from typing import Dict
 
 
 class ChatConsumer:
-    active_connections: Dict[int, WebSocket] = {}
-    user_map: Dict[int, str] = {}
+    active_connections: Dict[str, WebSocket] = {}
+    user_map: Dict[str, str] = {}
     
-    async def connect(self, websocket: WebSocket, user: UserModel, receiver_id: int, db: Session):
+    async def connect(self, websocket: WebSocket, user: UserModel, receiver_id: str, db: Session):
         """Accepts WebSocket connection and stores the user."""
         
+        print(f"User {user.username} connecting to chat with receiver {receiver_id}")
         await websocket.accept()
         self.active_connections[user.id] = websocket
         
@@ -30,15 +31,13 @@ class ChatConsumer:
             del self.active_connections[user.id]
             return
 
-    async def disconnect(self, user_id: int):
+    async def disconnect(self, user_id: str):
         """Removes the user from active connections."""
         if user_id in self.active_connections:
             del self.active_connections[user_id]
-            print(f"User {user_id} disconnected.")
-        
         await self.notify_other_user_status(user_id, False)
 
-    async def receive_message(self, websocket: WebSocket, user_id: int, subject: str, db):
+    async def receive_message(self, websocket: WebSocket, user_id: str, subject: str, db):
         """Listens for messages, saves them, and forwards them to the receiver."""
         try:
             while True:
@@ -62,7 +61,7 @@ class ChatConsumer:
         except WebSocketDisconnect:
             await self.disconnect(user_id)
 
-    async def notify_other_user_status(self, user_id: int, is_online: bool):
+    async def notify_other_user_status(self, user_id: str, is_online: bool):
         """Send online/offline status to the counterpart only."""
         for other_user_id, conn in self.active_connections.items():
             if other_user_id != user_id:  # Only notify the other user

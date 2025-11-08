@@ -59,7 +59,7 @@ def create_entity(
 
 
 @router.get("/{user_id}", response_model=Entity)
-async def get_user_entity(user_id: int, db: Session = Depends(get_db)):
+async def get_user_entity(user_id: str, db: Session = Depends(get_db)):
     """Fetch the entity of the currently logged-in user (with Redis caching)."""
     cache_key = f"entity:{user_id}"
     cached_results = await redis_client.get(cache_key)
@@ -76,7 +76,7 @@ async def get_user_entity(user_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/{entity_id}")
 async def delete_entity(
-    entity_id: int,
+    entity_id: str,
     token: str = Depends(token_scheme),
     db: Session = Depends(get_db)
 ):

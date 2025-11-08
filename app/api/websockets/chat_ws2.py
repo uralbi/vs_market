@@ -12,13 +12,12 @@ router = APIRouter(
 chat_consumer = ChatConsumer()
 
 @router.websocket("/{receiverid}/{subject}")
-async def websocket_chat(websocket: WebSocket, receiverid: int, subject: str, db: Session = Depends(get_db)):
+async def websocket_chat(websocket: WebSocket, receiverid: str, subject: str, db: Session = Depends(get_db)):
     """WebSocket route that delegates connection handling to ChatConsumer."""
     if not receiverid:
         print('not receiver id')
         return
     token = websocket.query_params.get("token")
-
     if not token:
         await websocket.close(code=1008, reason="Missing token")
         return

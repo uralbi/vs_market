@@ -13,9 +13,27 @@ router = APIRouter(
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
+@router.post("/create_room")
+def create_chat_room(receiver_id: str = Query(..., description="ID of the user to chat with"), 
+                     subject: str = Query(..., description="Subject of the chat"), 
+                     token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """Create or get a chat room between the authenticated user and another user."""    
+    user = user_authorization(token, db)
+    if user.id == receiver_id:
+        raise HTTPException(status_code=400, detail="Cannot create chat room with yourself")
+    
+    chat_service = ChatService(db)
+    chat_room = chat_service.get_or_create_chat_room(user.id, receiver_id, subject)
+    
+    return {
+        "chat_room_id": chat_room.id,
+        # "user1_id": chat_room.user1_id,
+        # "user2_id": chat_room.user2_id,
+        # "subject": chat_room.subject
+    }
 
 @router.get("/counterpart")
-def get_other_user(token: str = Depends(token_scheme), room_id: int = Query(..., description="chat room id"), db: Session = Depends(get_db)):
+def get_other_user(token: str = Depends(token_scheme), room_id: str = Query(..., description="chat room id"), db: Session = Depends(get_db)):
     """
     Fetch the other user (counterpart) in a given chat room.
     """
@@ -28,7 +46,7 @@ def get_other_user(token: str = Depends(token_scheme), room_id: int = Query(...,
 
 
 @router.delete("/rooms/{chat_room_id}")
-def delete_chat_room(chat_room_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+def delete_chat_room(chat_room_id: str, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """
     Delete a chat room and all associated messages.
     """
@@ -48,8 +66,8 @@ def delete_chat_room(chat_room_id: int, token: str = Depends(token_scheme), db: 
 
 
 @router.get("/messages")
-def get_chat_history(room_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
-    """
+def get_chat_history(room_id: str, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+    """ß
     Fetch chat history between the authenticated user and another user.
     """
     user = user_authorization(token, db)

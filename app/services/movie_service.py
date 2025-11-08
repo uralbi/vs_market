@@ -8,7 +8,7 @@ class MovieService:
     def __init__(self, db: Session):
         self.repo = MovieRepository(db)
 
-    def create_movie(self, title: str, description: str, price: int, file_path: str, is_public: bool, owner_id: int):
+    def create_movie(self, title: str, description: str, price: int, file_path: str, is_public: bool, owner_id: str):
         """Create a new movie entry."""
         movie = MovieModel(
             title=title,
@@ -20,7 +20,7 @@ class MovieService:
         )
         return self.repo.create_movie(movie)
 
-    def get_movie_by_id(self, movie_id: int, user=None):
+    def get_movie_by_id(self, movie_id: str, user=None):
         """Retrieve a movie by ID. User object can be passed to get not public movies"""
         movie = self.repo.get_movie_by_id(movie_id)
         if not movie:
@@ -35,7 +35,7 @@ class MovieService:
         """Fetch paginated movies."""
         return self.repo.get_movies(limit, offset)
 
-    def delete_movie(self, movie_id: int, user_id: int):
+    def delete_movie(self, movie_id: str, user_id: str):
         """Delete a movie record."""
         
         movie = self.repo.get_movie_by_id(movie_id)

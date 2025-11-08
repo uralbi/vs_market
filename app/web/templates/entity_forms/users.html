@@ -108,7 +108,7 @@
                     <td>${user.username} 
 
                         <input class="w-50" type="text" id="chat_subject" required>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="openChatWithSubject(${user.id})">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="openChatWithSubject('${user.id}')">
                             <i class="bi bi-chat-left-text"></i>
                         </button>
 
@@ -119,12 +119,12 @@
                     <td>${new Date(user.created_at).toLocaleDateString()}</td>
                     <td>${user.is_active ? "✅" : "❌"}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deactivateUser(${user.id})">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deactivateUser('${user.id}')">
                             Deactivate
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="sendActivation(${user.id})">
+                        <button class="btn btn-sm btn-outline-primary" onclick="sendActivation('${user.id}')">
                             Activate
                         </button>
                     </td>

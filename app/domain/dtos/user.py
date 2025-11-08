@@ -14,7 +14,7 @@ class UserLoginDTO(BaseModel):
 
 
 class UserRoleDTO(BaseModel):
-    user_id: int
+    user_id: str
     user_role: str
     
     

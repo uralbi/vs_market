@@ -17,7 +17,7 @@ class MovieRepository:
         self.db.refresh(movie)
         return movie
 
-    def get_movie_by_id(self, movie_id: int):
+    def get_movie_by_id(self, movie_id: str):
         """Fetch a movie by its ID."""
         return self.db.query(MovieModel).filter(MovieModel.id == movie_id).first()
 
@@ -33,7 +33,7 @@ class MovieRepository:
             .all()
         )
 
-    def delete_movie(self, movie_id: int):
+    def delete_movie(self, movie_id: str):
         """Delete a movie record."""
         movie = self.get_movie_by_id(movie_id)
         if movie:
@@ -66,11 +66,11 @@ class MovieRepository:
         )
         return movies
     
-    def get_movie_progress(self, movie_id: int, user_id: int):
+    def get_movie_progress(self, movie_id: str, user_id: str):
         """Retrieve user's last watched progress for a movie."""
         return self.db.query(MovieViewModel).filter_by(movie_id=movie_id, user_id=user_id).first()
 
-    def save_movie_progress(self, movie_id: int, user_id: int, progress: int):
+    def save_movie_progress(self, movie_id: str, user_id: str, progress: int):
         """Save or update user's last watched progress."""
         view = self.get_movie_progress(movie_id, user_id)
         if view:
@@ -81,7 +81,7 @@ class MovieRepository:
         self.db.commit()
         return view
 
-    def update_movie_thumbnail(self, movie_id: int, thumbnail_path: str):
+    def update_movie_thumbnail(self, movie_id: str, thumbnail_path: str):
         """
         Update the movie's thumbnail path in the database.
         """
@@ -91,11 +91,11 @@ class MovieRepository:
             self.db.commit()
             self.db.refresh(movie)
             
-    def get_user_movies(self, user_id: int):
+    def get_user_movies(self, user_id: str):
         """ Get user's movies """
         return self.db.query(MovieModel).filter(MovieModel.owner_id == user_id).all()
 
-    def update_movie(self, movie_id: int, update_data: dict):
+    def update_movie(self, movie_id: str, update_data: dict):
         """
         Dynamically update a movie's details using a dictionary.
         """

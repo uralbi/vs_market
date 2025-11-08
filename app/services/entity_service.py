@@ -43,7 +43,7 @@ class EntityService:
     def get_entity_by_user_id(self, user_id) -> EntityModel:
         return self.entity_repo.get_entity_by_user_id(user_id)
     
-    def delete_entity(self, user, entity_id: int) -> dict:
+    def delete_entity(self, user, entity_id: str) -> dict:
         """ Delete an entity. Only the entity owner can delete it. """
         
         entity = self.entity_repo.get_entity_by_id(entity_id)

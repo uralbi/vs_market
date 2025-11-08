@@ -53,7 +53,9 @@ async function InitializeChat(room_id, access_token){
         } else {
         back_host = 'ai-ber.com'
         }
-
+    
+    console.log("Connecting to chat with:", user2Id, subject)
+    
     recieverId = user2Id;
     
     socket = new WebSocket(`${ws_scheme}://${back_host}/ws/v2/chat/${recieverId}/${subject}?token=${encodeURIComponent(access_token)}`);
@@ -98,7 +100,7 @@ function sendMessage() {
     }
 
     const messageData = {
-        receiver_id: parseInt(user2Id),
+        receiver_id: user2Id,
         message: messageInput.value
     };
 

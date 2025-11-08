@@ -15,17 +15,17 @@ class ProductCreateDTO(BaseModel):
     
     
 class ProductDTO(ProductCreateDTO):
-    id: int
+    id: str
     created_at: datetime
-    owner_id: int
+    owner_id: str
 
     class Config:
         from_attributes = True
 
 
 class ProductImageDTO(BaseModel):
-    id: int
-    product_id: int
+    id: str
+    product_id: str
     image_url: HttpUrl
 
     class Config:

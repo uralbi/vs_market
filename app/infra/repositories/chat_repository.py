@@ -10,7 +10,7 @@ class ChatRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_or_create_chat_room(self, user1_id: int, user2_id: int, subject: str) -> ChatRoom:
+    def get_or_create_chat_room(self, user1_id: str, user2_id: str, subject: str) -> ChatRoom:
         """Retrieve an existing chat room between two users or create a new one."""
         chat_room = (
             self.db.query(ChatRoom)
@@ -31,7 +31,7 @@ class ChatRepository:
         self.db.refresh(chat_room)
         return chat_room
 
-    def save_message(self, chat_room_id: int, sender_id: int, content: str) -> Message:
+    def save_message(self, chat_room_id: str, sender_id: str, content: str) -> Message:
         """Save a new message in the chat room."""
         message = Message(chat_room_id=chat_room_id, sender_id=sender_id, content=content, timestamp=datetime.utcnow())
         self.db.add(message)
@@ -39,14 +39,14 @@ class ChatRepository:
         self.db.refresh(message)
         return message
 
-    def save_and_mark_messages_as_read(self, chat_room_id: int, user_id:int, message_content: str):
+    def save_and_mark_messages_as_read(self, chat_room_id: str, user_id:str, message_content: str):
         message = Message(chat_room_id=chat_room_id, sender_id=user_id, content=message_content, timestamp=datetime.utcnow())
         message.is_read = True
         self.db.add(message)
         self.db.commit()
         self.db.refresh(message)
         
-    def get_chat_history(self, chat_room_id: int):
+    def get_chat_history(self, chat_room_id: str):
         """
         Retrieve all messages from a specific chat room.
         """
@@ -63,7 +63,7 @@ class ChatRepository:
             .all()
         )
 
-    def get_user_chat_rooms(self, user_id: int):
+    def get_user_chat_rooms(self, user_id: str):
         """
         Fetch all chat rooms where the user is a participant.
         Also, check if the chat room contains unread messages for the user.
@@ -109,7 +109,7 @@ class ChatRepository:
                     for room in chat_rooms
                 ]
     
-    def get_chat_room_by_id(self, chat_room_id: int):
+    def get_chat_room_by_id(self, chat_room_id: str):
         """Fetch a chat room by ID"""
         return self.db.query(ChatRoom).filter(ChatRoom.id == chat_room_id).first()
 
@@ -118,7 +118,7 @@ class ChatRepository:
         self.db.delete(chat_room)
         self.db.commit()
     
-    def mark_messages_as_read(self, user_id: int, chat_room_ids: List[int]):
+    def mark_messages_as_read(self, user_id: str, chat_room_ids: List[str]):
         """
         Mark all unread messages in chat rooms as read for the authenticated user.
         """
@@ -133,7 +133,7 @@ class ChatRepository:
 
         self.db.commit()
     
-    def get_other_user_id(self, room_id: int, user_id: int) -> int:
+    def get_other_user_id(self, room_id: str, user_id: str) -> str:
         """Finds the other user in the chat room"""
         chat_room = self.db.query(ChatRoom).filter(ChatRoom.id == room_id).first()
 
@@ -142,7 +142,7 @@ class ChatRepository:
 
         return chat_room.user2_id if chat_room.user1_id == user_id else chat_room.user1_id
     
-    def get_unread_chat_rooms(self, user_id: int) -> int:
+    def get_unread_chat_rooms(self, user_id: str) -> str:
         """
         Count chat rooms where the user has unread messages.
         """

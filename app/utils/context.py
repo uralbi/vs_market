@@ -49,7 +49,7 @@ def global_context(request: Request, response: Response, db: Session = Depends(g
         my_chrooms = chat_service.get_user_chat_rooms(user.id)
         count = sum(1 for r in my_chrooms if r['has_unread_messages'])
         room_ids = [{"room_id":i["chat_room_id"], "username": i["other_user_username"]} for i in my_chrooms if i["has_unread_messages"]]
-        last_message = [chat_service.get_chat_history(int(i["room_id"]), user.id) for i in room_ids]
+        last_message = [chat_service.get_chat_history(i["room_id"], user.id) for i in room_ids]
         if room_ids:
             for rids, lmsg in zip(room_ids, last_message):
                 messages = []

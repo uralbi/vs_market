@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, Foreign
                         Text, Float, Table, Index, UniqueConstraint, Computed
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
+import ulid
 from passlib.context import CryptContext
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from datetime import datetime
@@ -26,7 +27,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class MovieModel(Base):
     __tablename__ = "movies"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
     title = Column(String(255), nullable=False, index=True, unique=True)
     description = Column(Text, nullable=True)
     file_path = Column(String(500), nullable=False)             # Path to the actual video file
@@ -35,7 +36,7 @@ class MovieModel(Base):
     is_public = Column(Boolean, default=True, nullable=False)   
     created_at = Column(DateTime, default=datetime.utcnow)
     price = Column(Float, nullable=False, default=100)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner_id = Column(String(26), ForeignKey("users.id"), nullable=False)
     owner = relationship("UserModel", back_populates="movies")
 
     views = relationship("MovieViewModel", back_populates="movie", cascade="all, delete-orphan")
@@ -61,9 +62,9 @@ class MovieModel(Base):
 class OrderModel(Base):
     __tablename__ = "orders"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    user_id = Column(String(26), ForeignKey("users.id"), nullable=False)
+    movie_id = Column(String(26), ForeignKey("movies.id"), nullable=False)
     status = Column(ENUM(OrderStatusEnum, name="order_status"), default=OrderStatusEnum.PENDING, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -74,9 +75,9 @@ class OrderModel(Base):
 class MovieViewModel(Base):
     __tablename__ = "movie_views"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who watched
-    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie being watched
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    user_id = Column(String(26), ForeignKey("users.id"), nullable=False)  # User who watched
+    movie_id = Column(String(26), ForeignKey("movies.id"), nullable=False)  # Movie being watched
     watched_at = Column(DateTime, default=datetime.utcnow)  # Timestamp of watch
     progress = Column(Float, default=0)  # Last watched time in seconds
 
@@ -86,9 +87,9 @@ class MovieViewModel(Base):
 class MovieCommentModel(Base):
     __tablename__ = "movie_comments"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Commenting user
-    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    user_id = Column(String(26), ForeignKey("users.id"), nullable=False)  # Commenting user
+    movie_id = Column(String(26), ForeignKey("movies.id"), nullable=False)  # Movie
     content = Column(Text, nullable=False)  # Comment content
     posted_at = Column(DateTime, default=datetime.utcnow)  # Timestamp
 
@@ -98,8 +99,8 @@ class MovieCommentModel(Base):
 class MovieSubtitleModel(Base):
     __tablename__ = "movie_subtitles"
 
-    id = Column(Integer, primary_key=True, index=True)
-    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Movie
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    movie_id = Column(String(26), ForeignKey("movies.id"), nullable=False)  # Movie
     language = Column(String(50), nullable=False)  # Language (e.g., "English", "Spanish")
     file_path = Column(String(500), nullable=False)  # Subtitle file path
 
@@ -109,9 +110,9 @@ class MovieSubtitleModel(Base):
 class MovieLikeModel(Base):
     __tablename__ = "movie_likes"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # User who liked
-    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)  # Liked movie
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    user_id = Column(String(26), ForeignKey("users.id"), nullable=False)  # User who liked
+    movie_id = Column(String(26), ForeignKey("movies.id"), nullable=False)  # Liked movie
     liked_at = Column(DateTime, default=datetime.utcnow)  # Timestamp
 
     movie = relationship("MovieModel", back_populates="likes")
@@ -120,10 +121,10 @@ class MovieLikeModel(Base):
 class ChatRoom(Base):
     __tablename__ = "chat_rooms"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
     subject = Column(String(255), nullable=True)
-    user1_id = Column(Integer, ForeignKey("users.id"))
-    user2_id = Column(Integer, ForeignKey("users.id"))
+    user1_id = Column(String(26), ForeignKey("users.id"))
+    user2_id = Column(String(26), ForeignKey("users.id"))
 
     user1 = relationship("UserModel", foreign_keys=[user1_id])
     user2 = relationship("UserModel", foreign_keys=[user2_id])
@@ -133,9 +134,9 @@ class ChatRoom(Base):
 class Message(Base):
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True, index=True)
-    chat_room_id = Column(Integer, ForeignKey("chat_rooms.id"))
-    sender_id = Column(Integer, ForeignKey("users.id"))
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    chat_room_id = Column(String(26), ForeignKey("chat_rooms.id"))
+    sender_id = Column(String(26), ForeignKey("users.id"))
     content = Column(Text, nullable=False)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     is_read = Column(Boolean, default=False)
@@ -148,14 +149,14 @@ class Message(Base):
 favorites_table = Table(
     "favorites",
     Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
-    Column("product_id", Integer, ForeignKey("products.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", String(26), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column("product_id", String(26), ForeignKey("products.id", ondelete="CASCADE"), primary_key=True),
 )
 
 class UserModel(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -181,11 +182,11 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-class EntityModel(Base):
+class EntityModel(Base):    
     __tablename__ = "entities"
     
-    id = Column(Integer, primary_key=True, index=True)
-    creator_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    creator_id = Column(String(26), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     entity_name = Column(String, unique=True, index=True, nullable=False)
     entity_phone = Column(String(20), unique=True, nullable=False)
     entity_address = Column(String, unique=False, nullable=True)
@@ -198,7 +199,8 @@ class EntityModel(Base):
 class ProductModel(Base):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=False)
     price = Column(Float, nullable=False)
@@ -206,14 +208,13 @@ class ProductModel(Base):
     category = Column(String(100), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     activated = Column(Boolean, default=True, nullable=False, index=True)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner_id = Column(String(26), ForeignKey("users.id"), nullable=False)
     owner = relationship("UserModel", back_populates="products")
 
     # One-to-Many Relationship with Images
     images = relationship("ProductImageModel", back_populates="product", cascade="all, delete")
 
     favorited_by = relationship("UserModel", secondary=favorites_table, back_populates="favorite_products")
-
     search_vector = Column(
         TSVECTOR,
         Computed(
@@ -237,8 +238,8 @@ class ProductModel(Base):
 class ProductImageModel(Base):
     __tablename__ = "product_images"
 
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(String(26), primary_key=True, default=lambda: str(ulid.new()), index=True)
+    product_id = Column(String(26), ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
     image_url = Column(String(500), nullable=False)
 
     product = relationship("ProductModel", back_populates="images")

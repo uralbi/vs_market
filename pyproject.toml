@@ -34,6 +34,7 @@ dependencies = [
     "pillow (>=11.1.0,<12.0.0)",
     "confluent-kafka (>=2.8.0,<3.0.0)",
     "edge-tts (>=7.0.0,<8.0.0)",
+    "ulid-py (>=1.1.0,<2.0.0)",
 ]
 
 

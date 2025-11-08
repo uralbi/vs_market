@@ -30,7 +30,7 @@ def get_favorite_products(token: str = Depends(token_scheme), db: Session = Depe
 
 
 @router.post("/{product_id}")
-def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+def add_to_favorites(product_id: str, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """Allow a user to add a product to their favorites"""
     
     user = user_authorization(token, db)
@@ -53,7 +53,7 @@ def add_to_favorites(product_id: int, token: str = Depends(token_scheme), db: Se
 
 
 @router.delete("/{product_id}")
-def remove_from_favorites(product_id: int, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
+def remove_from_favorites(product_id: str, token: str = Depends(token_scheme), db: Session = Depends(get_db)):
     """Allow a user to remove a product from their favorites"""
     user = user_authorization(token, db)
     
