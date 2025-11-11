@@ -55,7 +55,7 @@ async def generate_audio(request: TextRequest):
 async def search_products(
     db: Session = Depends(get_db),
     query: str = Query(..., min_length=2, description="Search query"),
-    limit: int = 100,
+    limit: int = 40,
     offset: int = 0,
 ):
     """
@@ -173,7 +173,7 @@ async def create_product(
     return new_product
 
 @router.get("/mylist", response_model=List[ProductDTO])
-def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
+def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depends(get_db), limit: int = 40, offset: int = 0):
     """
     Get a list of products, sorted by latest first.
     """
@@ -182,7 +182,7 @@ def get_products_my_list(token: str = Depends(token_scheme), db: Session = Depen
     return product_service.get_user_products(user.id, limit, offset)
 
 @router.get("/list", response_model=List[ProductDTO])
-async def get_products_list(db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
+async def get_products_list(db: Session = Depends(get_db), limit: int = 40, offset: int = 0):
     """
     Get a list of recent products.
     """
