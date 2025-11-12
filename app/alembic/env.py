@@ -15,8 +15,8 @@ config = context.config
 
 pgpass = os.getenv("POSTGRES_PASSWORD")
 pguser = os.getenv("POSTGRES_USER")
-
-DB_URL = f'postgresql://{pguser}:{pgpass}@127.0.0.1:5433/Market'
+pg_port = os.getenv("DB_PORT")
+DB_URL = f'postgresql://{pguser}:{pgpass}@127.0.0.1:{pg_port}/Market'
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
