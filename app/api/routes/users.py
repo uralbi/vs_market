@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response, status
+from fastapi import APIRouter, Depends, Query, HTTPException, Security, Response, status, Request
 from app.services.user_service import UserService
 from app.infra.database.db import get_db
 from app.domain.dtos.user import UserRegistrationDTO, UserLoginDTO, ChangePasswordDTO, UpdateEmailDTO, UpdateUsernameDTO
@@ -20,6 +20,35 @@ router = APIRouter(
 )
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+@router.get("/activated", name="activation_page")
+def activation_page(request: Request, db: Session = Depends(get_db)):
+    """Serve the activation confirmation page."""
+    token = request.query_params.get("token")
+    if not token:
+        return {"title": "Aiber Auth", "status": "Отсутствует код активации"}
+
+    try:
+        payload = decode_access_token(token)
+        email = payload.get("sub")
+    except Exception:
+        return {"title": "Aiber Auth", "status": "Неверный код активации"}
+
+    if not email:
+        return {"title": "Aiber Auth", "status": "Неверный код активации"}
+
+    user_service = UserService(db)
+    user = user_service.get_user_by_email(email)
+    if not user:
+        return {"title": "Aiber Auth", "status": "Аккаунт не найден"}
+
+    if user.is_active:
+        return {"title": "Aiber Auth", "status": "Эл. почта уже была подтверждена, вы активированы"}
+
+    user.is_active = True
+    db.commit()
+    return {"title": "Aiber Auth", "status": "Ваш аккаунт активирован"}
+
 
 @router.post("/deactivate")
 def deactivate(token: str = Depends(token_scheme), db: Session = Depends(get_db)):
