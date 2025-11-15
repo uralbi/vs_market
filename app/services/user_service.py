@@ -110,7 +110,7 @@ class UserService:
         
     def send_activation_email(self, email: str):
         acc_token = create_access_token({"sub": email})
-        verification_link = f"{settings.DOMAIN}/activated?token={acc_token}"
+        verification_link = f"{settings.DOMAIN}/api/auth/activated?token={acc_token}"
         send_verification_email.delay(email, verification_link)
     
     def get_favorites(self, user_id: int) -> List[ProductDTO]:
