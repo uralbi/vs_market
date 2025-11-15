@@ -7,7 +7,7 @@ from app.domain.security.auth_user import user_authorization
 from fastapi.security import OAuth2PasswordBearer
 
 router = APIRouter(
-        prefix='/chat',
+        prefix='/api/chat',
         tags=['Chat']
     )
 

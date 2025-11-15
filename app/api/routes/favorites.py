@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 
 router = APIRouter(
-    prefix="/favs",
+    prefix="/api/favs",
     tags=["Favorites"]
 )
 
