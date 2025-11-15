@@ -2,7 +2,7 @@ from PIL import Image
 from io import BytesIO
 import uuid
 import os
-
+from datetime import datetime
 
 WIDTH, HEIGHT = 600, 600  # Max size
 
@@ -11,6 +11,11 @@ def preprocess_image(image, UPLOAD_FOLDER = "app/web/static/uploads/", filename=
         Returns same folder path with uuid name.
         Processes an image (resize, crop, and convert to WEBP).
     """
+    now = datetime.now()
+    year, month = str(now.year), f"{now.month:02d}"
+    folder_path = os.path.join(UPLOAD_FOLDER, year, month)
+    os.makedirs(folder_path, exist_ok=True)
+
     if type(image) != str:
         img = Image.open(image.file)
     else:
@@ -41,7 +46,7 @@ def preprocess_image(image, UPLOAD_FOLDER = "app/web/static/uploads/", filename=
         new_img_filename = f"{uuid.uuid4().hex}.webp"
     else:
         new_img_filename = filename
-    save_path = os.path.join(UPLOAD_FOLDER, new_img_filename)
+    save_path = os.path.join(folder_path, new_img_filename)
 
     with open(save_path, "wb") as f:
         f.write(buffer.getbuffer())
