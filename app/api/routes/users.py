@@ -195,7 +195,6 @@ async def get_all_user(
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     token: str = Security(token_scheme), 
     db: Session = Depends(get_db)):
-    
     user = user_authorization(token, db)
 
     if not user or user.role != 'ADMIN':
@@ -210,7 +209,7 @@ async def read_current_user(token: str = Security(token_scheme), db: Session = D
     user = user_authorization(token, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"username": user.username, "email": user.email, "is_active": user.is_active, "user_id": user.id}
+    return {"username": user.username, "email": user.email, "is_active": user.is_active, "user_id": user.id, 'role': user.role}
 
 
 class RefreshTokenRequest(BaseModel):
