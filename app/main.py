@@ -49,7 +49,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 app.mount("/media", StaticFiles(directory="media/movies/thumbs"), name="media")
 
-@app.get("/play-audio/{filename}")
+@app.get("/api/play-audio/{filename}")
 async def serve_audio(filename: str, request: Request):
     """
     Serve audio files for playback but block direct downloads.

@@ -48,7 +48,7 @@ async def generate_audio(request: TextRequest):
     folder_path = "app/web/static/mp3"
     folder_file = os.path.join(folder_path, filename)
     file_path = await sp.playtext(prod_text, folder_file)
-    file_url = f"/play-audio/{filename}"
+    file_url = f"api/play-audio/{filename}"
     return JSONResponse(content={"audio_url": file_url})
 
 @router.get("/search", response_model=List[ProductDTO])
