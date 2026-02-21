@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Request, HTTPException, Response
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.api.routes import users, entiities, products, favorites, chat, video
 from app.api.websockets import chat_ws2
@@ -48,17 +47,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 app.mount("/media", StaticFiles(directory="media/movies/thumbs"), name="media")
-
-@app.get("/api/play-audio/{filename}")
-async def serve_audio(filename: str):
-    """
-    Serve audio files for playback.
-    """
-    file_path = f"app/web/static/mp3/{filename}"
-    return FileResponse(file_path, media_type="audio/mpeg", filename=filename, headers={
-        "Content-Disposition": "inline",
-        "Cache-Control": "no-store"
-    })
+app.mount("/api/play-audio", StaticFiles(directory="app/web/static/mp3"), name="audio")
 
 
 app.include_router(video.router)

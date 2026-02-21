@@ -4,8 +4,10 @@ import asyncio, os
 class TT:
     async def playtext(self, text: str, full_filename):
         
-        if os.path.exists(full_filename):
+        if os.path.exists(full_filename) and os.path.getsize(full_filename) > 0:
             return full_filename
+        elif os.path.exists(full_filename):
+            os.remove(full_filename)
         voice = "ru-RU-DmitryNeural"
         communicate = edge_tts.Communicate(text, voice)
         await communicate.save(full_filename)
