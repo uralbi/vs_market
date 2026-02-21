@@ -12,7 +12,6 @@ from app.infra.kafka.kafka_producer import send_kafka_message
 from app.infra.redis_fld.redis_config import redis_client
 from app.utils.speach import TT
 import asyncio, json, os
-from fastapi.responses import FileResponse
 from app.domain.security.auth_user import user_authorization
 from pydantic import BaseModel
 import logging
@@ -31,6 +30,12 @@ router = APIRouter(
 
 token_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
+
+async def _invalidate_product_list_cache():
+    keys = await redis_client.keys("products:list:*")
+    if keys:
+        await redis_client.delete(*keys)
+
 class TextRequest(BaseModel):
     product_id: str
     product_text: str
@@ -47,7 +52,7 @@ async def generate_audio(request: TextRequest):
     filename = f"{request.product_id}_descr.mp3"
     folder_path = "app/web/static/mp3"
     folder_file = os.path.join(folder_path, filename)
-    file_path = await sp.playtext(prod_text, folder_file)
+    await sp.playtext(prod_text, folder_file)
     file_url = f"api/play-audio/{filename}"
     return JSONResponse(content={"audio_url": file_url})
 
@@ -62,9 +67,6 @@ async def search_products(
     Search products by name, description, and category using Full-Text Search.
     """
 
-    if len(query) < 2:
-        raise HTTPException(status_code=400, detail="Search term must be more then 2 characters")
-    
     # send_kafka_message(
     #     topic="product_search",
     #     key="search",
@@ -128,7 +130,7 @@ async def delete_product(
     # Delete product images in product service
     # Delete product from database
     product_service.delete_product(product_id, user)
-
+    await _invalidate_product_list_cache()
     return {"message": "Product deleted successfully"}
 
 @router.post("/create", response_model=ProductDTO)
@@ -162,14 +164,15 @@ async def create_product(
     new_product = product_service.create_product(user.email, product_data)
     
     img_service = ImageService()
-    if images and len(images) > 0:
-        image_urls = [await img_service.process_and_store_image(image) for image in images] # Process and store images
-        product_service.add_images_to_product(new_product.id, image_urls) # Associate images with product
+    if images:
+        image_urls = list(await asyncio.gather(*[img_service.process_and_store_image(image) for image in images]))
+        product_service.add_images_to_product(new_product.id, image_urls)
     else:
         default_img = os.path.abspath("app/web/static/icons/no_image.webp")
         image_urls = [await img_service.process_and_store_image(default_img)]
         product_service.add_images_to_product(new_product.id, image_urls)
-        
+
+    await _invalidate_product_list_cache()
     return new_product
 
 @router.get("/mylist", response_model=List[ProductDTO])
@@ -236,57 +239,60 @@ async def update_product(
 
     if images:
         image_service = ImageService()
-        new_image_urls = [await image_service.process_and_store_image(image) for image in images[:10]]
+        new_image_urls = list(await asyncio.gather(*[image_service.process_and_store_image(image) for image in images[:10]]))
         product_service.update_product_images(product_id, new_image_urls, keep_existing_images)
-    
+
     if not activated:
         fav_service = FavService(db)
         fav_service.remove_from_favs(product_id)
     
     updated_product = product_service.update_product(product_id, user, updated_data)
-
+    await _invalidate_product_list_cache()
     return updated_product
 
 @router.get("/{product_id}", response_model=dict)
-async def get_product(product_id: str, request: Request, db: Session = Depends(get_db), query: str = Query(None) ):
+async def get_product(product_id: str, request: Request, db: Session = Depends(get_db), query: str = Query(None)):
     """Fetch product details by ID."""
     product = None
     cached_data = None
-    token = request.headers.get("Authorization").replace("Bearer ", "")
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
     user = None
-    if token != 'null':
+    if token and token != 'null':
         try:
             user = user_authorization(token, db)
         except Exception as e:
             logger.info(f"Trying get product detail with invalid token, Error: {e}")
             user = None
+
+    product_service = ProductService(db)
+
     if query:
         cache_key = f"search:{query.lower()}:100:0"
         cached_results = await redis_client.get(cache_key)
         if cached_results:
             cached_data = json.loads(cached_results)
-            if str(product_id) in cached_data:
-                product = ProductDTO(**cached_data[str(product_id)])
-    
+            product_dict = next((p for p in cached_data if str(p.get("id")) == str(product_id)), None)
+            if product_dict:
+                product = ProductDTO(**product_dict)
+
     if not product:
-        product_service = ProductService(db)
         product_model = product_service.get_product_by_id(product_id, user)
         if not product_model:
             raise HTTPException(status_code=404, detail="Product not found")
         product = ProductDTO.model_validate(product_model)
         product.image_urls = [img.image_url for img in product_model.images]
-        
+
     if not cached_data:
         category_items = product_service.get_items_category(product.category)
-        cache_key = f"search:{query.lower()}:{100}:{0}"        
+        cache_key = f"search:{query.lower()}:100:0" if query else f"category:{product.category}:100:0"
         serialized_results = [r.model_dump(mode="json") for r in category_items]
         await redis_client.setex(cache_key, 1800, json.dumps(serialized_results))
         cached_data = serialized_results
-        
+
     return {"product": product.model_dump(), "cached_data": cached_data}
 
 @router.post("/my/{product_id}", response_model=ProductDTO)
-def get_product(product_id: str, db: Session = Depends(get_db), token: str = Depends(token_scheme),):
+def get_my_product(product_id: str, db: Session = Depends(get_db), token: str = Depends(token_scheme),):
     """Fetch product details by ID."""
     user = user_authorization(token, db)
     product_service = ProductService(db)
