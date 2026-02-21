@@ -47,7 +47,6 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 app.mount("/media", StaticFiles(directory="media/movies/thumbs"), name="media")
-app.mount("/api/play-audio", StaticFiles(directory="app/web/static/mp3"), name="audio")
 
 
 app.include_router(video.router)
