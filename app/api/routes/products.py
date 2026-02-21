@@ -52,8 +52,12 @@ async def generate_audio(request: TextRequest):
     filename = f"{request.product_id}_descr.mp3"
     folder_path = "app/web/static/mp3"
     folder_file = os.path.join(folder_path, filename)
-    await sp.playtext(prod_text, folder_file)
-    file_url = f"api/play-audio/{filename}"
+    try:
+        await sp.playtext(prod_text, folder_file)
+    except Exception as e:
+        logger.error(f"TTS generation failed for product {request.product_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"TTS failed: {str(e)}")
+    file_url = f"/api/play-audio/{filename}"
     return JSONResponse(content={"audio_url": file_url})
 
 @router.get("/search", response_model=List[ProductDTO])
