@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException, Response
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.api.routes import users, entiities, products, favorites, chat, video
 from app.api.websockets import chat_ws2
@@ -9,7 +10,8 @@ from contextlib import asynccontextmanager
 from app.infra.redis_fld.redis_config import set_eviction_policy
 from dotenv import load_dotenv
 from app.core.config import settings
-import logging, os
+import logging
+import os
 import logging.config
 
 logging.config.dictConfig(settings.LOGGING)
@@ -47,6 +49,13 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 app.mount("/media", StaticFiles(directory="media/movies/thumbs"), name="media")
+
+@app.get("/api/play-audio/{filename}")
+async def serve_audio(filename: str):
+    file_path = f"app/web/static/mp3/{filename}"
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    return FileResponse(file_path, media_type="audio/mpeg", headers={"Content-Disposition": "inline"})
 
 
 app.include_router(video.router)
