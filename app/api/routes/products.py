@@ -57,7 +57,7 @@ async def generate_audio(request: TextRequest):
     except Exception as e:
         logger.error(f"TTS generation failed for product {request.product_id}: {e}")
         raise HTTPException(status_code=500, detail=f"TTS failed: {str(e)}")
-    file_url = f"/api/play-audio/{filename}"
+    file_url = f"api/play-audio/{filename}"
     return JSONResponse(content={"audio_url": file_url})
 
 @router.get("/search", response_model=List[ProductDTO])
