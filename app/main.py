@@ -50,17 +50,13 @@ app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 app.mount("/media", StaticFiles(directory="media/movies/thumbs"), name="media")
 
 @app.get("/api/play-audio/{filename}")
-async def serve_audio(filename: str, request: Request):
+async def serve_audio(filename: str):
     """
-    Serve audio files for playback but block direct downloads.
+    Serve audio files for playback.
     """
     file_path = f"app/web/static/mp3/{filename}"
-    referer = request.headers.get("referer")
-    if not referer:  
-        raise HTTPException(status_code=403, detail="Access denied")
-
     return FileResponse(file_path, media_type="audio/mpeg", filename=filename, headers={
-        "Content-Disposition": "inline",  # Prevents forcing download
+        "Content-Disposition": "inline",
         "Cache-Control": "no-store"
     })
 
